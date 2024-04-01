@@ -1,0 +1,8 @@
+.DS_Store
+.build/
+.swiftpm/
+.vscode/
+.devcontainer/
+/Packages
+xcuserdata/
+Package.resolved
