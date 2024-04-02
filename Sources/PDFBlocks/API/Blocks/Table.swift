@@ -21,8 +21,8 @@ public struct Table<Row>: MultipageBlock {
 
     public init(
         data: [Row],
-        printTableHeader: PrintWhen,
-        printPageHeader: PrintWhen,
+        printTableHeader: PrintWhen = .always,
+        printPageHeader: PrintWhen = .never,
         @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
@@ -42,8 +42,8 @@ public struct Table<Row>: MultipageBlock {
 
     public init(
         data: [Row],
-        printTableHeader: PrintWhen,
-        printPageHeader: PrintWhen,
+        printTableHeader: PrintWhen = .always,
+        printPageHeader: PrintWhen = .never,
         @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
