@@ -19,7 +19,6 @@ private struct Data: Decodable {
 
 
 private struct TableExample: Block {
-    
     var body: some Block {
         Table(data: loadData(Data.self, from: customerData)) {
             TableColumn("Last Name", value: \.lastName, width: 20, alignment: .leading)
@@ -44,18 +43,18 @@ private struct TableExample: Block {
 
         }
     }
-    
-    func stateName(abberviation: String) -> String {
-        switch abberviation {
-        case "CA":
-            return "California"
-        case "NY":
-            return "New York"
-        case "TX":
-            return "Texas"
-        default:
-            return "Unknown"
-        }
+}
+
+private func stateName(abberviation: String) -> String {
+    switch abberviation {
+    case "CA":
+        return "California"
+    case "NY":
+        return "New York"
+    case "TX":
+        return "Texas"
+    default:
+        return "Unknown"
     }
 }
 

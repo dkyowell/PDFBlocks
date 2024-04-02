@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="Documentation/logo.png" width="400" max-width="50%" alt=“PDF Blocks” />
+    <img src="Documentation/logo.png" width="400" max-width="50%" alt=“PDFBlocks” />
 </p>
 <p align="center">
     <img src="https://img.shields.io/badge/swift-5.9-orange.svg" />
@@ -7,10 +7,10 @@
     <img src="https://img.shields.io/badge/platforms-macOS+iOS-brightgreen.svg?style=flat" alt="Mac + iOS" />
 </p>
 
-A framework for generating PDFs with a SwiftUI like syntax.
+A framework for generating reports and other PDF documents with a SwiftUI like syntax.
 ##  Write page descriptions, not procedural code.
-PDF Blocks provides an easy-to-use declarative language for describing document layout that is modeled after SwiftUI.
-Here is the code used to generate the PDF Blocks logo used at the top of this document:
+PDFBlocks provides an easy-to-use declarative language for describing document layout that is modeled after SwiftUI.
+Here is the code used to generate the PDFBlocks logo used at the top of this document:
 
 ```swift
 struct Logo: Block {
@@ -44,6 +44,40 @@ struct LetterBlock: Block {
     }
 }
 ```
+## Configurable but easy to write reports.
+The Table component takes advantage of Swift result builders, key paths, and format styles to allow you to create reports that
+practically write themselves with autocomplete.
+```swift
+private struct TableExample: Block {    
+    var body: some Block {
+        Table(data: loadData(Data.self, from: customerData)) {
+            TableColumn("Last Name", value: \.lastName, width: 20, alignment: .leading)
+            TableColumn("First Name", value: \.firstName, width: 20, alignment: .leading)
+            TableColumn("Address", value: \.address, width: 35, alignment: .leading)
+            TableColumn("City", value: \.city, width: 25, alignment: .leading)
+            TableColumn("State", value: \.state, width: 10, alignment: .leading)
+            TableColumn("Zip", value: \.zip, width: 10, alignment: .leading)
+            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
+        } groups: {
+            TableGroup(on: \.state, order: <, spacing: .pt(12)) { rows, value in
+                Text(stateName(abberviation: value))
+                    .font(size: 14)
+                    .emphasized()
+            } footer: { rows, value in
+                HLine()
+                    .padding(vertical: .pt(2))
+                Text("\(rows.count) records for \(stateName(abberviation: value))")
+                    .emphasized()
+                    .padding(leading: .max)
+            }
+
+        }
+    }
+}
+```
+<p align="center">
+    <img src="Documentation/table-image.png" width="600" max-width="75%" alt=“Table Image” />
+</p>
 
 ## Rendering Documents
 To render a document from the preceeding code:
@@ -81,7 +115,7 @@ import PDFBlocks
 
 ## Constructing Documents
 ### Blocks
-A Document is a Block. A Page is a Block. Text is a Block. Everything you will write in PDF Blocks is a Block 
+A Document is a Block. A Page is a Block. Text is a Block. Everything you will write in PDFBlocks is a Block 
 composed of other blocks. For those familiar with SwiftUI, a Block is directly analagous to a View in SwiftUI.
 
 Basic built-in blocks include Text, Image, Color, HLine, VStack, HStack, ZStack, Page, and Table. 
@@ -117,8 +151,6 @@ struct Document: Block {
 }
 let data = Document().renderPDF()
 ```
-### Tables
-A Table is a powerful component for composing data-driven reports. See Examples/Report.swift for a demonstration.
 ## SwiftUI Inspired but not a Clone
 ### Units
 Sizes need to be specified in points (.pt), inches (.in), or milimeters (.mm). 
