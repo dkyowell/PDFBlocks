@@ -30,14 +30,14 @@ private struct TableExample: Block {
             TableColumn("Zip", value: \.zip, width: 10, alignment: .leading)
             TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
         } groups: {
-            TableGroup(on: \.state, order: <, spacing: .pt(12)) { rows, row in
-                Text(stateName(abberviation: row.state))
+            TableGroup(on: \.state, order: <, spacing: .pt(12)) { rows, value in
+                Text(stateName(abberviation: value))
                     .font(size: 14)
                     .emphasized()
-            } footer: { rows, row in
+            } footer: { rows, value in
                 HLine()
                     .padding(vertical: .pt(2))
-                Text("\(rows.count) records for \(stateName(abberviation: row.state))")
+                Text("\(rows.count) records for \(stateName(abberviation: value))")
                     .emphasized()
                     .padding(leading: .max)
             }

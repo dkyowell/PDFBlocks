@@ -52,13 +52,13 @@ extension Table: Renderable {
 
 extension TableGroupContent {
     func render(data: [Row], onPrintRow: (Row) -> Void, context: Context, environment: EnvironmentValues) {
-        let dict = [Group: [Row]].init(grouping: data, by: { $0[keyPath: value] })
+        let dict = [Value: [Row]].init(grouping: data, by: { $0[keyPath: value] })
         for (offset, key) in dict.keys.sorted(by: order).enumerated() {
             if let data = dict[key], let first = data.first {
                 if offset > 0 {
                     context.advanceMultipageCursor(spacing.points)
                 }
-                context.renderMultipageContent(block: header(data, first), environment: environment)
+                context.renderMultipageContent(block: header(data, first[keyPath: value]), environment: environment)
                 if let nextGroup {
                     nextGroup.render(data: data, onPrintRow: onPrintRow, context: context, environment: environment)
                 } else {
@@ -66,7 +66,7 @@ extension TableGroupContent {
                         onPrintRow(row)
                     }
                 }
-                context.renderMultipageContent(block: footer(data, first), environment: environment)
+                context.renderMultipageContent(block: footer(data, first[keyPath: value]), environment: environment)
             }
         }
     }
