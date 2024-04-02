@@ -8,7 +8,7 @@ import Foundation
 
 public extension Block {
     /// Sets italic value of block.
-    func italic(_ value: Bool) -> some Block {
+    func italic(_ value: Bool = true) -> some Block {
         environment(\.italic, value)
     }
 }
