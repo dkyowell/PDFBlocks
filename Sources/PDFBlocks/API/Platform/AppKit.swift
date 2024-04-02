@@ -13,7 +13,7 @@ import Foundation
 
     public extension Color {
         init(_ color: NSColor) {
-            representation = color
+            platformColor = color
         }
     }
 

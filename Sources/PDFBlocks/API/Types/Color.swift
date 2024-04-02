@@ -11,9 +11,5 @@ import Foundation
 /// Color conforms to Block, so is displayed as a rectangular
 /// block of color.
 public struct Color {
-    public init(_ color: any PlatformColor) {
-        representation = color
-    }
-
-    let representation: any PlatformColor
+    let platformColor: any PlatformColor
 }

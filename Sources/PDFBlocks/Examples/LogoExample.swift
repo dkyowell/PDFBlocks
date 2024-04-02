@@ -6,7 +6,7 @@
 
 import Foundation
 
-struct Logo: Block {
+private struct Logo: Block {
     var body: some Block {
         VStack(spacing: .pt(2)) {
             HStack(spacing: .pt(2)) {
@@ -23,7 +23,7 @@ struct Logo: Block {
     }
 }
 
-struct LetterBlock: Block {
+private struct LetterBlock: Block {
     let letter: String
     let color: Color
     var body: some Block {
