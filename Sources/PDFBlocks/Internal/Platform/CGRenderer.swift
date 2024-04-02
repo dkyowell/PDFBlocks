@@ -88,11 +88,11 @@
             if let cgContext {
                 cgContext.addRect(rect)
                 #if os(macOS)
-                    if let nsColor = color.representation as? NSColor {
+                    if let nsColor = color.platformColor as? NSColor {
                         cgContext.setFillColor(nsColor.withAlphaComponent(opacity).cgColor)
                     }
                 #else
-                    if let uiColor = color.representation as? UIColor {
+                    if let uiColor = color.platformColor as? UIColor {
                         cgContext.setFillColor(uiColor.withAlphaComponent(opacity).cgColor)
                     }
                 #endif
@@ -101,7 +101,7 @@
         }
 
         func renderBorder(environment _: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat) {
-            if let color = color.representation as? NSUIColor {
+            if let color = color.platformColor as? NSUIColor {
                 cgContext?.addRect(rect)
                 cgContext?.setLineWidth(width)
                 cgContext?.setFillColor(color.cgColor)
@@ -251,7 +251,7 @@
 
 extension Color {
     var nsuiColor: NSUIColor? {
-        representation as? NSUIColor
+        platformColor as? NSUIColor
     }
 }
 

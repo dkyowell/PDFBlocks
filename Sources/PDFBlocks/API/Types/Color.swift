@@ -6,14 +6,21 @@
 
 import Foundation
 
-/// A representation of a color that adapts to a given context.
+/// Color is both a representation for color generally and a block for rendering
+/// a rectangular region of color.
 ///
-/// Color conforms to Block, so is displayed as a rectangular
-/// block of color.
+/// To set the foregroundColor for a block:
+///
+///     Text("Hello, world.")
+///         .foregroundColor(Color.red)
+///
+/// To draw a blue square:
+///
+///     Color(UIColor.blue)
+///         .frame(width: .in(1), height: .in(1))
+///
+/// Each platform (iOS/macOS/Linux) uses its own color type that conforms
+/// to PlatformColor.
 public struct Color {
-    public init(_ color: any PlatformColor) {
-        representation = color
-    }
-
-    let representation: any PlatformColor
+    let platformColor: any PlatformColor
 }
