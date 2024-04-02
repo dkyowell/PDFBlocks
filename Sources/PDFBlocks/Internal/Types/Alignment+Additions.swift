@@ -6,7 +6,7 @@
 
 import Foundation
 
-public extension Alignment {
+extension Alignment {
     // The horizontal portion of a 2D Alignment.
     var horizontalAlignment: HorizontalAlignment {
         switch self {
