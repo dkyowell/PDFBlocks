@@ -8,7 +8,7 @@ import Foundation
 
 /// A  block that takes multipage content as its content and
 /// a frame that will be printed around the content on each page.
-public struct PageFrame<Frame, Content>: Block where Frame: Block, Content: Block {
+struct PageFrame<Frame, Content>: Block where Frame: Block, Content: Block {
     let frame: (Int) -> Frame
     let content: Content
 
