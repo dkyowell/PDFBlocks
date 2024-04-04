@@ -176,14 +176,38 @@
                     }
                 #endif
             }
-
-            // To Truncate:
-//        let paragraphStyle = NSMutableParagraphStyle()
-//        paragraphStyle.alignment = .left
-            ////        paragraphStyle.lineBreakMode = .byTruncatingTail
-//        attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
+            let paragraphStyle = NSMutableParagraphStyle()
+            switch environment.multilineTextAlignment {
+            case .leading:
+                paragraphStyle.alignment = .left
+            case .center:
+                paragraphStyle.alignment = .center
+            case .trailing:
+                paragraphStyle.alignment = .right
+            case .justified:
+                paragraphStyle.alignment = .justified
+            }
+            switch environment.truncationMode {
+            case .head:
+                paragraphStyle.lineBreakMode = .byTruncatingHead
+            case .middle:
+                paragraphStyle.lineBreakMode = .byTruncatingMiddle
+            case .tail:
+                paragraphStyle.lineBreakMode = .byTruncatingTail
+            case .wrap:
+                paragraphStyle.lineBreakMode = .byWordWrapping
+            }
+            attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
+            #if os(macOS)
+            var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
+            #else
+                var options: NSStringDrawingOptions  = [.usesLineFragmentOrigin]
+            #endif
+            if environment.truncationMode == .wrap {
+                options.insert(.truncatesLastVisibleLine)
+            }
             let rect = string.boundingRect(with: .init(width: proposedSize.width, height: 0),
-                                           options: [.usesLineFragmentOrigin],
+                                           options: options,
                                            attributes: attributes,
                                            context: nil)
 
@@ -227,14 +251,36 @@
                     }
                 #endif
             }
-
+            let paragraphStyle = NSMutableParagraphStyle()
+            switch environment.multilineTextAlignment {
+            case .leading:
+                paragraphStyle.alignment = .left
+            case .center:
+                paragraphStyle.alignment = .center
+            case .trailing:
+                paragraphStyle.alignment = .right
+            case .justified:
+                paragraphStyle.alignment = .justified
+            }
+            switch environment.truncationMode {
+            case .head:
+                paragraphStyle.lineBreakMode = .byTruncatingHead
+            case .middle:
+                paragraphStyle.lineBreakMode = .byTruncatingMiddle
+            case .tail:
+                paragraphStyle.lineBreakMode = .byTruncatingTail
+            case .wrap:
+                paragraphStyle.lineBreakMode = .byWordWrapping
+            }
+            attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
             #if os(macOS)
-                let options: NSString.DrawingOptions
+            var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
             #else
-                let options: NSStringDrawingOptions
+                var options: NSStringDrawingOptions  = [.usesLineFragmentOrigin]
             #endif
-
-            options = [.usesLineFragmentOrigin, .truncatesLastVisibleLine]
+            if environment.truncationMode == .wrap {
+                options.insert(.truncatesLastVisibleLine)
+            }
 
             //  It seems that some rounding errors are causing the last line to truncate, so give it just a hair
             //  more room.
