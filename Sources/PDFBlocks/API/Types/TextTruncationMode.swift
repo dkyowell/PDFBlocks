@@ -21,20 +21,20 @@ public enum TextTruncationMode: Sendable {
     /// the string. For example, you could truncate the English alphabet as
     /// "...wxyz".
     case head
-    
+
     /// Truncate at the end of the line.
     ///
     /// Use this kind of truncation to omit characters from the end of the
     /// string. For example, you could truncate the English alphabet as
     /// "abcd...".
     case tail
-    
+
     /// Truncate in the middle of the line.
     ///
     /// Use this kind of truncation to omit characters from the middle of
     /// the string. For example, you could truncate the English alphabet as
     /// "ab...yz".
     case middle
-    
+
     case wrap
 }
