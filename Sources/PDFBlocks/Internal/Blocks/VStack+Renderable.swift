@@ -50,6 +50,7 @@ extension VStack: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         var environment = environment
         environment.allowMultipageBlocks = .false("VStack")
+        environment.layoutAxis = .vertical
         let blocks = content.getRenderables(environment: environment)
         let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposedSize)
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
@@ -68,6 +69,7 @@ extension VStack: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
         environment.allowMultipageBlocks = .false("VStack")
+        environment.layoutAxis = .vertical
         //  Get blocks and sizes
         let blocks = content.getRenderables(environment: environment)
         let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: rect.size)

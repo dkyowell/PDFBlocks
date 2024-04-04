@@ -50,6 +50,7 @@ extension HStack: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         var environment = environment
         environment.allowMultipageBlocks = .false("HStack")
+        environment.layoutAxis = .horizontal
         let blocks = content.getRenderables(environment: environment)
         let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposedSize)
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
@@ -71,6 +72,7 @@ extension HStack: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
         environment.allowMultipageBlocks = .false("HStack")
+        environment.layoutAxis = .horizontal
         //  Get blocks and sizes
         let blocks = content.getRenderables(environment: environment)
         let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: rect.size)

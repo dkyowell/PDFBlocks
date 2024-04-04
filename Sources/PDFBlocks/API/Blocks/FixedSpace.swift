@@ -8,21 +8,9 @@ import Foundation
 
 /// A spacer block for use in HStack or VStack..
 public struct FixedSpace: Block {
-    let length: Size
-    let direction: Direction
+    let size: Size
 
-    public init(width: Size) {
-        length = width
-        direction = .width
-    }
-
-    public init(height: Size) {
-        length = height
-        direction = .height
-    }
-
-    enum Direction {
-        case width
-        case height
+    public init(size: Size) {
+        self.size = size
     }
 }

@@ -110,23 +110,17 @@
             }
         }
 
-        func renderHDivider(environment _: EnvironmentValues, rect: CGRect) {
-            cgContext?.addLines(between: [
-                .init(x: rect.minX, y: rect.midY),
-                .init(x: rect.maxX, y: rect.midY),
-            ])
-            cgContext?.setLineWidth(0.75)
-            cgContext?.setStrokeColor(NSUIColor.black.cgColor)
-            cgContext?.drawPath(using: .stroke)
-        }
-
-        func renderHLine(dash: [CGFloat], environment _: EnvironmentValues, rect: CGRect) {
+        func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {
             cgContext?.addLines(between: [
                 .init(x: rect.minX, y: rect.midY),
                 .init(x: rect.maxX, y: rect.midY),
             ])
             cgContext?.setLineDash(phase: 0, lengths: dash)
-            cgContext?.setLineWidth(rect.height)
+            if environment.layoutAxis == .vertical {
+                cgContext?.setLineWidth(rect.height)
+            } else {
+                cgContext?.setLineWidth(rect.width)
+            }
             cgContext?.setStrokeColor(NSUIColor.black.cgColor)
             cgContext?.drawPath(using: .stroke)
         }
@@ -199,9 +193,9 @@
             }
             attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
             #if os(macOS)
-            var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
+                var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
             #else
-                var options: NSStringDrawingOptions  = [.usesLineFragmentOrigin]
+                var options: NSStringDrawingOptions = [.usesLineFragmentOrigin]
             #endif
             if environment.truncationMode == .wrap {
                 options.insert(.truncatesLastVisibleLine)
@@ -274,9 +268,9 @@
             }
             attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
             #if os(macOS)
-            var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
+                var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
             #else
-                var options: NSStringDrawingOptions  = [.usesLineFragmentOrigin]
+                var options: NSStringDrawingOptions = [.usesLineFragmentOrigin]
             #endif
             if environment.truncationMode == .wrap {
                 options.insert(.truncatesLastVisibleLine)

@@ -7,7 +7,7 @@
 import Foundation
 
 /// A horizontal line.
-public struct HLine: Block {
+public struct Line: Block {
     let thickness: Size
     let dash: [CGFloat]
 

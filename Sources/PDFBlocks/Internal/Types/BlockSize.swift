@@ -12,6 +12,16 @@ import Foundation
 struct BlockSize {
     let min: CGSize
     let max: CGSize
+
+    init(min: CGSize, max: CGSize) {
+        self.min = min
+        self.max = max
+    }
+
+    init(minMax: CGSize) {
+        self.min = minMax
+        self.max = minMax
+    }
 }
 
 extension BlockSize {

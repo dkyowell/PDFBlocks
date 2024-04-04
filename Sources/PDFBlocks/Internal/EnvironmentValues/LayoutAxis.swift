@@ -15,6 +15,13 @@ enum LayoutAxis {
     case undefined
 }
 
-private struct LayoutAxisKey: EnvironmentKey {
+struct LayoutAxisKey: EnvironmentKey {
     static let defaultValue = LayoutAxis.undefined
+}
+
+extension EnvironmentValues {
+    var layoutAxis: LayoutAxis {
+        get { self[LayoutAxisKey.self] }
+        set { self[LayoutAxisKey.self] = newValue }
+    }
 }

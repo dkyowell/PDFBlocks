@@ -7,14 +7,14 @@
 import Foundation
 
 extension FixedSpace: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize _: ProposedSize) -> BlockSize {
-        switch direction {
-        case .width:
-            BlockSize(min: .init(width: length.points, height: 0),
-                      max: .init(width: length.points, height: 0))
-        case .height:
-            BlockSize(min: .init(width: 0, height: length.points),
-                      max: .init(width: 0, height: length.points))
+    func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize _: ProposedSize) -> BlockSize {
+        switch environment.layoutAxis {
+        case .vertical:
+            BlockSize(minMax: .init(width: 0, height: size.points))
+        case .horizontal:
+            BlockSize(minMax: .init(width: size.points, height: 0))
+        case .undefined:
+            BlockSize(minMax: .zero)
         }
     }
 
