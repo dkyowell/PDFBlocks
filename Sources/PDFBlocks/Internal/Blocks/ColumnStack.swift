@@ -7,7 +7,7 @@
 import Foundation
 
 /// A block that arranges its contents horizontally as specified by its columns.
-public struct ColumnStack<Content>: Block where Content: Block {
+struct ColumnStack<Content>: Block where Content: Block {
     let columns: [StackColumn]
     let content: Content
 
@@ -18,7 +18,7 @@ public struct ColumnStack<Content>: Block where Content: Block {
 }
 
 /// A description of a column in a `ColumnStack`.
-public struct StackColumn {
+struct StackColumn {
     /// The proportional width of the column.
     ///
     /// A `ColumnStack` will always take up the full width of its container.
@@ -27,4 +27,14 @@ public struct StackColumn {
     public let width: CGFloat
     /// The alignment to use for the content of the column.
     public let alignment: HorizontalAlignment
+    
+    
+    public static let leading = StackColumn(width: 1, alignment: .leading)
+    public static let center = StackColumn(width: 1, alignment: .center)
+    public static let trailing = StackColumn(width: 1, alignment: .trailing)
 }
+
+
+
+
+
