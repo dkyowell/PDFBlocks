@@ -6,7 +6,7 @@
 
 import Foundation
 
-/// A block that takes no space and renders no content.
+/// A block that occupies no space and renders no content.
 public struct EmptyBlock: Block {
     /// Creates an EmptyBlock.
     public init() {}

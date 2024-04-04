@@ -34,5 +34,3 @@ extension EnvironmentValues {
         set { self[MultilineTextAlignmentKey.self] = newValue }
     }
 }
-
-

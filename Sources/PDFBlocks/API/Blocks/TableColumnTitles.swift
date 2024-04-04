@@ -18,7 +18,7 @@ import Foundation
 ///     } groups {
 ///         TableGroup(on: \.col1) { rows, value in
 ///             Text("Group header for \(value)")
-///             TableHeader()
+///             TableColumnTitles()
 ///         } footer: { rows, value in
 ///         }
 ///     }
@@ -34,7 +34,7 @@ public struct TableColumnTitles: Block {
                         .emphasized()
                 }
             }
-            HDivider()
+            Divider()
                 .padding(vertical: .pt(1.5))
         }
     }

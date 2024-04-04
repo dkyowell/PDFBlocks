@@ -9,7 +9,7 @@ import Foundation
 /// A block that collects multiple subblocks into a single unit.
 ///
 /// A modifier can be applied to multiple blocks at once in
-/// this mannger:
+/// this manner:
 ///
 ///      Group {
 ///          Text("Quick")

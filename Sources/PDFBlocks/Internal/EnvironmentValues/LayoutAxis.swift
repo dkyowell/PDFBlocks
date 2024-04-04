@@ -6,9 +6,6 @@
 
 import Foundation
 
-// NOTE: not implemented yet. This could be used so a single Divider block could be used in
-// both HStacks and VStacks.
-
 enum LayoutAxis {
     case horizontal
     case vertical

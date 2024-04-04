@@ -27,14 +27,8 @@ struct StackColumn {
     public let width: CGFloat
     /// The alignment to use for the content of the column.
     public let alignment: HorizontalAlignment
-    
-    
+
     public static let leading = StackColumn(width: 1, alignment: .leading)
     public static let center = StackColumn(width: 1, alignment: .center)
     public static let trailing = StackColumn(width: 1, alignment: .trailing)
 }
-
-
-
-
-
