@@ -279,9 +279,7 @@
             //  It seems that some rounding errors are causing the last line to truncate, so give it just a hair
             //  more room.
             let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))
-
-            attributes[.foregroundColor] = environment.foregroundColor.cgColor
-
+            attributes[.foregroundColor] = environment.foregroundColor.nsuiColor
             string.draw(with: newRect, options: options, attributes: attributes, context: nil)
             cgContext?.restoreGState()
         }
@@ -289,8 +287,12 @@
 #endif
 
 extension Color {
+    var nsuiColor: NSUIColor {
+        (platformColor as? NSUIColor) ?? NSUIColor.black
+    }
+
     var cgColor: CGColor {
-        (platformColor as? NSUIColor)?.cgColor ?? NSUIColor.black.cgColor
+        nsuiColor.cgColor
     }
 }
 
