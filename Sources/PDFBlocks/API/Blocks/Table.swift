@@ -18,48 +18,51 @@ public struct Table<Row>: MultipageBlock {
     let footer: any Block
     let row: (([any TableColumnContent<Row>], Row) -> (any Block))?
     let pageHeader: (Int) -> (any Block)
+    let pageFooter: (Int) -> (any Block)
 
     public init(
         data: [Row],
-        printTableHeader: PrintWhen = .always,
-        printPageHeader: PrintWhen = .never,
+        printTitles: PrintWhen = .always,
         @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
-        @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
+        @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
-        pageHeader: @escaping (Int) -> any Block = { _ in EmptyBlock() }
+        @BlockBuilder pageHeader: @escaping (Int) -> any Block = { _ in EmptyBlock() },
+        @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
     ) {
         self.data = data
-        self.printTableHeader = printTableHeader
-        self.printPageHeader = printPageHeader
+        printTableHeader = printTitles
+        printPageHeader = .never
         self.columns = columns()
+        row = nil
         self.groups = groups()
         self.header = header()
-        row = nil
         self.footer = footer()
         self.pageHeader = pageHeader
+        self.pageFooter = pageFooter
     }
 
     public init(
         data: [Row],
-        printTableHeader: PrintWhen = .always,
-        printPageHeader: PrintWhen = .never,
+        printTitles: PrintWhen = .always,
         @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
-        @BlockBuilder header: () -> any Block = { EmptyBlock() },
+        @BlockBuilder row: @escaping ([any TableColumnContent<Row>], Row) -> (any Block),
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
-        @BlockBuilder row: @escaping ([any TableColumnContent<Row>], Row) -> any Block,
+        @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
-        pageHeader: @escaping (Int) -> any Block = { _ in EmptyBlock() }
+        @BlockBuilder pageHeader: @escaping (Int) -> any Block = { _ in EmptyBlock() },
+        @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
     ) {
         self.data = data
-        self.printTableHeader = printTableHeader
-        self.printPageHeader = printPageHeader
+        printTableHeader = printTitles
+        printPageHeader = .never
         self.columns = columns()
+        self.row = row
         self.groups = groups()
         self.header = header()
-        self.row = row
         self.footer = footer()
         self.pageHeader = pageHeader
+        self.pageFooter = pageFooter
     }
 
     public enum PrintWhen {
@@ -95,7 +98,7 @@ public struct TableColumn<Row, Format>: TableColumnContent where Format: FormatS
                 value: KeyPath<Row, Format.FormatInput>,
                 format: Format,
                 width: CGFloat,
-                alignment: HorizontalAlignment,
+                alignment: HorizontalAlignment = .leading,
                 visible: Bool = true)
     {
         self.title = title
@@ -109,7 +112,7 @@ public struct TableColumn<Row, Format>: TableColumnContent where Format: FormatS
     public init(_ title: String,
                 value: KeyPath<Row, Format.FormatInput>,
                 width: CGFloat,
-                alignment: HorizontalAlignment,
+                alignment: HorizontalAlignment = .leading,
                 visible: Bool = true) where Format == StringFormatStyle
     {
         self.title = title
@@ -139,7 +142,7 @@ public struct CustomTableColumn<Row>: TableColumnContent {
 
     public init(_ title: String,
                 width: CGFloat,
-                alignment: HorizontalAlignment,
+                alignment: HorizontalAlignment = .leading,
                 visible: Bool = true,
                 @BlockBuilder content: @escaping (Row) -> any Block)
     {
@@ -169,6 +172,8 @@ public protocol TableGroupContent<Row> where Value: Equatable, Value: Comparable
 }
 
 /// A group definition for a Table.
+///
+/// Tables
 public struct TableGroup<Row, Value>: TableGroupContent where Value: Equatable, Value: Comparable, Value: Hashable {
     public let order: (Value, Value) -> Bool
     public let value: KeyPath<Row, Value>
@@ -177,6 +182,21 @@ public struct TableGroup<Row, Value>: TableGroupContent where Value: Equatable, 
     public let spacing: Size
     public var nextGroup: (any TableGroupContent<Row>)?
 
+    /// Creates a table group that will sort table data on a key path and start
+    /// a new group with each change in value for that key path.
+    ///
+    /// - Parameters:
+    ///   - on: A key path on which to sort and group table data.
+    ///   - order: A sorting function
+    ///   - spacing: A spacing value to apply between each group
+    ///   - header: A function that receives two parameters. The first is an array
+    ///     of rows within the group upon which summary values can be computed.
+    ///     the second is key path value that defines the group. The function returns
+    ///     a block to be rendered before the group's rows are rendered.
+    ///   - footer: A function that receives two parameters. The first is an array
+    ///     of rows within the group upon which summary values can be computed.
+    ///     the second is key path value that defines the group. The function returns
+    ///     a block to be rendered after the group's rows are rendered.
     public init(on value: KeyPath<Row, Value>,
                 order: @escaping (Value, Value) -> Bool = { $0 < $1 },
                 spacing: Size,
@@ -188,6 +208,7 @@ public struct TableGroup<Row, Value>: TableGroupContent where Value: Equatable, 
         self.header = header
         self.footer = footer
         self.spacing = spacing
+        // Initialized as nil, but will be set by @TableGroupBuilder to chain groups together.
         nextGroup = nil
     }
 }

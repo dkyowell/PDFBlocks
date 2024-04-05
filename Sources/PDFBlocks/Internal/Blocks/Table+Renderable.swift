@@ -6,6 +6,7 @@
 
 import Foundation
 
+// TODO: Add pageFooter functionality. It is already in the API, but does not render.
 extension Table: Renderable {
     func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         .init(min: proposedSize, max: proposedSize)
@@ -18,13 +19,15 @@ extension Table: Renderable {
 
         context.beginMultipageRendering(rect: rect) { pageNo in
             environment.startNewPage?()
-            if printPageHeader == .always || (printPageHeader == .afterFirstPage && pageNo > 1) {
-                context.renderMultipageContent(block: pageHeader(pageNo), environment: environment)
-            }
-            if printTableHeader == .always || (printTableHeader == .afterFirstPage && pageNo > 1) {
-                context.renderMultipageContent(block: TableHeader(), environment: environment)
-            }
+            context.renderMultipageContent(block: pageHeader(pageNo), environment: environment)
+//            if printPageHeader == .always || (printPageHeader == .afterFirstPage && pageNo > 1) {
+//            }
+//            if printTableHeader == .always || (printTableHeader == .afterFirstPage && pageNo > 1) {
+//                context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
+//            }
         }
+
+        context.renderMultipageContent(block: pageHeader(1), environment: environment)
 
         let printRow = { (record: Row) in
             if let row {
@@ -35,9 +38,9 @@ extension Table: Renderable {
         }
 
         context.renderMultipageContent(block: header, environment: environment)
-        if printTableHeader == .always {
-            context.renderMultipageContent(block: TableHeader(), environment: environment)
-        }
+//        if printTableHeader == .always {
+//            context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
+//        }
 
         if let first = groups.first {
             first.render(data: data, onPrintRow: printRow, context: context, environment: environment)

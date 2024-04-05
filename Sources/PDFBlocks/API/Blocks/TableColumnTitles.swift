@@ -35,7 +35,6 @@ public struct TableColumnTitles: Block {
                 }
             }
             Divider()
-                .padding(vertical: .pt(1.5))
         }
     }
 }
