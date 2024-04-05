@@ -84,33 +84,27 @@
         #endif
 
         func renderColor(_ color: Color, environment: EnvironmentValues, rect: CGRect) {
-            let opacity = environment.opacity
-            if let cgContext {
-                cgContext.addRect(rect)
-                #if os(macOS)
-                    if let nsColor = color.platformColor as? NSColor {
-                        cgContext.setFillColor(nsColor.withAlphaComponent(opacity).cgColor)
-                    }
-                #else
-                    if let uiColor = color.platformColor as? UIColor {
-                        cgContext.setFillColor(uiColor.withAlphaComponent(opacity).cgColor)
-                    }
-                #endif
-                cgContext.drawPath(using: .fill)
-            }
+            cgContext?.saveGState()
+            cgContext?.setAlpha(environment.opacity)
+            cgContext?.addRect(rect)
+            cgContext?.setFillColor(color.cgColor)
+            cgContext?.drawPath(using: .fill)
+            cgContext?.restoreGState()
         }
 
-        func renderBorder(environment _: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat) {
-            if let color = color.platformColor as? NSUIColor {
-                cgContext?.addRect(rect)
-                cgContext?.setLineWidth(width)
-                cgContext?.setFillColor(color.cgColor)
-                cgContext?.setStrokeColor(color.cgColor)
-                cgContext?.drawPath(using: .stroke)
-            }
+        func renderBorder(environment: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat) {
+            cgContext?.saveGState()
+            cgContext?.setAlpha(environment.opacity)
+            cgContext?.addRect(rect)
+            cgContext?.setLineWidth(width)
+            cgContext?.setStrokeColor(color.cgColor)
+            cgContext?.drawPath(using: .stroke)
+            cgContext?.restoreGState()
         }
 
         func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {
+            cgContext?.saveGState()
+            cgContext?.setAlpha(environment.opacity)
             cgContext?.addLines(between: [
                 .init(x: rect.minX, y: rect.midY),
                 .init(x: rect.maxX, y: rect.midY),
@@ -121,17 +115,21 @@
             } else {
                 cgContext?.setLineWidth(rect.width)
             }
-            cgContext?.setStrokeColor(NSUIColor.black.cgColor)
+            cgContext?.setStrokeColor(environment.foregroundColor.cgColor)
             cgContext?.drawPath(using: .stroke)
+            cgContext?.restoreGState()
         }
 
-        func renderImage(_ image: PlatformImage, environment _: EnvironmentValues, rect: CGRect) {
+        func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect) {
+            cgContext?.saveGState()
+            cgContext?.setAlpha(environment.opacity)
             guard let image = image as? NSUIImage else {
                 return
             }
             if let ds = image.downscaled(maxSize: rect.size.scaled(by: 300 / 72.0)) {
                 ds.draw(in: rect)
             }
+            cgContext?.restoreGState()
         }
 
         func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: ProposedSize) -> (min: CGSize, max: CGSize) {
@@ -210,6 +208,8 @@
         }
 
         func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
+            cgContext?.saveGState()
+            cgContext?.setAlpha(environment.opacity)
             let string = NSString(string: text)
             var attributes = [NSAttributedString.Key: Any]()
             let fontName = environment.fontName
@@ -280,18 +280,17 @@
             //  more room.
             let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))
 
-            if let color = environment.foregroundColor.nsuiColor {
-                attributes[.foregroundColor] = color.withAlphaComponent(environment.opacity)
-            }
+            attributes[.foregroundColor] = environment.foregroundColor.cgColor
 
             string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+            cgContext?.restoreGState()
         }
     }
 #endif
 
 extension Color {
-    var nsuiColor: NSUIColor? {
-        platformColor as? NSUIColor
+    var cgColor: CGColor {
+        (platformColor as? NSUIColor)?.cgColor ?? NSUIColor.black.cgColor
     }
 }
 
