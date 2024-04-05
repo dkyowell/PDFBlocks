@@ -18,4 +18,8 @@ extension Image: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         context.renderer.renderImage(image, environment: environment, rect: rect)
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

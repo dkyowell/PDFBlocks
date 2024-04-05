@@ -41,4 +41,8 @@ extension MultipageStack: Renderable {
             context.renderMultipageContent(block: block, environment: environment)
         }
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

@@ -56,6 +56,11 @@ extension Padding: Renderable {
         let printRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: contentSize.max)
         block.render(context: context, environment: environment, rect: printRect)
     }
+
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        content.getRenderable(environment: environment)
+            .proportionalWidth(environment: environment)
+    }
 }
 
 struct PaddingModifier: BlockModifier {

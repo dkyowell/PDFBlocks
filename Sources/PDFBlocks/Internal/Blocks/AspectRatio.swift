@@ -27,6 +27,10 @@ extension AspectRatio: Renderable {
         let block = content.getRenderable(environment: environment)
         block.render(context: context, environment: environment, rect: rect)
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }
 
 struct AspectRatioModifier: BlockModifier {

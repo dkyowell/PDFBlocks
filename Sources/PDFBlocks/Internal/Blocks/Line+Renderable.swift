@@ -15,4 +15,8 @@ extension Line: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         context.renderer.renderLine(dash: dash, environment: environment, rect: rect)
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

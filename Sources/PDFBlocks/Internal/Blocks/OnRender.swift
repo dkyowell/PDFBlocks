@@ -22,6 +22,11 @@ extension OnRender: Renderable {
         block.render(context: context, environment: environment, rect: rect)
         onRender()
     }
+
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        content.getRenderable(environment: environment)
+            .proportionalWidth(environment: environment)
+    }
 }
 
 struct OnRenderModifier: BlockModifier {

@@ -21,6 +21,7 @@ import Foundation
 protocol Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize
     func render(context: Context, environment: EnvironmentValues, rect: CGRect)
+    func proportionalWidth(environment: EnvironmentValues) -> Double?
 }
 
 extension Renderable {

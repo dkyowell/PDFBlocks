@@ -51,6 +51,10 @@ extension Table: Renderable {
         }
         context.renderMultipageContent(block: footer, environment: environment)
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }
 
 extension TableGroupContent {

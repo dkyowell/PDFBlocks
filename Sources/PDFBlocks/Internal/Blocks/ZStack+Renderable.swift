@@ -45,4 +45,8 @@ extension ZStack: Renderable {
             block.render(context: context, environment: environment, rect: renderRect)
         }
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

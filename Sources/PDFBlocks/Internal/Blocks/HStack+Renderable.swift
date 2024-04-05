@@ -52,20 +52,36 @@ extension HStack: Renderable {
         environment.allowMultipageBlocks = .false("HStack")
         environment.layoutAxis = .horizontal
         let blocks = content.getRenderables(environment: environment)
-        let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposedSize)
-        let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-        let maxHeight = sizes.map(\.height).reduce(0.0, max)
-        let sumMaxWidth = sizes.map(\.width).reduce(0, +)
-        //  TODO: I am not sure I am reasoning about th minWidth correctly. I think that I need some
-        //  TODO: flexible subviews to experiment more.
-        let sumMinWidth = sizes.map(\.width).reduce(0.0, +)
-        switch spacing {
-        case .flex:
-            return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposedSize.width), height: maxHeight),
-                         max: .init(width: proposedSize.width, height: maxHeight))
-        case .fixed:
-            return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposedSize.width), height: maxHeight),
-                         max: .init(width: min(sumMaxWidth + fixedSpacing, proposedSize.width), height: maxHeight))
+        if blocks.filter({ $0.proportionalWidth(environment: environment) != nil }).isEmpty == false {
+            // PROPORTIONAL LAYOUT
+            let blocks = content.getRenderables(environment: environment)
+            let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
+            let adjustedWidth = proposedSize.width - fixedSpacing
+            let sumProportionalWidth = blocks.map { $0.proportionalWidth(environment: environment) ?? 1 }.reduce(0, +)
+            let sizes = blocks.map { item in
+                let width = ((item.proportionalWidth(environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
+                let blockSize = CGSize(width: width, height: proposedSize.height)
+                return item.sizeFor(context: context, environment: environment, proposedSize: blockSize)
+            }
+            let maxHeight = sizes.map(\.max.height).reduce(0, max)
+            return .init(width: proposedSize.width, height: maxHeight)
+        } else {
+            // STANDARD LAYOUT
+            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposedSize)
+            let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
+            let maxHeight = sizes.map(\.height).reduce(0.0, max)
+            let sumMaxWidth = sizes.map(\.width).reduce(0, +)
+            //  TODO: I am not sure I am reasoning about th minWidth correctly. I think that I need some
+            //  TODO: flexible subviews to experiment more.
+            let sumMinWidth = sizes.map(\.width).reduce(0.0, +)
+            switch spacing {
+            case .flex:
+                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposedSize.width), height: maxHeight),
+                             max: .init(width: proposedSize.width, height: maxHeight))
+            case .fixed:
+                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposedSize.width), height: maxHeight),
+                             max: .init(width: min(sumMaxWidth + fixedSpacing, proposedSize.width), height: maxHeight))
+            }
         }
     }
 
@@ -75,31 +91,51 @@ extension HStack: Renderable {
         environment.layoutAxis = .horizontal
         //  Get blocks and sizes
         let blocks = content.getRenderables(environment: environment)
-        let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: rect.size)
-        //  Compute spacing
-        let space: CGFloat
-        switch spacing {
-        case let .flex(size):
-            let sumWidth = sizes.map(\.width).reduce(0, +)
-            space = max(size.points, (rect.width - sumWidth) / CGFloat(blocks.count - 1))
-        case let .fixed(size):
-            space = size.points
-        }
-        //  Render blocks
-        var stackOffset = 0.0
-        for (block, size) in zip(blocks, sizes) {
-            // Compute alignment
-            let dy: CGFloat = switch alignment {
-            case .top:
-                0
-            case .center:
-                (rect.height - size.height) / 2
-            case .bottom:
-                rect.height - size.height
+        if blocks.filter({ $0.proportionalWidth(environment: environment) != nil }).isEmpty == false {
+            let blocks = content.getRenderables(environment: environment)
+            let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
+            let adjustedWidth = rect.width - fixedSpacing
+            let sumProportionalWidth = blocks.map { $0.proportionalWidth(environment: environment) ?? 1 }.reduce(0, +)
+            var dx: CGFloat = 0
+            for block in blocks {
+                let width = ((block.proportionalWidth(environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
+                let blockSize = CGSize(width: width, height: rect.height)
+                let height = sizeFor(context: context, environment: environment, proposedSize: blockSize).max.height
+                let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: width, height: height)
+                block.render(context: context, environment: environment, rect: renderRect)
+                dx += width + spacing.fixedPoints
             }
-            let renderRect = CGRect(origin: rect.origin.offset(dx: stackOffset, dy: dy), size: size)
-            block.render(context: context, environment: environment, rect: renderRect)
-            stackOffset += size.width + space
+        } else {
+            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: rect.size)
+            //  Compute spacing
+            let space: CGFloat
+            switch spacing {
+            case let .flex(size):
+                let sumWidth = sizes.map(\.width).reduce(0, +)
+                space = max(size.points, (rect.width - sumWidth) / CGFloat(blocks.count - 1))
+            case let .fixed(size):
+                space = size.points
+            }
+            //  Render blocks
+            var stackOffset = 0.0
+            for (block, size) in zip(blocks, sizes) {
+                // Compute alignment
+                let dy: CGFloat = switch alignment {
+                case .top:
+                    0
+                case .center:
+                    (rect.height - size.height) / 2
+                case .bottom:
+                    rect.height - size.height
+                }
+                let renderRect = CGRect(origin: rect.origin.offset(dx: stackOffset, dy: dy), size: size)
+                block.render(context: context, environment: environment, rect: renderRect)
+                stackOffset += size.width + space
+            }
         }
+    }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
     }
 }

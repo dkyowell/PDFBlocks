@@ -12,4 +12,8 @@ extension EmptyBlock: Renderable {
     }
 
     func render(context _: Context, environment _: EnvironmentValues, rect _: CGRect) {}
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

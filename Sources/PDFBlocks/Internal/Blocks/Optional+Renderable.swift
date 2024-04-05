@@ -22,4 +22,8 @@ extension Optional: Renderable where Wrapped: Block {
             block.render(context: context, environment: environment, rect: rect)
         }
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

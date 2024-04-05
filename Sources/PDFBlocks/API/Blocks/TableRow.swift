@@ -17,10 +17,10 @@ public struct TableRow<Value>: Block {
     }
 
     public var body: some Block {
-        let stackColumns = columns.filter(\.visible).map { StackColumn(width: $0.width, alignment: $0.alignment) }
-        ColumnStack(columns: stackColumns) {
+        HStack(spacing: .pt(2)) {
             ForEach(data: columns.filter(\.visible)) { column in
                 AnyBlock(column.cellContent(record: record))
+                    .proportionalFrame(width: column.width, alignment: column.alignment)
             }
         }
     }

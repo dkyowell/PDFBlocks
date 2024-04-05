@@ -48,4 +48,9 @@ extension Overlay: Renderable {
         let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
         block.render(context: context, environment: environment, rect: renderRect)
     }
+
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        content.getRenderable(environment: environment)
+            .proportionalWidth(environment: environment)
+    }
 }

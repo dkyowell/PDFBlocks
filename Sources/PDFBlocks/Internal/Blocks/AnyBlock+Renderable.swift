@@ -16,4 +16,9 @@ extension AnyBlock: Renderable {
         let block = content.getRenderable(environment: environment)
         block.render(context: context, environment: environment, rect: rect)
     }
+
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        content.getRenderable(environment: environment)
+            .proportionalWidth(environment: environment)
+    }
 }

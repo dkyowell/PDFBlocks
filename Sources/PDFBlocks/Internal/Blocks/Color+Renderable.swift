@@ -14,4 +14,8 @@ extension Color: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         context.renderer.renderColor(self, environment: environment, rect: rect)
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

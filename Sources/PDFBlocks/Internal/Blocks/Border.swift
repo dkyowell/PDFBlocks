@@ -28,6 +28,10 @@ extension Border: Renderable {
         context.renderer.renderBorder(environment: environment, rect: rect, color: color,
                                       width: width.points)
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }
 
 struct BorderModifier: BlockModifier {

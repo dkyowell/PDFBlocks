@@ -20,8 +20,16 @@ extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModif
         let block = modifiedContent.getRenderable(environment: environment)
         block.render(context: context, environment: environment, rect: rect)
     }
+
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
+        let modifiedContent = modifier.body(content: nmc)
+        let block = modifiedContent.getRenderable(environment: environment)
+        return block.proportionalWidth(environment: environment)
+    }
 }
 
+// TODO: Determine whether Pages can have modifiers.
 extension ModifiedContent where Content: PageBlock, Modifier: BlockModifier {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
 //        let nmc = _BlockModifier_Content(modifier: modifier, block: content)

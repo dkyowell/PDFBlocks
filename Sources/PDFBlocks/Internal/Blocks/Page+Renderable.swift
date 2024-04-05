@@ -26,4 +26,8 @@ extension Page: Renderable {
         let renderRect = CGRect(origin: layoutRect.origin, size: size.max)
         block.render(context: context, environment: environment, rect: renderRect)
     }
+
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
 }

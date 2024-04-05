@@ -26,6 +26,13 @@ extension EnvironmentBlock: Renderable {
         let block = content.getRenderable(environment: environment)
         block.render(context: context, environment: environment, rect: rect)
     }
+
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        var environment = environment
+        environment[keyPath: keyPath] = value
+        let block = content.getRenderable(environment: environment)
+        return block.proportionalWidth(environment: environment)
+    }
 }
 
 struct EnvironmentModifier<V>: BlockModifier {
