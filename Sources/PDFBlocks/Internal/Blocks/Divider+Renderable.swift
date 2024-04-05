@@ -9,9 +9,9 @@ import Foundation
 extension Divider: Renderable {
     func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         if environment.layoutAxis == .horizontal {
-            BlockSize(minMax: .init(width: size.points + padding.points * 2, height: proposedSize.height))
+            BlockSize(width: size.points + padding.points * 2, height: proposedSize.height)
         } else {
-            BlockSize(minMax: .init(width: proposedSize.width, height: size.points + padding.points * 2))
+            BlockSize(width: proposedSize.width, height: size.points + padding.points * 2)
         }
     }
 

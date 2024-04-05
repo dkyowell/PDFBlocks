@@ -10,11 +10,11 @@ extension FixedSpace: Renderable {
     func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize _: ProposedSize) -> BlockSize {
         switch environment.layoutAxis {
         case .vertical:
-            BlockSize(minMax: .init(width: 0, height: size.points))
+            BlockSize(width: 0, height: size.points)
         case .horizontal:
-            BlockSize(minMax: .init(width: size.points, height: 0))
+            BlockSize(width: size.points, height: 0)
         case .undefined:
-            BlockSize(minMax: .zero)
+            BlockSize(width: 0, height: 0)
         }
     }
 

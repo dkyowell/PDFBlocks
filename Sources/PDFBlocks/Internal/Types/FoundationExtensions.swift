@@ -16,6 +16,14 @@ extension CGPoint {
     func offset(dx: CGFloat, dy: CGFloat) -> CGPoint {
         .init(x: x + dx, y: y + dy)
     }
+
+    func offset(dx: CGFloat) -> CGPoint {
+        .init(x: x + dx, y: y)
+    }
+
+    func offset(dy: CGFloat) -> CGPoint {
+        .init(x: x, y: y + dy)
+    }
 }
 
 extension CGRect {

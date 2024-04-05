@@ -18,9 +18,14 @@ struct BlockSize {
         self.max = max
     }
 
-    init(minMax: CGSize) {
-        self.min = minMax
-        self.max = minMax
+    init(_ size: CGSize) {
+        self.min = size
+        self.max = size
+    }
+
+    init(width: CGFloat, height: CGFloat) {
+        self.min = .init(width: width, height: height)
+        self.max = .init(width: width, height: height)
     }
 }
 
