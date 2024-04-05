@@ -6,7 +6,7 @@
 
 import Foundation
 
-private struct Logo: Block {
+private struct Document: Block {
     var body: some Block {
         VStack(spacing: .pt(2)) {
             HStack(spacing: .pt(2)) {
@@ -45,7 +45,7 @@ private struct LetterBlock: Block {
         let view = PDFView()
         view.autoScales = true
         Task {
-            if let data = try? await Logo()
+            if let data = try? await Document()
                 .renderPDF(size: .letter, margins: .init(.in(1)))
             {
                 view.document = PDFDocument(data: data)

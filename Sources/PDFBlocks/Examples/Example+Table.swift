@@ -6,41 +6,46 @@
 
 import Foundation
 
+private struct Document: Block {
+    let data = loadData(Data.self, from: customerData)
 
-private struct Data: Decodable {
-    let firstName: String
-    let lastName: String
-    let address: String
-    let city: String
-    let state: String
-    let zip: String
-    let dob: Date
-}
-
-
-private struct TableExample: Block {
     var body: some Block {
-        Table(data: loadData(Data.self, from: customerData)) {
-            TableColumn("Last Name", value: \.lastName, width: 20, alignment: .leading)
-            TableColumn("First Name", value: \.firstName, width: 20, alignment: .leading)
-            TableColumn("Address", value: \.address, width: 35, alignment: .leading)
-            TableColumn("City", value: \.city, width: 25, alignment: .leading)
-            TableColumn("State", value: \.state, width: 10, alignment: .leading)
-            TableColumn("Zip", value: \.zip, width: 10, alignment: .leading)
-            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
+        Table(data: data) {
+            TableColumn("Last Name", value: \.lastName, width: 20)
+            TableColumn("First Name", value: \.firstName, width: 20)
+            TableColumn("Address", value: \.address, width: 35)
+            TableColumn("City", value: \.city, width: 25)
+            TableColumn("State", value: \.state, width: 10)
+            TableColumn("Zip", value: \.zip, width: 10)
+            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10,
+                        alignment: .trailing)
         } groups: {
-            TableGroup(on: \.state, order: <, spacing: .pt(12)) { rows, value in
+            TableGroup(on: \.state, order: <, spacing: .pt(12)) { _, value in
                 Text(stateName(abberviation: value))
-                    .font(size: 14)
+                    .font(size: 12)
                     .emphasized()
+                TableColumnTitles()
             } footer: { rows, value in
-                HLine()
-                    .padding(vertical: .pt(2))
+                Divider(size: .pt(0.75), padding: .pt(2))
                 Text("\(rows.count) records for \(stateName(abberviation: value))")
                     .emphasized()
                     .padding(leading: .max)
             }
-
+        } pageHeader: { pageNo in
+            ZStack {
+                Text("Page \(pageNo)")
+                    .frame(width: .max, alignment: .leading)
+                Text("Donor List")
+                    .frame(width: .max, alignment: .center)
+                    .font(size: 12)
+                    .emphasized()
+                Text(Date(), format: .dateTime)
+                    .frame(width: .max, alignment: .trailing)
+            }
+            .padding(bottom: .pt(9))
+            if pageNo > 1 {
+                TableColumnTitles()
+            }
         }
     }
 }
@@ -48,13 +53,13 @@ private struct TableExample: Block {
 private func stateName(abberviation: String) -> String {
     switch abberviation {
     case "CA":
-        return "California"
+        "California"
     case "NY":
-        return "New York"
+        "New York"
     case "TX":
-        return "Texas"
+        "Texas"
     default:
-        return "Unknown"
+        "Unknown"
     }
 }
 
@@ -65,7 +70,7 @@ private func stateName(abberviation: String) -> String {
         let view = PDFView()
         view.autoScales = true
         Task {
-            if let data = try? await TableExample()
+            if let data = try? await Document()
                 .renderPDF(size: .letter, margins: .init(.in(1)))
             {
                 view.document = PDFDocument(data: data)
@@ -74,6 +79,16 @@ private func stateName(abberviation: String) -> String {
         return view
     }
 #endif
+
+private struct Data: Decodable {
+    let firstName: String
+    let lastName: String
+    let address: String
+    let city: String
+    let state: String
+    let zip: String
+    let dob: Date
+}
 
 
 let customerData = """

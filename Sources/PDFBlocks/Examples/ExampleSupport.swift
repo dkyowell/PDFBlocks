@@ -7,15 +7,13 @@
 import Foundation
 
 extension FormatStyle where Self == IntegerFormatStyle<Int> {
-
     static var nogroup: IntegerFormatStyle<Int> {
         .number
-        .grouping(.never)
+            .grouping(.never)
     }
 }
 
 extension FormatStyle where Self == Date.FormatStyle {
-
     static var mmddyy: Date.FormatStyle {
         Date.FormatStyle()
             .month(.defaultDigits)
@@ -24,7 +22,7 @@ extension FormatStyle where Self == Date.FormatStyle {
     }
 }
 
-func loadData<T>(_ type: T.Type, from: String) -> [T] where T: Decodable {
+func loadData<T>(_: T.Type, from: String) -> [T] where T: Decodable {
     guard let data = from.data(using: .utf8) else {
         return []
     }
