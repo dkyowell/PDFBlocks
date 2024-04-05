@@ -8,19 +8,20 @@ import Foundation
 
 extension Divider: Renderable {
     func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        switch environment.layoutAxis {
-        case .horizontal:
-            .init(min: .init(width: size.points, height: proposedSize.height),
-                  max: .init(width: size.points, height: proposedSize.height))
-        case .vertical:
-            .init(min: .init(width: proposedSize.width, height: size.points),
-                  max: .init(width: proposedSize.width, height: size.points))
-        case .undefined:
-            .init(min: .zero, max: .zero)
+        if environment.layoutAxis == .horizontal {
+            BlockSize(minMax: .init(width: size.points + padding.points * 2, height: proposedSize.height))
+        } else {
+            BlockSize(minMax: .init(width: proposedSize.width, height: size.points + padding.points * 2))
         }
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.renderer.renderLine(dash: [], environment: environment, rect: rect)
+        if environment.layoutAxis == .horizontal {
+            let rect = CGRect(x: rect.minX + padding.points, y: rect.minY, width: rect.width - padding.points * 2, height: rect.height)
+            context.renderer.renderLine(dash: [], environment: environment, rect: rect)
+        } else {
+            let rect = CGRect(x: rect.minX, y: rect.minY + padding.points, width: rect.width, height: rect.height - padding.points * 2)
+            context.renderer.renderLine(dash: [], environment: environment, rect: rect)
+        }
     }
 }

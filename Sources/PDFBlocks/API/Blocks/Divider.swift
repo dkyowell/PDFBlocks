@@ -12,8 +12,10 @@ import Foundation
 /// or horizontally when not in a stack.
 public struct Divider: Block {
     let size: Size
+    let padding: Size
 
-    public init(size: Size = .pt(1.5)) {
+    public init(size: Size = .pt(1), padding: Size = .pt(1)) {
         self.size = size
+        self.padding = padding
     }
 }
