@@ -23,6 +23,6 @@ struct OpacityKey: EnvironmentKey {
 extension EnvironmentValues {
     var opacity: CGFloat {
         get { self[OpacityKey.self] }
-        set { self[OpacityKey.self] = newValue }
+        set { self[OpacityKey.self] = self[OpacityKey.self] * newValue }
     }
 }
