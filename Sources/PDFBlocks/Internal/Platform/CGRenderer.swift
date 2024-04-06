@@ -140,17 +140,17 @@
             let font: NSUIFont
             font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
             attributes[.font] = font
-            if environment.emphasized {
+            if environment.bold {
                 #if os(macOS)
-                    if let emphasizedFontName = environment.emphasizedFontName?.value {
-                        attributes[.font] = NSFont(name: emphasizedFontName, size: font.pointSize)
+                    if let boldFontName = environment.boldFontName?.value {
+                        attributes[.font] = NSFont(name: boldFontName, size: font.pointSize)
                     } else {
                         let descriptor = font.fontDescriptor.withSymbolicTraits(.bold)
                         attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
                     }
                 #else
-                    if let emphasizedFontName = environment.emphasizedFontName?.value {
-                        attributes[.font] = UIFont(name: emphasizedFontName, size: font.pointSize)
+                    if let boldFontName = environment.boldFontName?.value {
+                        attributes[.font] = UIFont(name: boldFontName, size: font.pointSize)
                     } else {
                         if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
                             attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)
@@ -217,17 +217,17 @@
             let font: NSUIFont
             font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
             attributes[.font] = font
-            if environment.emphasized {
+            if environment.bold {
                 #if os(macOS)
-                    if let emphasizedFontName = environment.emphasizedFontName?.value {
-                        attributes[.font] = NSFont(name: emphasizedFontName, size: font.pointSize)
+                    if let boldFontName = environment.boldFontName?.value {
+                        attributes[.font] = NSFont(name: boldFontName, size: font.pointSize)
                     } else {
                         let descriptor = font.fontDescriptor.withSymbolicTraits(.bold)
                         attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
                     }
                 #else
-                    if let emphasizedFontName = environment.emphasizedFontName?.value {
-                        attributes[.font] = UIFont(name: emphasizedFontName, size: font.pointSize)
+                    if let boldFontName = environment.boldFontName?.value {
+                        attributes[.font] = UIFont(name: boldFontName, size: font.pointSize)
                     } else {
                         if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
                             attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)

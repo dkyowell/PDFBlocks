@@ -30,7 +30,7 @@ public struct TableColumnTitles: Block {
             HStack(spacing: .pt(2)) {
                 ForEach(columns.filter(\.visible)) { column in
                     Text(column.title)
-                        .emphasized()
+                        .bold()
                         .proportionalFrame(width: column.width, alignment: column.alignment)
                 }
             }

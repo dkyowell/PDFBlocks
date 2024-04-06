@@ -8,18 +8,18 @@ import Foundation
 
 public extension Block {
     /// Sets emphasized value of block.
-    func emphasized(_ value: Bool = true) -> some Block {
-        environment(\.emphasized, value)
+    func bold(_ value: Bool = true) -> some Block {
+        environment(\.bold, value)
     }
 }
 
-struct EmphasizedKey: EnvironmentKey {
+struct BoldKey: EnvironmentKey {
     static let defaultValue = false
 }
 
 extension EnvironmentValues {
-    var emphasized: Bool {
-        get { self[EmphasizedKey.self] }
-        set { self[EmphasizedKey.self] = newValue }
+    var bold: Bool {
+        get { self[BoldKey.self] }
+        set { self[BoldKey.self] = newValue }
     }
 }
