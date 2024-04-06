@@ -28,13 +28,11 @@ private struct LetterBlock: Block {
     let color: Color
     var body: some Block {
         Text(letter)
-            .foregroundColor(.init(.white))
+            .foregroundColor(.white)
             .frame(width: .pt(48), height: .pt(48), alignment: .center)
-            .background {
-                color
-            }
+            .background { color }
             .font(name: "American Typewriter", size: 36)
-            .emphasized()
+            .bold()
     }
 }
 

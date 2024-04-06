@@ -25,25 +25,10 @@ private struct Document: Block {
                     .bold()
                 TableColumnTitles()
             } footer: { rows, value in
-                Divider(size: .pt(0.75), padding: .pt(2))
+                Divider(thickness: .pt(0.75), padding: .pt(2))
                 Text("\(rows.count) records for \(stateName(abberviation: value))")
                     .bold()
                     .padding(.leading, .max)
-            }
-        } pageHeader: { pageNo in
-            HStack {
-                Text("Page \(pageNo)")
-                    .padding(.trailing, .max)
-                Text("Donor List")
-                    .padding(.horizontal, .max)
-                    .font(size: 12)
-                    .bold()
-                Text(Date(), format: .mmddyy)
-                    .padding(.leading, .max)
-            }
-            .padding(.bottom, .pt(9))
-            if pageNo > 1 {
-                TableColumnTitles()
             }
         }
     }

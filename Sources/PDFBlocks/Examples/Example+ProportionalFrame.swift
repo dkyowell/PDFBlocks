@@ -11,7 +11,7 @@ private struct Document: Block {
         VStack(spacing: .pt(12)) {
             HStack(alignment: .top, spacing: .pt(4)) {
                 Text("Leading")
-                    //.frame(height: .in(0.5), alignment: .bottomLeading)
+                    // .frame(height: .in(0.5), alignment: .bottomLeading)
                     .background { Color.purple.opacity(0.5) }
                     .proportionalFrame(width: 1, alignment: .leading)
                     .background { Color.red.opacity(0.5) }

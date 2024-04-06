@@ -7,14 +7,14 @@
     <img src="https://img.shields.io/badge/platforms-macOS+iOS-brightgreen.svg?style=flat" alt="Mac + iOS" />
 </p>
 
-A framework for generating reports and other PDF documents with a SwiftUI like syntax.
+A SwiftUI inspired framework for generating reports and other PDF documents.
 
-##  Write page descriptions, not procedural code.
-PDFBlocks provides an easy-to-use declarative language for describing document layout that is modeled after SwiftUI.
-Here is the code used to generate the PDFBlocks logo used at the top of this document:
-
+##  Look Ma, no Commands
+PDFBlocks uses a declarative language for describing document layout. There is no print(), draw(), newPage() or any other 
+kind of print command. Instead, you specify the elements you want to appear within a layout heirarchy. Here is the "code"
+used to generate the PDFBlocks logo used at the top of this document:
 ```swift
-struct Logo: Block {
+struct Document: Block {
     var body: some Block {
         VStack(spacing: .pt(2)) {
             HStack(spacing: .pt(2)) {
@@ -30,18 +30,17 @@ struct Logo: Block {
         }
     }
 }
+
 struct LetterBlock: Block {
     let letter: String
     let color: Color
     var body: some Block {
         Text(letter)
-            .foregroundColor(.init(.white))
+            .foregroundColor(.white)
             .frame(width: .pt(48), height: .pt(48), alignment: .center)
-            .background {
-                color
-            }
+            .background { color }
             .font(name: "American Typewriter", size: 36)
-            .emphasized()
+            .bold()
     }
 }
 ```
@@ -53,7 +52,7 @@ struct Document: Block {
     let data: [Donor]
 
     var body: some Block {
-        Table(data: data) {
+        Table(data) {
             TableColumn("Last Name", value: \.lastName, width: 20)
             TableColumn("First Name", value: \.firstName, width: 20)
             TableColumn("Address", value: \.address, width: 35)
@@ -65,14 +64,13 @@ struct Document: Block {
             TableGroup(on: \.state, order: <, spacing: .pt(12)) { rows, value in
                 Text(stateName(abberviation: value))
                     .font(size: 14)
-                    .emphasized()
+                    .bold()
             } footer: { rows, value in
                 Divider()
                 Text("\(rows.count) records for \(stateName(abberviation: value))")
-                    .emphasized()
-                    .padding(leading: .max)
+                    .bold()
+                    .padding(.leading, .max)
             }
-
         }
     }
 }
@@ -112,10 +110,10 @@ You would use:
 Text("Bottom Trailing Text in PDFBlocks)
     .frame(width: .max, height: .max, alignment: .bottomTrailing)
 ```
-Even more intuitively, you could use:
+Or alternatively you could use:
 ```swift
 Text("Bottom Trailing Text in PDFBlocks)
-    .padding(top: .max, leading: .max)
+    .padding([.top, .leading], .max)
 ```
 
 ### Spacing
