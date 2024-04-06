@@ -24,6 +24,10 @@ class Context {
     var multipageRect: CGRect = .zero
     var multipageCursor: CGFloat = 0
     var onNewPage: ((Int) -> Void)?
+
+    var pageFooter: ((Int) -> any Block)?
+    var pageFooterSize: CGSize = .zero
+    var pageFooterEnvironment: EnvironmentValues = .init()
 }
 
 extension Context {
@@ -45,6 +49,7 @@ extension Context {
     }
 
     func startNewPage(newPageSize: CGSize? = nil) {
+        renderPageFooter()
         if let newPageSize {
             pageSize = newPageSize
         }
@@ -54,10 +59,30 @@ extension Context {
         onNewPage?(pageNo)
     }
 
+    func renderPageFooter() {
+        if let pageFooter {
+            let footerBlock = pageFooter(pageNo).getRenderable(environment: pageFooterEnvironment)
+            let renderRect = CGRect(origin: multipageRect.origin.offset(dy: multipageRect.height), size: pageFooterSize)
+            footerBlock.render(context: self, environment: pageFooterEnvironment, rect: renderRect)
+        }
+    }
+
+    
     func beginMultipageRendering(rect: CGRect, onNewPage: ((Int) -> Void)? = nil) {
-        multipageRect = rect
         multipageCursor = 0
         self.onNewPage = onNewPage
+        multipageRect = rect
+    }
+
+    
+    func beginMultipageRendering(environment: EnvironmentValues, rect: CGRect, footer: @escaping (Int) -> any Block, onNewPage: ((Int) -> Void)? = nil) {
+        multipageCursor = 0
+        self.onNewPage = onNewPage
+        pageFooter = footer
+        // Reserve space for footer
+        let footerBlock = footer(1).getRenderable(environment: environment)
+        pageFooterSize = footerBlock.sizeFor(context: self, environment: environment, proposedSize: rect.size).max
+        multipageRect = .init(origin: rect.origin, size: .init(width: rect.width, height: rect.height - pageFooterSize.height))
     }
 
     private func getMultipageRenderingRect(height: CGFloat) -> CGRect {

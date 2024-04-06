@@ -10,12 +10,12 @@ private struct Document: Block {
     var body: some Block {
         VStack(spacing: .pt(2)) {
             HStack(spacing: .pt(2)) {
-                ForEach(data: ["P", "D", "F"]) { item in
+                ForEach(["P", "D", "F"]) { item in
                     LetterBlock(letter: item, color: .red)
                 }
             }
             HStack(spacing: .pt(2)) {
-                ForEach(data: ["B", "L", "O", "C", "K", "S"]) { item in
+                ForEach(["B", "L", "O", "C", "K", "S"]) { item in
                     LetterBlock(letter: item, color: .cyan)
                 }
             }
@@ -28,13 +28,11 @@ private struct LetterBlock: Block {
     let color: Color
     var body: some Block {
         Text(letter)
-            .foregroundColor(.init(.white))
+            .foregroundColor(.white)
             .frame(width: .pt(48), height: .pt(48), alignment: .center)
-            .background {
-                color
-            }
+            .background { color }
             .font(name: "American Typewriter", size: 36)
-            .emphasized()
+            .bold()
     }
 }
 

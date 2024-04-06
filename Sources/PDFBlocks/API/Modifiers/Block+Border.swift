@@ -21,7 +21,7 @@ public extension Block {
     ///
     /// - Returns: A block that adds a border with the specified style and width
     ///   to this block.
-    func border(color: Color, width: Size) -> some Block {
+    func border(color: Color, width: Size = .pt(1)) -> some Block {
         modifier(BorderModifier(color: color, width: width))
     }
 }

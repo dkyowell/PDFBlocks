@@ -25,12 +25,14 @@ import Foundation
 public struct TableColumnTitles: Block {
     @Environment(\.tableColumns) private var columns
 
+    public init() {}
+
     public var body: some Block {
         VStack {
             HStack(spacing: .pt(2)) {
-                ForEach(data: columns.filter(\.visible)) { column in
+                ForEach(columns.filter(\.visible)) { column in
                     Text(column.title)
-                        .emphasized()
+                        .bold()
                         .proportionalFrame(width: column.width, alignment: column.alignment)
                 }
             }

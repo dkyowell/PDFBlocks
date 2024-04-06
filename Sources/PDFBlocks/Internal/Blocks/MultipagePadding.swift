@@ -44,10 +44,6 @@ extension MultipagePadding: Renderable {
         block.render(context: context, environment: environment, rect: rect)
         context.advanceMultipageCursor(bottom.points)
     }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
-    }
 }
 
 extension MultipageBlock {

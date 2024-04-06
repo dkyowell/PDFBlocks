@@ -9,9 +9,9 @@ import Foundation
 extension Divider: Renderable {
     func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         if environment.layoutAxis == .horizontal {
-            BlockSize(width: size.points + padding.points * 2, height: proposedSize.height)
+            BlockSize(width: thickness.points + padding.points * 2, height: proposedSize.height)
         } else {
-            BlockSize(width: proposedSize.width, height: size.points + padding.points * 2)
+            BlockSize(width: proposedSize.width, height: thickness.points + padding.points * 2)
         }
     }
 
@@ -23,9 +23,5 @@ extension Divider: Renderable {
             let rect = CGRect(x: rect.minX, y: rect.minY + padding.points, width: rect.width, height: rect.height - padding.points * 2)
             context.renderer.renderLine(dash: [], environment: environment, rect: rect)
         }
-    }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
     }
 }

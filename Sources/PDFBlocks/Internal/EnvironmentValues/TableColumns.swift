@@ -6,7 +6,7 @@
 
 import Foundation
 
-// Used by Table and TableHeader
+// Used in Table, TableColumnTitles, and TableRow
 private struct TableColumnsKey: EnvironmentKey {
     static let defaultValue: [any TableColumnContent] = []
 }

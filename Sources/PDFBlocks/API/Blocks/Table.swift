@@ -10,8 +10,7 @@ import Foundation
 /// reports.
 public struct Table<Row>: MultipageBlock {
     let data: [Row]
-    let printTableHeader: PrintWhen
-    let printPageHeader: PrintWhen
+    let printColumnTitles: Bool
     let columns: [any TableColumnContent<Row>]
     let groups: [any TableGroupContent<Row>]
     let header: any Block
@@ -21,8 +20,23 @@ public struct Table<Row>: MultipageBlock {
     let pageFooter: (Int) -> (any Block)
 
     public init(
-        data: [Row],
-        printTitles: PrintWhen = .always,
+        _ data: [Row],
+        @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
+        @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] }
+    ) {
+        self.data = data
+        printColumnTitles = true
+        self.columns = columns()
+        row = nil
+        self.groups = groups()
+        header = EmptyBlock()
+        footer = EmptyBlock()
+        pageHeader = { _ in EmptyBlock() }
+        pageFooter = { _ in EmptyBlock() }
+    }
+
+    public init(
+        _ data: [Row],
         @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
@@ -31,8 +45,7 @@ public struct Table<Row>: MultipageBlock {
         @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
     ) {
         self.data = data
-        printTableHeader = printTitles
-        printPageHeader = .never
+        printColumnTitles = false
         self.columns = columns()
         row = nil
         self.groups = groups()
@@ -43,8 +56,7 @@ public struct Table<Row>: MultipageBlock {
     }
 
     public init(
-        data: [Row],
-        printTitles: PrintWhen = .always,
+        _ data: [Row],
         @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
         @BlockBuilder row: @escaping ([any TableColumnContent<Row>], Row) -> (any Block),
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
@@ -54,8 +66,7 @@ public struct Table<Row>: MultipageBlock {
         @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
     ) {
         self.data = data
-        printTableHeader = printTitles
-        printPageHeader = .never
+        printColumnTitles = false
         self.columns = columns()
         self.row = row
         self.groups = groups()
@@ -65,7 +76,7 @@ public struct Table<Row>: MultipageBlock {
         self.pageFooter = pageFooter
     }
 
-    public enum PrintWhen {
+    enum PrintWhen {
         case always
         case afterFirstPage
         case never

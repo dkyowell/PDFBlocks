@@ -29,8 +29,9 @@ extension Border: Renderable {
                                       width: width.points)
     }
 
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        content.getRenderable(environment: environment)
+            .proportionalWidth(environment: environment)
     }
 }
 

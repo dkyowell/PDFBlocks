@@ -6,15 +6,9 @@
 
 import Foundation
 
-public extension Block {
-    func proportionalFrame(width: CGFloat = 1, alignment: HorizontalAlignment = .leading) -> some Block {
-        ProporionalFrame(width: width, alignment: alignment, content: self)
-    }
-}
-
 struct ProporionalFrame<Content>: Block where Content: Block {
     var width: Double
-    let alignment: HorizontalAlignment
+    let horizontalAlignment: HorizontalAlignment
     let content: Content
 }
 
@@ -25,17 +19,17 @@ extension ProporionalFrame: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        let width = content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: rect.size).max.width
-        let dx: CGFloat = switch alignment {
+        let size = content.getRenderable(environment: environment)
+            .sizeFor(context: context, environment: environment, proposedSize: rect.size).max
+        let dx: CGFloat = switch horizontalAlignment {
         case .leading:
             0
         case .center:
-            (rect.width - width) / 2
+            (rect.width - size.width) / 2
         case .trailing:
-            rect.width - width
+            rect.width - size.width
         }
-        let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: width, height: rect.height)
+        let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: size.width, height: rect.height)
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: renderRect)
     }
@@ -44,5 +38,3 @@ extension ProporionalFrame: Renderable {
         width
     }
 }
-
-extension Background {}

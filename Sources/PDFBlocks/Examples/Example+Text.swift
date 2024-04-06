@@ -9,12 +9,17 @@ import Foundation
 private struct Document: Block {
     let text = "The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. "
     var body: some Block {
-        ForEach(data: [TextAlignment.leading, .center, .trailing, .justified]) { alignment in
-            Text(text)
-                .font(size: 18)
-                .multilineTextAlignment(alignment)
-            Divider(padding: .pt(12))
+        VStack {
+            ForEach([TextAlignment.leading, .center, .trailing, .justified]) { alignment in
+                Text(text)
+                    .font(size: 18)
+                    .multilineTextAlignment(alignment)
+                if alignment != .justified {
+                    Divider(padding: .pt(12))
+                }
+            }
         }
+        .padding(.vertical, .max)
     }
 }
 

@@ -16,8 +16,4 @@ extension LayoutReader: Renderable {
         // that function to report its size to the PageFrame.
         environment.sendLayoutRect(rect)
     }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
-    }
 }

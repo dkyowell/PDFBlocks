@@ -7,59 +7,18 @@
 import Foundation
 
 private struct Document: Block {
-    let data = loadData(Data.self, from: customerData)
+    let data: [CustomerData]
 
     var body: some Block {
-        Table(data: data) {
+        Table(data) {
             TableColumn("Last Name", value: \.lastName, width: 20)
             TableColumn("First Name", value: \.firstName, width: 20)
             TableColumn("Address", value: \.address, width: 35)
             TableColumn("City", value: \.city, width: 25)
             TableColumn("State", value: \.state, width: 10)
             TableColumn("Zip", value: \.zip, width: 10)
-            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10,
-                        alignment: .trailing)
-        } groups: {
-            TableGroup(on: \.state, order: <, spacing: .pt(12)) { _, value in
-                Text(stateName(abberviation: value))
-                    .font(size: 12)
-                    .emphasized()
-                TableColumnTitles()
-            } footer: { rows, value in
-                Divider(size: .pt(0.75), padding: .pt(2))
-                Text("\(rows.count) records for \(stateName(abberviation: value))")
-                    .emphasized()
-                    .padding(leading: .max)
-            }
-        } pageHeader: { pageNo in
-            ZStack {
-                Text("Page \(pageNo)")
-                    .frame(width: .max, alignment: .leading)
-                Text("Donor List")
-                    .frame(width: .max, alignment: .center)
-                    .font(size: 12)
-                    .emphasized()
-                Text(Date(), format: .dateTime)
-                    .frame(width: .max, alignment: .trailing)
-            }
-            .padding(bottom: .pt(9))
-            if pageNo > 1 {
-                TableColumnTitles()
-            }
+            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
         }
-    }
-}
-
-private func stateName(abberviation: String) -> String {
-    switch abberviation {
-    case "CA":
-        "California"
-    case "NY":
-        "New York"
-    case "TX":
-        "Texas"
-    default:
-        "Unknown"
     }
 }
 
@@ -70,7 +29,7 @@ private func stateName(abberviation: String) -> String {
         let view = PDFView()
         view.autoScales = true
         Task {
-            if let data = try? await Document()
+            if let data = try? await Document(data: loadData(CustomerData.self, from: customerData))
                 .renderPDF(size: .letter, margins: .init(.in(1)))
             {
                 view.document = PDFDocument(data: data)
@@ -80,7 +39,7 @@ private func stateName(abberviation: String) -> String {
     }
 #endif
 
-private struct Data: Decodable {
+private struct CustomerData: Decodable {
     let firstName: String
     let lastName: String
     let address: String
@@ -90,8 +49,7 @@ private struct Data: Decodable {
     let dob: Date
 }
 
-
-let customerData = """
+private let customerData = """
 [
   {
     "dob": "1980-12-23T07:59:10.728Z",

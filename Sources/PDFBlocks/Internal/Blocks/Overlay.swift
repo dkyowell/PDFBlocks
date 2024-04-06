@@ -54,3 +54,12 @@ extension Overlay: Renderable {
             .proportionalWidth(environment: environment)
     }
 }
+
+struct OverlayModifier<OverlayContent>: BlockModifier where OverlayContent: Block {
+    let overlay: OverlayContent
+    let alignment: Alignment
+
+    func body(content: Content) -> some Block {
+        Overlay(content: content, overlay: overlay, alignment: alignment)
+    }
+}

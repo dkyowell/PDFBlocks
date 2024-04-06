@@ -28,8 +28,9 @@ extension AspectRatio: Renderable {
         block.render(context: context, environment: environment, rect: rect)
     }
 
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        content.getRenderable(environment: environment)
+            .proportionalWidth(environment: environment)
     }
 }
 

@@ -57,8 +57,4 @@ extension MultipageGrid: Renderable {
             }
         }
     }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
-    }
 }

@@ -69,3 +69,9 @@ extension Block {
         }
     }
 }
+
+extension Renderable {
+    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
+        nil
+    }
+}
