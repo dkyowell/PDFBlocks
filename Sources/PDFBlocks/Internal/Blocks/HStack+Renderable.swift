@@ -97,7 +97,7 @@ extension HStack: Renderable {
             let adjustedWidth = rect.width - fixedSpacing
             let sumProportionalWidth = blocks.map { $0.proportionalWidth(environment: environment) ?? 1 }.reduce(0, +)
             var dx: CGFloat = 0
-            blocks.forEach { block in
+            for block in blocks {
                 let width = ((block.proportionalWidth(environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
                 let proposedSize = CGSize(width: width, height: rect.height)
                 let height = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
@@ -110,7 +110,7 @@ extension HStack: Renderable {
                 case .bottom:
                     rect.height - height
                 }
-                let renderRect = CGRect(x: rect.minX + dx, y : rect.minY + dy, width: width, height: height)
+                let renderRect = CGRect(x: rect.minX + dx, y: rect.minY + dy, width: width, height: height)
                 block.render(context: context, environment: environment, rect: renderRect)
                 dx += width + spacing.fixedPoints
             }

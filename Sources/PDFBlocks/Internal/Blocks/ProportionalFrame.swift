@@ -21,14 +21,13 @@ extension ProporionalFrame: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         let size = content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: rect.size).max
-        let dx: CGFloat
-        switch horizontalAlignment {
+        let dx: CGFloat = switch horizontalAlignment {
         case .leading:
-            dx = 0
+            0
         case .center:
-            dx = (rect.width - size.width) / 2
+            (rect.width - size.width) / 2
         case .trailing:
-            dx = rect.width - size.width
+            rect.width - size.width
         }
         let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: size.width, height: rect.height)
         content.getRenderable(environment: environment)

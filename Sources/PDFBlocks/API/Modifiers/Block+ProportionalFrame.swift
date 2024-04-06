@@ -11,4 +11,3 @@ public extension Block {
         ProporionalFrame(width: width, horizontalAlignment: alignment, content: self)
     }
 }
-
