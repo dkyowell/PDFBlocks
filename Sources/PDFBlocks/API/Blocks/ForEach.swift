@@ -11,7 +11,7 @@ public struct ForEach<T, Content>: Block where Content: Block {
     let content: (T) -> Content
     let data: [T]
 
-    public init(data: [T], @BlockBuilder content: @escaping (T) -> Content) {
+    public init(_ data: [T], @BlockBuilder content: @escaping (T) -> Content) {
         self.data = data
         self.content = content
     }

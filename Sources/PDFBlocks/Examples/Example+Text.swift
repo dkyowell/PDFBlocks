@@ -9,7 +9,7 @@ import Foundation
 private struct Document: Block {
     let text = "The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. "
     var body: some Block {
-        ForEach(data: [TextAlignment.leading, .center, .trailing, .justified]) { alignment in
+        ForEach([TextAlignment.leading, .center, .trailing, .justified]) { alignment in
             Text(text)
                 .font(size: 18)
                 .multilineTextAlignment(alignment)

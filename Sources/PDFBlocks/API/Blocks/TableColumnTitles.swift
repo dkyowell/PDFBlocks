@@ -28,7 +28,7 @@ public struct TableColumnTitles: Block {
     public var body: some Block {
         VStack {
             HStack(spacing: .pt(2)) {
-                ForEach(data: columns.filter(\.visible)) { column in
+                ForEach(columns.filter(\.visible)) { column in
                     Text(column.title)
                         .emphasized()
                         .proportionalFrame(width: column.width, alignment: column.alignment)
