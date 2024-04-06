@@ -23,7 +23,7 @@ extension Table: Renderable {
                 context.renderMultipageContent(block: TableRow(record: record), environment: environment)
             }
         }
-        context.beginMultipageRendering(rect: rect) { pageNo in
+        context.beginMultipageRendering(environment: environment, rect: rect, footer: pageFooter) { pageNo in
             // This is the new page function called on the start of subsequant pages.
             environment.startNewPage?()
             context.renderMultipageContent(block: pageHeader(pageNo), environment: environment)
@@ -44,6 +44,7 @@ extension Table: Renderable {
             }
         }
         context.renderMultipageContent(block: footer, environment: environment)
+        context.renderPageFooter()
     }
 }
 
