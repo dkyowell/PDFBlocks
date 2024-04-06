@@ -8,17 +8,16 @@ import Foundation
 
 /// A block for displaying a table row within a Table.
 public struct TableRow<Value>: Block {
-    private let columns: [any TableColumnContent<Value>]
     private let record: Value
+    @Environment(\.tableColumns) private var columns
 
-    public init(columns: [any TableColumnContent<Value>], record: Value) {
-        self.columns = columns
+    public init(record: Value) {
         self.record = record
     }
 
     public var body: some Block {
         HStack(spacing: .pt(2)) {
-            ForEach(data: columns.filter(\.visible)) { column in
+            ForEach(data: columns.filter(\.visible).compactMap { $0 as? any TableColumnContent<Value> }) { column in
                 AnyBlock(column.cellContent(record: record))
                     .proportionalFrame(width: column.width, alignment: column.alignment)
             }

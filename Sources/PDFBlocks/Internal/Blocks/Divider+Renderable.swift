@@ -24,8 +24,4 @@ extension Divider: Renderable {
             context.renderer.renderLine(dash: [], environment: environment, rect: rect)
         }
     }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
-    }
 }

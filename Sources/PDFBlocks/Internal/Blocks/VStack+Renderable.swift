@@ -99,8 +99,4 @@ extension VStack: Renderable {
             stackOffset += size.height + space
         }
     }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
-    }
 }

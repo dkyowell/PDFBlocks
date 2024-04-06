@@ -32,15 +32,15 @@ private struct Document: Block {
                     .padding(leading: .max)
             }
         } pageHeader: { pageNo in
-            ZStack {
+            HStack {
                 Text("Page \(pageNo)")
-                    .frame(width: .max, alignment: .leading)
+                    .padding(trailing: .max)
                 Text("Donor List")
-                    .frame(width: .max, alignment: .center)
+                    .padding(horizontal: .max)
                     .font(size: 12)
                     .emphasized()
-                Text(Date(), format: .dateTime)
-                    .frame(width: .max, alignment: .trailing)
+                Text(Date(), format: .mmddyy)
+                    .padding(leading: .max)
             }
             .padding(bottom: .pt(9))
             if pageNo > 1 {
@@ -89,7 +89,6 @@ private struct Data: Decodable {
     let zip: String
     let dob: Date
 }
-
 
 let customerData = """
 [

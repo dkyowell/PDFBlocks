@@ -23,7 +23,12 @@ extension Optional: Renderable where Wrapped: Block {
         }
     }
 
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
+    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+        if let self {
+            self.getRenderable(environment: environment)
+                .proportionalWidth(environment: environment)
+        } else {
+            nil
+        }
     }
 }

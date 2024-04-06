@@ -35,10 +35,6 @@ extension PageFrame: Renderable {
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: layoutRect)
     }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
-    }
 }
 
 struct SendLayoutRectKey: EnvironmentKey {

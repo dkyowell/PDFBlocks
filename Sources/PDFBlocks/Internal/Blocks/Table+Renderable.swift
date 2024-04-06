@@ -33,7 +33,7 @@ extension Table: Renderable {
             if let row {
                 context.renderMultipageContent(block: row(columns, record), environment: environment)
             } else {
-                context.renderMultipageContent(block: TableRow(columns: columns, record: record), environment: environment)
+                context.renderMultipageContent(block: TableRow(record: record), environment: environment)
             }
         }
 
@@ -50,10 +50,6 @@ extension Table: Renderable {
             }
         }
         context.renderMultipageContent(block: footer, environment: environment)
-    }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
     }
 }
 

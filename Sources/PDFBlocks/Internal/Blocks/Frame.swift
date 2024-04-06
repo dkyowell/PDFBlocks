@@ -63,10 +63,6 @@ extension Frame: Renderable {
         let printRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
         block.render(context: context, environment: environment, rect: printRect)
     }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
-    }
 }
 
 struct FrameModifier: BlockModifier {
