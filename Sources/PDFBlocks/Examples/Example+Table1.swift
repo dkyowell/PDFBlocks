@@ -22,19 +22,6 @@ private struct Document: Block {
     }
 }
 
-private func stateName(abberviation: String) -> String {
-    switch abberviation {
-    case "CA":
-        "California"
-    case "NY":
-        "New York"
-    case "TX":
-        "Texas"
-    default:
-        "Unknown"
-    }
-}
-
 #if os(iOS) || os(macOS)
     import PDFKit
 
