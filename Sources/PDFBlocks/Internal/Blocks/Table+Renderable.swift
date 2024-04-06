@@ -16,32 +16,26 @@ extension Table: Renderable {
         var environment = environment
         environment.isWithinMultipageContainer = true
         environment.tableColumns = columns
-
-        context.beginMultipageRendering(rect: rect) { pageNo in
-            environment.startNewPage?()
-            context.renderMultipageContent(block: pageHeader(pageNo), environment: environment)
-//            if printPageHeader == .always || (printPageHeader == .afterFirstPage && pageNo > 1) {
-//            }
-//            if printTableHeader == .always || (printTableHeader == .afterFirstPage && pageNo > 1) {
-//                context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
-//            }
-        }
-
-        context.renderMultipageContent(block: pageHeader(1), environment: environment)
-
-        let printRow = { (record: Row) in
+        func printRow(_ record: Row) {
             if let row {
                 context.renderMultipageContent(block: row(columns, record), environment: environment)
             } else {
                 context.renderMultipageContent(block: TableRow(record: record), environment: environment)
             }
         }
-
+        context.beginMultipageRendering(rect: rect) { pageNo in
+            // This is the new page function called on the start of subsequant pages.
+            environment.startNewPage?()
+            context.renderMultipageContent(block: pageHeader(pageNo), environment: environment)
+            if printColumnTitles {
+                context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
+            }
+        }
+        if printColumnTitles {
+            context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
+        }
+        context.renderMultipageContent(block: pageHeader(1), environment: environment)
         context.renderMultipageContent(block: header, environment: environment)
-//        if printTableHeader == .always {
-//            context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
-//        }
-
         if let first = groups.first {
             first.render(data: data, onPrintRow: printRow, context: context, environment: environment)
         } else {

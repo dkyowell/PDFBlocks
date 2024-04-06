@@ -25,6 +25,8 @@ import Foundation
 public struct TableColumnTitles: Block {
     @Environment(\.tableColumns) private var columns
 
+    public init() {}
+
     public var body: some Block {
         VStack {
             HStack(spacing: .pt(2)) {
