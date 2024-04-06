@@ -35,9 +35,4 @@ public extension Set<Edge> {
 
     /// Trailing edge.
     static var trailing: Self { [.trailing] }
-
-    /// Add a collection of edges to a collection of edges.
-    /// - Parameter edges: The collection of edges.
-    /// - Returns: Both collections combined.
-    func add(_ edges: Self) -> Self { union(edges) }
 }
