@@ -7,43 +7,15 @@
 import Foundation
 
 public extension Block {
-    /// Adds padding to this block..
-    func padding(_ padding: EdgeInsets) -> some Block {
-        modifier(PaddingModifier(padding: padding))
+    func padding(_ edges: Set<Edge>, _ length: Size) -> some Block {
+        let top = edges.contains(.top) ? length : .pt(0)
+        let leading = edges.contains(.leading) ? length : .pt(0)
+        let bottom = edges.contains(.bottom) ? length : .pt(0)
+        let trailing = edges.contains(.trailing) ? length : .pt(0)
+        return modifier(PaddingModifier(padding: .init(top: top, leading: leading, bottom: bottom, trailing: trailing)))
     }
 
-    /// Adds padding to this block..
-    func padding(top: Size = .pt(0), leading: Size = .pt(0), bottom: Size = .pt(0), trailing: Size = .pt(0)) -> some Block {
-        padding(.init(top: top, leading: leading, bottom: bottom, trailing: trailing))
-    }
-
-    /// Adds padding to this block..
-    func padding(bottom: Size) -> some Block {
-        padding(.init(bottom: bottom))
-    }
-
-    /// Adds padding to this block..
-    func padding(top: Size) -> some Block {
-        padding(.init(top: top))
-    }
-
-    /// Adds padding to this block..
-    func padding(leading: Size) -> some Block {
-        padding(.init(leading: leading))
-    }
-
-    /// Adds padding to this block..
-    func padding(trailing: Size) -> some Block {
-        padding(.init(trailing: trailing))
-    }
-
-    /// Adds padding to this block..
-    func padding(horizontal: Size) -> some Block {
-        padding(.init(top: .pt(0), leading: horizontal, bottom: .pt(0), trailing: horizontal))
-    }
-
-    /// Adds padding to this block..
-    func padding(vertical: Size) -> some Block {
-        padding(.init(top: vertical, leading: .pt(0), bottom: vertical, trailing: .pt(0)))
+    func padding(_ length: Size) -> some Block {
+        padding(.all, length)
     }
 }
