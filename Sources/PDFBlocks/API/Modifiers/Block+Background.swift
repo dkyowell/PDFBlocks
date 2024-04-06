@@ -15,6 +15,6 @@ public extension Block {
     ///
     /// - Returns: A block that adds a background to this block.
     func background(alignment: Alignment = .center, @BlockBuilder _ content: () -> some Block) -> some Block {
-        Background(content: self, background: content(), alignment: alignment)
+        modifier(BackgroundModifier(background: content(), alignment: alignment))
     }
 }

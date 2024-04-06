@@ -15,6 +15,6 @@ public extension Block {
     ///
     /// - Returns: A block that adds an overlay to this block.
     func overlay(alignment: Alignment = .center, @BlockBuilder _ content: () -> some Block) -> some Block {
-        Overlay(content: self, overlay: content(), alignment: alignment)
+        modifier(OverlayModifier(overlay: content(), alignment: alignment))
     }
 }

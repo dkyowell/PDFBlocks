@@ -54,3 +54,12 @@ extension Background: Renderable {
             .proportionalWidth(environment: environment)
     }
 }
+
+struct BackgroundModifier<BackgroundContent>: BlockModifier where BackgroundContent: Block {
+    let background: BackgroundContent
+    let alignment: Alignment
+
+    func body(content: Content) -> some Block {
+        Background(content: content, background: background, alignment: alignment)
+    }
+}
