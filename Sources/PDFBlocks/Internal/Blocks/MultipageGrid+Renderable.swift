@@ -29,7 +29,7 @@ extension MultipageGrid: Renderable {
         }
         if context.multipageMode == false {
             context.beginMultipageRendering(rect: rect)
-        }        
+        }
         let blocks = content.getRenderables(environment: environment)
         let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
         let cellSize = CGSize(width: cellWidth, height: .infinity)

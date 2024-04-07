@@ -6,9 +6,8 @@
 
 import Foundation
 
-// A Block that does not allow multipage blocks within its contents will set
-// allowMultiPageBlocks to false with an associated value of its block name.
-// The associated value is used in error reporting.
+// A Block that does not allow multipage blocks within its contents will set allowMultiPageBlocks to false with an
+// associated value of its block name. The associated value is used in error reporting.
 enum AllowMultipageBlocks {
     case `true`
     case `false`(String)

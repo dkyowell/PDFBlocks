@@ -6,6 +6,7 @@
 
 import Foundation
 
+// Context is a reference type that holds renderer state that is shared by an entire block tree.
 class Context {
     #if os(iOS) || os(macOS)
         init() {
@@ -68,14 +69,12 @@ extension Context {
         }
     }
 
-    
     func beginMultipageRendering(rect: CGRect, onNewPage: ((Int) -> Void)? = nil) {
         multipageCursor = 0
         self.onNewPage = onNewPage
         multipageRect = rect
     }
 
-    
     func beginMultipageRendering(environment: EnvironmentValues, rect: CGRect, footer: @escaping (Int) -> any Block, onNewPage: ((Int) -> Void)? = nil) {
         multipageCursor = 0
         self.onNewPage = onNewPage

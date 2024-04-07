@@ -7,7 +7,7 @@
 import Foundation
 
 extension Table: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         if context.multipageMode {
             BlockSize(width: proposedSize.width, height: 0)
         } else {
