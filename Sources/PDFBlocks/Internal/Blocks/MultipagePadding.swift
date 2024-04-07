@@ -18,12 +18,10 @@ extension MultipagePadding: Renderable {
             ErrorMessageBlock(message: errorMessage(innerBlock: "MultipagePadding", outerBlock: outerBlock))
                 .getRenderable(environment: environment)
                 .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
-        } else if environment.isWithinMultipageContainer {
-            .init(min: .init(width: proposedSize.width, height: 0),
-                  max: .init(width: proposedSize.width, height: 0))
+        } else if context.multipageMode {
+            BlockSize(width: proposedSize.width, height: 0)
         } else {
-            .init(min: proposedSize,
-                  max: proposedSize)
+            BlockSize(proposedSize)
         }
     }
 
@@ -34,9 +32,7 @@ extension MultipagePadding: Renderable {
                 .render(context: context, environment: environment, rect: rect)
             return
         }
-        var environment = environment
-        if environment.isWithinMultipageContainer == false {
-            environment.isWithinMultipageContainer = true
+        if context.multipageMode == false {
             context.beginMultipageRendering(rect: rect)
         }
         context.advanceMultipageCursor(top.points)

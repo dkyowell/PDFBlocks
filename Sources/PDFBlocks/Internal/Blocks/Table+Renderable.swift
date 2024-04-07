@@ -6,15 +6,17 @@
 
 import Foundation
 
-// TODO: Add pageFooter functionality. It is already in the API, but does not render.
 extension Table: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        .init(min: proposedSize, max: proposedSize)
+    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+        if context.multipageMode {
+            BlockSize(width: proposedSize.width, height: 0)
+        } else {
+            BlockSize(proposedSize)
+        }
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
-        environment.isWithinMultipageContainer = true
         environment.tableColumns = columns
         func printRow(_ record: Row) {
             if let row {
@@ -34,10 +36,11 @@ extension Table: Renderable {
         if printColumnTitles {
             context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
         }
+        // If embedded...this should not be page 1
         context.renderMultipageContent(block: pageHeader(1), environment: environment)
         context.renderMultipageContent(block: header, environment: environment)
-        if let first = groups.first {
-            first.render(data: data, onPrintRow: printRow, context: context, environment: environment)
+        if let firstGroup = groups.first {
+            firstGroup.render(data: data, onPrintRow: printRow, context: context, environment: environment)
         } else {
             for record in data {
                 printRow(record)
@@ -52,11 +55,11 @@ extension TableGroupContent {
     func render(data: [Row], onPrintRow: (Row) -> Void, context: Context, environment: EnvironmentValues) {
         let dict = [Value: [Row]].init(grouping: data, by: { $0[keyPath: value] })
         for (offset, key) in dict.keys.sorted(by: order).enumerated() {
-            if let data = dict[key], let first = data.first {
+            if let data = dict[key] {
                 if offset > 0 {
                     context.advanceMultipageCursor(spacing.points)
                 }
-                context.renderMultipageContent(block: header(data, first[keyPath: value]), environment: environment)
+                context.renderMultipageContent(block: header(data, key), environment: environment)
                 if let nextGroup {
                     nextGroup.render(data: data, onPrintRow: onPrintRow, context: context, environment: environment)
                 } else {
@@ -64,7 +67,7 @@ extension TableGroupContent {
                         onPrintRow(row)
                     }
                 }
-                context.renderMultipageContent(block: footer(data, first[keyPath: value]), environment: environment)
+                context.renderMultipageContent(block: footer(data, key), environment: environment)
             }
         }
     }

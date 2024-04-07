@@ -28,6 +28,7 @@ class Context {
     var pageFooter: ((Int) -> any Block)?
     var pageFooterSize: CGSize = .zero
     var pageFooterEnvironment: EnvironmentValues = .init()
+    var multipageMode = false
 }
 
 extension Context {
@@ -83,6 +84,7 @@ extension Context {
         let footerBlock = footer(1).getRenderable(environment: environment)
         pageFooterSize = footerBlock.sizeFor(context: self, environment: environment, proposedSize: rect.size).max
         multipageRect = .init(origin: rect.origin, size: .init(width: rect.width, height: rect.height - pageFooterSize.height))
+        multipageMode = true
     }
 
     private func getMultipageRenderingRect(height: CGFloat) -> CGRect {

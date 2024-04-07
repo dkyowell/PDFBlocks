@@ -13,12 +13,10 @@ extension MultipageGrid: Renderable {
             ErrorMessageBlock(message: errorMessage(innerBlock: "MultipageGrid", outerBlock: outerBlock))
                 .getRenderable(environment: environment)
                 .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
-        } else if environment.isWithinMultipageContainer {
-            .init(min: .init(width: proposedSize.width, height: 0),
-                  max: .init(width: proposedSize.width, height: 0))
+        } else if context.multipageMode {
+            BlockSize(width: proposedSize.width, height: 0)
         } else {
-            .init(min: proposedSize,
-                  max: proposedSize)
+            BlockSize(proposedSize)
         }
     }
 
@@ -29,11 +27,9 @@ extension MultipageGrid: Renderable {
                 .render(context: context, environment: environment, rect: rect)
             return
         }
-        var environment = environment
-        if environment.isWithinMultipageContainer == false {
-            environment.isWithinMultipageContainer = true
+        if context.multipageMode == false {
             context.beginMultipageRendering(rect: rect)
-        }
+        }        
         let blocks = content.getRenderables(environment: environment)
         let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
         let cellSize = CGSize(width: cellWidth, height: .infinity)
