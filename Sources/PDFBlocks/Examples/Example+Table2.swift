@@ -30,6 +30,10 @@ private struct Document: Block {
                     .bold()
                     .padding(.leading, .max)
             }
+        } pageHeader: { pageNo in
+            if pageNo > 1 {
+                TableColumnTitles()
+            }
         }
     }
 }

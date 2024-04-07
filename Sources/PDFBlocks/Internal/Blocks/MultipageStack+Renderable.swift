@@ -27,7 +27,7 @@ extension MultipageStack: Renderable {
             return
         }
         if context.multipageMode == false {
-            context.beginMultipageRendering(rect: rect)
+            context.beginMultipageRendering(environment: environment, rect: rect)
         }
         let blocks = content.getRenderables(environment: environment)
         for (offset, block) in blocks.enumerated() {

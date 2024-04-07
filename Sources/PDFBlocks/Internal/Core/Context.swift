@@ -22,14 +22,12 @@ class Context {
 
     var pageNo = 0
     var pageSize: CGSize = .init(width: 8.5, height: 11).scaled(by: 72)
+    var multipageMode = false
+    var multipageFrameRect: CGRect = .zero
     var multipageRect: CGRect = .zero
     var multipageCursor: CGFloat = 0
-    var onNewPage: ((Int) -> Void)?
-
-    var pageFooter: ((Int) -> any Block)?
-    var pageFooterSize: CGSize = .zero
-    var pageFooterEnvironment: EnvironmentValues = .init()
-    var multipageMode = false
+    var pageFrame: ((Int) -> any Block)?
+    var pageFrameEnvironment: EnvironmentValues = .init()
 }
 
 extension Context {
@@ -51,46 +49,39 @@ extension Context {
     }
 
     func startNewPage(newPageSize: CGSize? = nil) {
-        renderPageFooter()
         if let newPageSize {
             pageSize = newPageSize
         }
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
-        multipageCursor = 0
         pageNo += 1
-        onNewPage?(pageNo)
+        renderPageFrame()
     }
 
-    func renderPageFooter() {
-        if let pageFooter {
-            let footerBlock = pageFooter(pageNo).getRenderable(environment: pageFooterEnvironment)
-            let renderRect = CGRect(origin: multipageRect.origin.offset(dy: multipageRect.height), size: pageFooterSize)
-            footerBlock.render(context: self, environment: pageFooterEnvironment, rect: renderRect)
+    func renderPageFrame() {
+        if let pageFrame {
+            let block = pageFrame(pageNo).getRenderable(environment: pageFrameEnvironment)
+            block.render(context: self, environment: pageFrameEnvironment, rect: multipageFrameRect)
         }
+        multipageCursor = 0
     }
 
-    func beginMultipageRendering(rect: CGRect, onNewPage: ((Int) -> Void)? = nil) {
-        multipageCursor = 0
-        self.onNewPage = onNewPage
-        multipageRect = rect
-    }
-
-    func beginMultipageRendering(environment: EnvironmentValues, rect: CGRect, footer: @escaping (Int) -> any Block, onNewPage: ((Int) -> Void)? = nil) {
-        multipageCursor = 0
-        self.onNewPage = onNewPage
-        pageFooter = footer
-        // Reserve space for footer
-        let footerBlock = footer(1).getRenderable(environment: environment)
-        pageFooterSize = footerBlock.sizeFor(context: self, environment: environment, proposedSize: rect.size).max
-        multipageRect = .init(origin: rect.origin, size: .init(width: rect.width, height: rect.height - pageFooterSize.height))
+    func beginMultipageRendering(environment: EnvironmentValues,
+                                 pageFrame: ((Int) -> any Block)? = nil,
+                                 rect: CGRect)
+    {
+        self.pageFrame = pageFrame
+        pageFrameEnvironment = environment
+        multipageFrameRect = rect
         multipageMode = true
+        renderPageFrame()
     }
 
     private func getMultipageRenderingRect(height: CGFloat) -> CGRect {
         if (multipageRect.minY + multipageCursor + height) > multipageRect.maxY {
             startNewPage()
         }
-        let result = CGRect(x: multipageRect.minX, y: multipageRect.minY + multipageCursor, width: multipageRect.width, height: height)
+        let result = CGRect(x: multipageRect.minX, y: multipageRect.minY + multipageCursor,
+                            width: multipageRect.width, height: height)
         multipageCursor += height
         return result
     }
