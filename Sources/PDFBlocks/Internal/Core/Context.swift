@@ -31,24 +31,37 @@ class Context {
 }
 
 extension Context {
-    func render(size: PageSize, margins: EdgeInsets, content: some Block) async throws -> Data? {
+    func render(size: PageSize, margins _: EdgeInsets, content: some Block) async throws -> Data? {
         try renderer.render {
             let environment = EnvironmentValues()
-            let allBlocksArePages = content.getRenderables(environment: environment)
-                .reduce(true) { $0 && $1 is PageBlock }
-            let blocks: [Renderable] = if allBlocksArePages {
-                content.getRenderables(environment: environment)
+            let blocks = content.getRenderables(environment: environment)
+            if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
+                // no defined pages
+                let page = RealPage(size: .letter, content: content.padding(.in(1)))
+                let size = page.sizeFor(context: self, environment: environment, proposedSize: .zero).max
+                page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: size))
             } else {
-                [Page(size: size, margins: margins, content: { content })]
-            }
-            for block in blocks {
-                let size = block.sizeFor(context: self, environment: environment, proposedSize: .zero)
-                block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: size.max))
+                for block in blocks {
+                    if let info = block.pageInfo(context: self, environment: environment) {
+                        // render defined page
+                        let page = RealPage(size: info.size, content: AnyBlock(block))
+                        let size = page.sizeFor(context: self, environment: environment, proposedSize: .zero).max
+                        page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: size))
+                    } else {
+                        // render element in its own page
+                        let page = RealPage(size: .letter, content: AnyBlock(block).padding(.in(1)))
+                        let size = page.sizeFor(context: self, environment: environment, proposedSize: .zero).max
+                        page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: size))
+                    }
+                }
             }
         }
     }
 
+    func pages() {}
+
     func startNewPage(newPageSize: CGSize? = nil) {
+        print("startNewPage")
         if let newPageSize {
             pageSize = newPageSize
         }
@@ -98,7 +111,7 @@ extension Context {
         renderMultipageContent(block: block.getRenderable(environment: environment), environment: environment)
     }
 
-    func renderMultipageContent(block: Renderable, environment: EnvironmentValues) {
+    func renderMultipageContent(block: any Renderable, environment: EnvironmentValues) {
         let size = block.sizeFor(context: self, environment: environment, proposedSize: multipageRect.size)
         let renderRect = getMultipageRenderingRect(height: size.max.height)
         block.render(context: self, environment: environment, rect: renderRect)

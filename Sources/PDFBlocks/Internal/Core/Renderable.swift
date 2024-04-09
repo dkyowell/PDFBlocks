@@ -18,7 +18,7 @@ import Foundation
 //  wants to be. The block will then render the subblock at that size, or will shrink the size
 //  if necessary.
 
-protocol Renderable {
+protocol Renderable: Block {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize
     func render(context: Context, environment: EnvironmentValues, rect: CGRect)
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
@@ -42,10 +42,9 @@ extension Renderable {
     }
 }
 
-
 extension Block {
     // A Renderable will call this upon its contents to obtain it as a Renderable.
-    func getRenderable(environment: EnvironmentValues) -> Renderable {
+    func getRenderable(environment: EnvironmentValues) -> any Renderable {
         updateEnvironmentProperties(environment: environment)
         if self is GroupBlock {
             // A group as contents of a block that is not expecting a group is treated as a VStack.
@@ -60,7 +59,7 @@ extension Block {
     }
 
     // A Renderable will call this upon its contents to obtain it as an array of Renderable.
-    func getRenderables(environment: EnvironmentValues) -> [Renderable] {
+    func getRenderables(environment: EnvironmentValues) -> [any Renderable] {
         updateEnvironmentProperties(environment: environment)
         if let cast = self as? any GroupBlock {
             return cast.flattenedBlocks().map { $0.getRenderable(environment: environment) }
@@ -91,5 +90,8 @@ extension Renderable {
     func layoutPriority(context: Context, environment: EnvironmentValues) -> Int {
         getTrait(context: context, environment: environment, keypath: \.layoutPriority)
     }
-}
 
+    func pageInfo(context: Context, environment: EnvironmentValues) -> PageInfo? {
+        getTrait(context: context, environment: environment, keypath: \.pageInfo)
+    }
+}

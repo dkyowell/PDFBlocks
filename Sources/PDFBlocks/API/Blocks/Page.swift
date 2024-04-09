@@ -7,13 +7,15 @@
 import Foundation
 
 /// A block that defines an entire PDF page.
+///
+/// A page can have a background, overlay, or frame, but it should
+/// not be embedded in a stack or given padding or a frame.
 public struct Page<Content>: Block where Content: Block {
-    let size: PageSize
-    let margins: EdgeInsets
+    let pageInfo: PageInfo
     let content: Content
+
     public init(size: PageSize, margins: EdgeInsets, @BlockBuilder content: () -> Content) {
-        self.size = size
-        self.margins = margins
+        pageInfo = .init(size: size, margins: margins)
         self.content = content()
     }
 }

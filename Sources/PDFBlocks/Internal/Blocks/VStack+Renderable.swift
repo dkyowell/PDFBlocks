@@ -7,7 +7,7 @@
 import Foundation
 
 extension VStack: Renderable {
-    func layoutBlocks(_ blocks: [Renderable], context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> ([CGSize]) {
+    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> ([CGSize]) {
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
         let layoutSize = CGSize(width: proposedSize.width, height: proposedSize.height - fixedSpacing)
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: layoutSize) }
