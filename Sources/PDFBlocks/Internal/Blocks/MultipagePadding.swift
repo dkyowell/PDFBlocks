@@ -33,7 +33,7 @@ extension MultipagePadding: Renderable {
             return
         }
         if context.multipageMode == false {
-            context.beginMultipageRendering(environment: environment, rect: rect)
+            context.beginMultipageRendering(environment: environment, pageFrame: nil, rect: rect)
         }
         context.advanceMultipageCursor(top.points)
         let block = content.getRenderable(environment: environment)

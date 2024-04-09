@@ -63,6 +63,16 @@ extension Frame: Renderable {
         let printRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
         block.render(context: context, environment: environment, rect: printRect)
     }
+
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        // TODO: Stop any search for proportionalWidth?
+        if keypath == \.proprtionalWidth {
+            Trait(proprtionalWidth: nil)[keyPath: keypath]
+        } else {
+            content.getRenderable(environment: environment)
+                .getTrait(context: context, environment: environment, keypath: keypath)
+        }
+    }
 }
 
 struct FrameModifier: BlockModifier {

@@ -49,9 +49,9 @@ extension Background: Renderable {
             .render(context: context, environment: environment, rect: rect)
     }
 
-    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         content.getRenderable(environment: environment)
-            .proportionalWidth(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 }
 

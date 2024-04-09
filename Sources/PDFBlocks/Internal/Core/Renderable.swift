@@ -21,7 +21,7 @@ import Foundation
 protocol Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize
     func render(context: Context, environment: EnvironmentValues, rect: CGRect)
-    func proportionalWidth(environment: EnvironmentValues) -> Double?
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
 }
 
 extension Renderable {
@@ -34,6 +34,14 @@ extension Renderable {
         fatalError()
     }
 }
+
+// Default getTrait implementation
+extension Renderable {
+    func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        Trait()[keyPath: keypath]
+    }
+}
+
 
 extension Block {
     // A Renderable will call this upon its contents to obtain it as a Renderable.
@@ -70,8 +78,18 @@ extension Block {
     }
 }
 
+// These "shortcut" functions are for more ergonomic expression from calling site.
 extension Renderable {
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
+    func proportionalWidth(context: Context, environment: EnvironmentValues) -> Double? {
+        getTrait(context: context, environment: environment, keypath: \.proprtionalWidth)
+    }
+
+    func containsMultipageBlock(context: Context, environment: EnvironmentValues) -> Bool {
+        getTrait(context: context, environment: environment, keypath: \.containsMultipageBlock)
+    }
+
+    func layoutPriority(context: Context, environment: EnvironmentValues) -> Int {
+        getTrait(context: context, environment: environment, keypath: \.layoutPriority)
     }
 }
+

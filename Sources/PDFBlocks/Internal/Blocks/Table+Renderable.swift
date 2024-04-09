@@ -31,6 +31,10 @@ extension Table: Renderable {
         }
         context.renderMultipageContent(block: footer, environment: environment)
     }
+
+    func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        Trait(containsMultipageBlock: true)[keyPath: keypath]
+    }
 }
 
 extension TableGroupContent {
