@@ -7,13 +7,14 @@
 import Algorithms
 import Foundation
 
-extension MultipageGrid: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        if case let .false(outerBlock) = environment.allowMultipageBlocks {
-            ErrorMessageBlock(message: errorMessage(innerBlock: "MultipageGrid", outerBlock: outerBlock))
-                .getRenderable(environment: environment)
-                .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
-        } else if context.multipageMode {
+extension Grid: Renderable {
+    func sizeFor(context: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+//        if case let .false(outerBlock) = environment.allowMultipageBlocks {
+//            ErrorMessageBlock(message: errorMessage(innerBlock: "MultipageGrid", outerBlock: outerBlock))
+//                .getRenderable(environment: environment)
+//                .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+//        } else
+        if context.multipageMode {
             BlockSize(width: proposedSize.width, height: 0)
         } else {
             BlockSize(proposedSize)
@@ -21,15 +22,15 @@ extension MultipageGrid: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        if case let .false(outerBlock) = environment.allowMultipageBlocks {
-            ErrorMessageBlock(message: errorMessage(innerBlock: "MultipageGrid", outerBlock: outerBlock))
-                .getRenderable(environment: environment)
-                .render(context: context, environment: environment, rect: rect)
-            return
-        }
-        if context.multipageMode == false {
-            context.beginMultipageRendering(environment: environment, rect: rect)
-        }
+//        if case let .false(outerBlock) = environment.allowMultipageBlocks {
+//            ErrorMessageBlock(message: errorMessage(innerBlock: "MultipageGrid", outerBlock: outerBlock))
+//                .getRenderable(environment: environment)
+//                .render(context: context, environment: environment, rect: rect)
+//            return
+//        }
+//        if context.multipageMode == false {
+//            context.beginMultipageRendering(environment: environment, rect: rect)
+//        }
         let blocks = content.getRenderables(environment: environment)
         let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
         let cellSize = CGSize(width: cellWidth, height: .infinity)
@@ -41,7 +42,7 @@ extension MultipageGrid: Renderable {
                 context.advanceMultipageCursor(rowSpacing.points)
             }
             let rowHeight = row.map(\.1.max.height).reduce(0, max)
-            context.renderMultipageContent(height: rowHeight) { rowRect in
+            context.renderMultipageContent(rect: rect, height: rowHeight) { rowRect in
                 var dx = 0.0
                 for (block, size) in row {
                     let cellRect = CGRect(origin: rowRect.origin.offset(dx: dx, dy: 0),
@@ -52,5 +53,9 @@ extension MultipageGrid: Renderable {
                 }
             }
         }
+    }
+
+    func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        Trait(containsMultipageBlock: true)[keyPath: keypath]
     }
 }

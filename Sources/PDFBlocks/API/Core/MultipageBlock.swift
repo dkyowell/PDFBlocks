@@ -16,13 +16,3 @@ import Foundation
 /// There is a special verticalPadding modifier that allows for vertical padding
 /// before and after a multipage block.
 public protocol MultipageBlock: Block {}
-
-public extension MultipageBlock {
-    func multipagePadding(top: Size = .pt(0), bottom: Size = .pt(0)) -> some Block {
-        MultipagePadding(top: top, bottom: bottom, content: self)
-    }
-
-    func multipagePadding(vertical: Size) -> some Block {
-        multipagePadding(top: vertical, bottom: vertical)
-    }
-}

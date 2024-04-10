@@ -61,7 +61,6 @@ extension Context {
     func pages() {}
 
     func startNewPage(newPageSize: CGSize? = nil) {
-        print("startNewPage")
         if let newPageSize {
             pageSize = newPageSize
         }
@@ -99,6 +98,16 @@ extension Context {
         return result
     }
 
+    private func getMultipageRenderingRect(rect: CGRect, height: CGFloat) -> CGRect {
+        if (multipageRect.minY + multipageCursor + height) > multipageRect.maxY {
+            startNewPage()
+        }
+        let result = CGRect(x: rect.minX, y: multipageRect.minY + multipageCursor,
+                            width: rect.width, height: height)
+        multipageCursor += height
+        return result
+    }
+
     func advanceMultipageCursor(_ value: CGFloat) {
         if (multipageRect.minY + multipageCursor + value) > multipageRect.maxY {
             startNewPage()
@@ -119,5 +128,9 @@ extension Context {
 
     func renderMultipageContent(height: CGFloat, callback: (CGRect) -> Void) {
         callback(getMultipageRenderingRect(height: height))
+    }
+
+    func renderMultipageContent(rect: CGRect, height: CGFloat, callback: (CGRect) -> Void) {
+        callback(getMultipageRenderingRect(rect: rect, height: height))
     }
 }
