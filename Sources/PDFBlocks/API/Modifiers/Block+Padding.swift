@@ -18,4 +18,8 @@ public extension Block {
     func padding(_ length: Size) -> some Block {
         padding(.all, length)
     }
+
+    func padding(top: Size = .pt(0), leading: Size = .pt(0), bottom: Size = .pt(0), trailing: Size = .pt(0)) -> some Block {
+        modifier(PaddingModifier(padding: .init(top: top, leading: leading, bottom: bottom, trailing: trailing)))
+    }
 }

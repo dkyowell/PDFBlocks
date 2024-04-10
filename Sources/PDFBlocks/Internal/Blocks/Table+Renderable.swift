@@ -33,7 +33,7 @@ extension Table: Renderable {
     }
 
     func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(containsMultipageBlock: true)[keyPath: keypath]
+        Trait(allowPageWrap: true)[keyPath: keypath]
     }
 }
 

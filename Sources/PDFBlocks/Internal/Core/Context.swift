@@ -31,34 +31,30 @@ class Context {
 }
 
 extension Context {
-    func render(size: PageSize, margins _: EdgeInsets, content: some Block) async throws -> Data? {
+    func render(size: PageSize, margins: EdgeInsets, content: some Block) async throws -> Data? {
         try renderer.render {
             let environment = EnvironmentValues()
             let blocks = content.getRenderables(environment: environment)
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
-                // no defined pages
-                let page = RealPage(size: .letter, content: content.padding(.in(1)))
-                let size = page.sizeFor(context: self, environment: environment, proposedSize: .zero).max
-                page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: size))
+                // no defined pages. collect all into a VStack
+                let defaultPageSize = CGSize(width: size.width.points, height: size.height.points)
+                startNewPage(newPageSize: defaultPageSize)
+                let page = Page(size: size, margins: margins, content: content)
+                page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: defaultPageSize))
             } else {
                 for block in blocks {
-                    if let info = block.pageInfo(context: self, environment: environment) {
-                        // render defined page
-                        let page = RealPage(size: info.size, content: AnyBlock(block))
-                        let size = page.sizeFor(context: self, environment: environment, proposedSize: .zero).max
-                        page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: size))
-                    } else {
-                        // render element in its own page
-                        let page = RealPage(size: .letter, content: AnyBlock(block).padding(.in(1)))
-                        let size = page.sizeFor(context: self, environment: environment, proposedSize: .zero).max
-                        page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: size))
+                    guard let info = block.pageInfo(context: self, environment: environment) else {
+                        // drop stray blocks
+                        continue
                     }
+                    // render defined page
+                    let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
+                    startNewPage(newPageSize: pageSize)
+                    block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
                 }
             }
         }
     }
-
-    func pages() {}
 
     func startNewPage(newPageSize: CGSize? = nil) {
         if let newPageSize {
@@ -81,9 +77,13 @@ extension Context {
                                  pageFrame: ((Int) -> any Block)? = nil,
                                  rect: CGRect)
     {
+        guard multipageMode == false else {
+            return
+        }
         self.pageFrame = pageFrame
         pageFrameEnvironment = environment
         multipageFrameRect = rect
+        multipageRect = rect
         multipageMode = true
         renderPageFrame()
     }

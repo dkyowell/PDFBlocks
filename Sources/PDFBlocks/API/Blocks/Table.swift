@@ -8,7 +8,7 @@ import Foundation
 
 /// A block that can generate entire multipage data-driven
 /// reports.
-public struct Table<Row>: MultipageBlock {
+public struct Table<Row>: Block {
     let data: [Row]
     let columns: [any TableColumnContent<Row>]
     let groups: [any TableGroupContent<Row>]

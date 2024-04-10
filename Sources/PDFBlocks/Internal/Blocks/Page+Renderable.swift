@@ -18,19 +18,24 @@ extension Page: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        let layoutWidth = rect.width - pageInfo.margins.leading.points - pageInfo.margins.trailing.points
-        let layoutHeight = rect.height - pageInfo.margins.top.points - pageInfo.margins.bottom.points
-        let layoutOriginX = rect.minX + pageInfo.margins.leading.points
-        let layoutOrginY = rect.minY + pageInfo.margins.top.points
-        let layoutRect = CGRect(origin: .init(x: layoutOriginX, y: layoutOrginY),
-                                size: .init(width: layoutWidth, height: layoutHeight))
+        let marginRect = CGRect(x: rect.minX + pageInfo.margins.leading.points,
+                                y: rect.minY + pageInfo.margins.top.points,
+                                width: rect.width - pageInfo.margins.leading.points - pageInfo.margins.trailing.points,
+                                height: rect.height - pageInfo.margins.top.points - pageInfo.margins.bottom.points)
         let block = content.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposedSize: layoutRect.size).max
-        let renderRect = CGRect(origin: layoutRect.origin, size: size)
+        let size = block.sizeFor(context: context, environment: environment, proposedSize: marginRect.size).max
+        let renderRect = CGRect(origin: marginRect.origin, size: size)
         block.render(context: context, environment: environment, rect: renderRect)
     }
 
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait(pageInfo: pageInfo)[keyPath: keypath]
+    }
+}
+
+public extension Page {
+    init(size: PageSize, margins: EdgeInsets, content: Content) {
+        pageInfo = .init(size: size, margins: margins)
+        self.content = content
     }
 }

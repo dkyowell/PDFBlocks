@@ -83,8 +83,8 @@ extension Renderable {
         getTrait(context: context, environment: environment, keypath: \.proprtionalWidth)
     }
 
-    func containsMultipageBlock(context: Context, environment: EnvironmentValues) -> Bool {
-        getTrait(context: context, environment: environment, keypath: \.containsMultipageBlock)
+    func allowPageWrap(context: Context, environment: EnvironmentValues) -> Bool {
+        getTrait(context: context, environment: environment, keypath: \.allowPageWrap)
     }
 
     func layoutPriority(context: Context, environment: EnvironmentValues) -> Int {

@@ -14,9 +14,9 @@ struct Padding<Content>: Block where Content: Block {
 extension Padding: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         let block = content.getRenderable(environment: environment)
-        if block.containsMultipageBlock(context: context, environment: environment) {
+        if block.allowPageWrap(context: context, environment: environment) {
             // TODO: This presumes contents are full width
-            return BlockSize(width: proposedSize.width, height: 0)
+            return BlockSize(proposedSize)
         } else {
             let size = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
             // 1. Determine min
@@ -35,7 +35,8 @@ extension Padding: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         let block = content.getRenderable(environment: environment)
-        if block.containsMultipageBlock(context: context, environment: environment) {
+        if block.allowPageWrap(context: context, environment: environment) {
+            context.beginMultipageRendering(environment: environment, rect: rect)
             context.advanceMultipageCursor(padding.top.points)
             let block = content.getRenderable(environment: environment)
             let renderRect = CGRect(x: rect.minX + padding.leading.points,
@@ -80,11 +81,5 @@ struct PaddingModifier: BlockModifier {
 
     func body(content: Content) -> some Block {
         Padding(padding: padding, content: content)
-    }
-}
-
-extension MultipageBlock {
-    func errorMessage(innerBlock: String, outerBlock: String) -> String {
-        "\(innerBlock) cannot be used within a \(outerBlock). \(outerBlock) cannot properly handle page overflows."
     }
 }
