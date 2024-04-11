@@ -23,3 +23,20 @@ extension EnvironmentValues {
         set { self[AllowMultipageBlocksKey.self] = newValue }
     }
 }
+
+private struct RenderModeKey: EnvironmentKey {
+    static let defaultValue = RenderMode.measured
+}
+
+
+enum RenderMode {
+    case measured
+    case wrapping
+}
+
+extension EnvironmentValues {
+    var renderMode: RenderMode {
+        get { self[RenderModeKey.self] }
+        set { self[RenderModeKey.self] = newValue }
+    }
+}

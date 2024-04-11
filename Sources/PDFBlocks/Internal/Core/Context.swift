@@ -28,6 +28,9 @@ class Context {
     var multipageCursor: CGFloat = 0
     var pageFrame: ((Int) -> any Block)?
     var pageFrameEnvironment: EnvironmentValues = .init()
+
+    var renderWrappingBlock: (() -> Void)?
+    var renderPage: (() -> Void)?
 }
 
 extension Context {
@@ -38,31 +41,41 @@ extension Context {
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
                 // no defined pages. collect all into a VStack
                 let defaultPageSize = CGSize(width: size.width.points, height: size.height.points)
-                startNewPage(newPageSize: defaultPageSize)
+                beginPage(newPageSize: defaultPageSize)
                 let page = Page(size: size, margins: margins, content: content)
                 page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: defaultPageSize))
+                endPage()
             } else {
                 for block in blocks {
                     guard let info = block.pageInfo(context: self, environment: environment) else {
                         // drop stray blocks
                         continue
                     }
-                    // render defined page
                     let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
-                    startNewPage(newPageSize: pageSize)
-                    block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
+                    renderPage = {
+                        block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
+                    }
+                    beginPage(newPageSize: pageSize)
+                    renderWrappingBlock?()
+                    endPage()
                 }
             }
         }
     }
 
-    func startNewPage(newPageSize: CGSize? = nil) {
+    func beginPage(newPageSize: CGSize? = nil) {
         if let newPageSize {
             pageSize = newPageSize
         }
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
         pageNo += 1
+        multipageCursor = 0
+        renderPage?()
         renderPageFrame()
+    }
+    
+    func endPage() {
+        renderer.endPage()
     }
 
     func renderPageFrame() {
@@ -90,7 +103,8 @@ extension Context {
 
     private func getMultipageRenderingRect(height: CGFloat) -> CGRect {
         if (multipageRect.minY + multipageCursor + height) > multipageRect.maxY {
-            startNewPage()
+            endPage()
+            beginPage()
         }
         let result = CGRect(x: multipageRect.minX, y: multipageRect.minY + multipageCursor,
                             width: multipageRect.width, height: height)
@@ -100,7 +114,8 @@ extension Context {
 
     private func getMultipageRenderingRect(rect: CGRect, height: CGFloat) -> CGRect {
         if (multipageRect.minY + multipageCursor + height) > multipageRect.maxY {
-            startNewPage()
+            endPage()
+            beginPage()
         }
         let result = CGRect(x: rect.minX, y: multipageRect.minY + multipageCursor,
                             width: rect.width, height: height)
@@ -110,7 +125,8 @@ extension Context {
 
     func advanceMultipageCursor(_ value: CGFloat) {
         if (multipageRect.minY + multipageCursor + value) > multipageRect.maxY {
-            startNewPage()
+            endPage()
+            beginPage()
         } else {
             multipageCursor += value
         }

@@ -14,15 +14,11 @@ struct Background<Content, BackgroundContent>: Block where Content: Block, Backg
 
 extension Background: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Background")
-        return content.getRenderable(environment: environment)
+        content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Background")
         let block = background.getRenderable(environment: environment)
         let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size)
         let dx: CGFloat =

@@ -11,7 +11,7 @@ import Foundation
 extension Grid: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         if allowPageWrap {
-            if context.multipageMode {
+            if environment.renderMode == .wrapping {
                 return BlockSize(width: proposedSize.width, height: 0)
             } else {
                 return BlockSize(proposedSize)
@@ -29,26 +29,35 @@ extension Grid: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         if allowPageWrap {
-            context.beginMultipageRendering(environment: environment, rect: rect)
-            let blocks = content.getRenderables(environment: environment)
-            let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
-            let cellSize = CGSize(width: cellWidth, height: .infinity)
-            let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: cellSize) }
-            let rows = zip(blocks, sizes).map { $0 }.chunks(ofCount: columnCount)
-            for (offset, row) in rows.enumerated() {
-                if offset > 0 {
-                    context.advanceMultipageCursor(rowSpacing.points)
-                }
-                let rowHeight = row.map(\.1.max.height).reduce(0, max)
-                context.renderMultipageContent(rect: rect, height: rowHeight) { rowRect in
-                    var dx = 0.0
-                    for (block, size) in row {
-                        let cellRect = CGRect(origin: rowRect.origin.offset(dx: dx, dy: 0),
-                                              size: .init(width: cellWidth, height: rowHeight))
-                        let renderRect = cellRect.rectInCenter(size: size.max)
-                        block.render(context: context, environment: environment, rect: renderRect)
-                        dx += cellWidth + columnSpacing.points
+            func wrappingModeRender() {
+                let blocks = content.getRenderables(environment: environment)
+                let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
+                let cellSize = CGSize(width: cellWidth, height: .infinity)
+                let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: cellSize) }
+                let rows = zip(blocks, sizes).map { $0 }.chunks(ofCount: columnCount)
+                for (offset, row) in rows.enumerated() {
+                    if offset > 0 {
+                        context.advanceMultipageCursor(rowSpacing.points)
                     }
+                    let rowHeight = row.map(\.1.max.height).reduce(0, max)
+                    context.renderMultipageContent(rect: rect, height: rowHeight) { rowRect in
+                        var dx = 0.0
+                        for (block, size) in row {
+                            let cellRect = CGRect(origin: rowRect.origin.offset(dx: dx, dy: 0),
+                                                  size: .init(width: cellWidth, height: rowHeight))
+                            let renderRect = cellRect.rectInCenter(size: size.max)
+                            block.render(context: context, environment: environment, rect: renderRect)
+                            dx += cellWidth + columnSpacing.points
+                        }
+                    }
+                }
+            }
+            if environment.renderMode == .wrapping {
+                wrappingModeRender()
+            } else {
+                context.beginMultipageRendering(environment: environment, rect: rect)
+                context.renderWrappingBlock = {
+                    wrappingModeRender()
                 }
             }
         } else {

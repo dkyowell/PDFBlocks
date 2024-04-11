@@ -8,16 +8,13 @@ import Foundation
 
 extension Table: Renderable {
     func sizeFor(context: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        if context.multipageMode {
-            BlockSize(width: proposedSize.width, height: 0)
-        } else {
-            BlockSize(proposedSize)
-        }
+        BlockSize(proposedSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
         environment.tableColumns = columns
+        environment.renderMode = .wrapping
         context.beginMultipageRendering(environment: environment, pageFrame: pageFrame, rect: rect)
         context.renderMultipageContent(block: header, environment: environment)
         if let firstGroup = groups.first {

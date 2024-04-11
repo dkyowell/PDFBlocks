@@ -14,9 +14,14 @@ struct Padding<Content>: Block where Content: Block {
 extension Padding: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         let block = content.getRenderable(environment: environment)
-        if block.allowPageWrap(context: context, environment: environment) {
+        if block.allowPageWrap(context: context, environment: environment) && environment.renderMode == .wrapping {
             // TODO: This presumes contents are full width
-            return BlockSize(proposedSize)
+            return BlockSize(width: proposedSize.width, height: 0)
+//            if environment.multipageBegun {
+//                return BlockSize(width: proposedSize.width, height: 0)
+//            } else {
+//                return BlockSize(proposedSize)
+//            }
         } else {
             let size = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
             // 1. Determine min
@@ -35,7 +40,7 @@ extension Padding: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         let block = content.getRenderable(environment: environment)
-        if block.allowPageWrap(context: context, environment: environment) {
+        if block.allowPageWrap(context: context, environment: environment) && environment.renderMode == .wrapping {
             context.beginMultipageRendering(environment: environment, rect: rect)
             context.advanceMultipageCursor(padding.top.points)
             let block = content.getRenderable(environment: environment)

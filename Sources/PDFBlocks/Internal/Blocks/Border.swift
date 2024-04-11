@@ -14,15 +14,13 @@ struct Border<Content>: Block where Content: Block {
 
 extension Border: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Border")
+        return BlockSize(proposedSize)
         return content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Border")
+        print("border render", rect)
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
         context.renderer.renderBorder(environment: environment, rect: rect, color: color,
