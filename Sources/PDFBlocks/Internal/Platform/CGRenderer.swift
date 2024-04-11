@@ -95,7 +95,7 @@
         func renderBorder(environment: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat) {
             cgContext?.saveGState()
             cgContext?.setAlpha(environment.opacity)
-            cgContext?.addRect(rect)
+            cgContext?.addRect(rect.insetBy(dx: width/2, dy: width/2))
             cgContext?.setLineWidth(width)
             cgContext?.setStrokeColor(color.cgColor)
             cgContext?.drawPath(using: .stroke)
