@@ -8,10 +8,11 @@ import Algorithms
 import Foundation
 
 // A Grid takes up its full width
-extension Grid: Renderable {
+extension HGrid: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         if allowPageWrap {
             if environment.renderMode == .wrapping {
+                print("yes, wrapping")
                 return BlockSize(width: proposedSize.width, height: 0)
             } else {
                 return BlockSize(proposedSize)
@@ -56,7 +57,7 @@ extension Grid: Renderable {
                 wrappingModeRender()
             } else {
                 context.beginMultipageRendering(environment: environment, rect: rect)
-                context.renderWrappingBlock = {
+                context.renderPass2 = {
                     wrappingModeRender()
                 }
             }

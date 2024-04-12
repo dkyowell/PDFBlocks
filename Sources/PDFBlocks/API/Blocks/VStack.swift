@@ -20,6 +20,7 @@ import Foundation
 public struct VStack<Content>: Block where Content: Block {
     let alignment: HorizontalAlignment
     let spacing: StackSpacing
+    let allowPageWrap: Bool
     let content: Content
 
     /// Creates a vertical stack with the given spacing and vertical alignment.
@@ -28,9 +29,14 @@ public struct VStack<Content>: Block where Content: Block {
     ///   - alignment: The horizontal alignment for the contents of the stack.
     ///   - spacing: The distance between  elements of the stack.
     ///   - content: A block builder that creates the content of this stack.
-    public init(alignment: HorizontalAlignment = .leading, spacing: StackSpacing = .none, @BlockBuilder content: () -> Content) {
+    public init(alignment: HorizontalAlignment = .leading,
+                spacing: StackSpacing = .none,
+                allowPageWrap: Bool = false,
+                @BlockBuilder content: () -> Content)
+    {
         self.alignment = alignment
         self.spacing = spacing
+        self.allowPageWrap = allowPageWrap
         self.content = content()
     }
 }

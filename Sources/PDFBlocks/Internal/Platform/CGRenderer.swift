@@ -45,7 +45,7 @@
                 cgContext?.endPDFPage()
             #endif
         }
-        
+
         #if os(iOS)
             var pdfContext: UIGraphicsPDFRendererContext?
         #endif

@@ -7,7 +7,7 @@
 import Foundation
 
 /// A grid can span multiple pages.
-public struct Grid<Content>: Block where Content: Block {
+public struct HGrid<Content>: Block where Content: Block {
     let columnCount: Int
     let columnSpacing: Size
     let rowSpacing: Size

@@ -24,8 +24,8 @@ private struct Document: Block {
                     .font(size: 12)
                     .bold()
                 TableColumnTitles()
-            } footer: { rows, value in
-                Grid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(1), allowPageWrap: true) {
+            } footer: { _, _ in
+                HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(1), allowPageWrap: true) {
                     Text("A")
                     Text("B")
                     Text("C")
@@ -45,8 +45,7 @@ private struct Document: Block {
 //                    .bold()
 //                    .padding(.leading, .max)
             }
-        } header: {
-        } pageHeader: { pageNo in
+        } header: {} pageHeader: { pageNo in
             HStack {
                 Text("Page \(pageNo)")
                     .padding(.trailing, .max)

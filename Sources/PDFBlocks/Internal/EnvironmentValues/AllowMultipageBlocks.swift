@@ -28,7 +28,6 @@ private struct RenderModeKey: EnvironmentKey {
     static let defaultValue = RenderMode.measured
 }
 
-
 enum RenderMode {
     case measured
     case wrapping

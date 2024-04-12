@@ -7,7 +7,7 @@
 import Foundation
 
 extension Table: Renderable {
-    func sizeFor(context: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         BlockSize(proposedSize)
     }
 

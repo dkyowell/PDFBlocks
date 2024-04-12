@@ -29,8 +29,9 @@ class Context {
     var pageFrame: ((Int) -> any Block)?
     var pageFrameEnvironment: EnvironmentValues = .init()
 
-    var renderWrappingBlock: (() -> Void)?
-    var renderPage: (() -> Void)?
+    var renderPass1: (() -> Void)?
+    var renderPass2: (() -> Void)?
+    var renderPass3: [() -> Void] = []
 }
 
 extension Context {
@@ -41,9 +42,12 @@ extension Context {
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
                 // no defined pages. collect all into a VStack
                 let defaultPageSize = CGSize(width: size.width.points, height: size.height.points)
-                beginPage(newPageSize: defaultPageSize)
                 let page = Page(size: size, margins: margins, content: content)
-                page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: defaultPageSize))
+                renderPass1 = {
+                    page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: defaultPageSize))
+                }
+                beginPage(newPageSize: defaultPageSize)
+                renderPass2?()
                 endPage()
             } else {
                 for block in blocks {
@@ -52,11 +56,11 @@ extension Context {
                         continue
                     }
                     let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
-                    renderPage = {
+                    renderPass1 = {
                         block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
                     }
                     beginPage(newPageSize: pageSize)
-                    renderWrappingBlock?()
+                    renderPass2?()
                     endPage()
                 }
             }
@@ -70,11 +74,15 @@ extension Context {
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
         pageNo += 1
         multipageCursor = 0
-        renderPage?()
+        renderPass1?()
         renderPageFrame()
     }
-    
+
     func endPage() {
+        for f in renderPass3 {
+            f()
+        }
+        renderPass3 = []
         renderer.endPage()
     }
 

@@ -49,54 +49,95 @@ extension VStack: Renderable {
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         var environment = environment
-        environment.allowMultipageBlocks = .false("VStack")
         environment.layoutAxis = .vertical
-        let blocks = content.getRenderables(environment: environment)
-        let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposedSize)
-        let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-        let maxWidth = sizes.map(\.width).reduce(0.0, max)
-        let sumMaxHeight = sizes.map(\.height).reduce(0, +)
-        let sumMinHeight = sizes.map(\.height).reduce(0.0, +)
-        if case .flex = spacing {
-            return .init(min: .init(width: maxWidth, height: min(sumMinHeight + fixedSpacing, proposedSize.height)),
-                         max: .init(width: maxWidth, height: proposedSize.height))
+        if allowPageWrap {
+            if environment.renderMode == .wrapping {
+                return BlockSize(width: proposedSize.width, height: 0)
+            } else {
+                return BlockSize(proposedSize)
+            }
         } else {
-            return .init(min: .init(width: maxWidth, height: min(sumMinHeight + fixedSpacing, proposedSize.height)),
-                         max: .init(width: maxWidth, height: min(sumMaxHeight + fixedSpacing, proposedSize.height)))
+            let blocks = content.getRenderables(environment: environment)
+            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposedSize)
+            let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
+            let maxWidth = sizes.map(\.width).reduce(0.0, max)
+            let sumMaxHeight = sizes.map(\.height).reduce(0, +)
+            let sumMinHeight = sizes.map(\.height).reduce(0.0, +)
+            if case .flex = spacing {
+                return .init(min: .init(width: maxWidth, height: min(sumMinHeight + fixedSpacing, proposedSize.height)),
+                             max: .init(width: maxWidth, height: proposedSize.height))
+            } else {
+                return .init(min: .init(width: maxWidth, height: min(sumMinHeight + fixedSpacing, proposedSize.height)),
+                             max: .init(width: maxWidth, height: min(sumMaxHeight + fixedSpacing, proposedSize.height)))
+            }
+        }
+    }
+
+    func pageWrapRender(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        let blocks = content.getRenderables(environment: environment)
+        blocks.enumerated().forEach { (offset, block) in
+            if offset > 0 {
+                context.advanceMultipageCursor(spacing.fixedPoints)
+            }
+            let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size).max
+            let dx: CGFloat
+            switch alignment {
+            case .leading:
+                dx = 0
+            case .center:
+                dx = (rect.width - size.width) / 2
+            case .trailing:
+                dx = rect.width - size.width
+            }
+            let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: 0), size: size)
+            context.renderMultipageContent(rect: renderRect, height: size.height) { rect in
+                block.render(context: context, environment: environment, rect: rect)
+            }
         }
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
-        environment.allowMultipageBlocks = .false("VStack")
         environment.layoutAxis = .vertical
-        //  Get blocks and sizes
-        let blocks = content.getRenderables(environment: environment)
-        let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: rect.size)
-        //  Compute spacing
-        let space: CGFloat
-        switch spacing {
-        case let .flex(size):
-            let sumHeight = sizes.map(\.height).reduce(0, +)
-            space = max(size.points, (rect.height - sumHeight) / CGFloat(blocks.count - 1))
-        case let .fixed(size):
-            space = size.points
-        }
-        //  Render blocks
-        var stackOffset = 0.0
-        for (block, size) in zip(blocks, sizes) {
-            // Compute alignment
-            let dx: CGFloat = switch alignment {
-            case .leading:
-                0
-            case .center:
-                (rect.width - size.width) / 2
-            case .trailing:
-                rect.width - size.width
+        if allowPageWrap {
+            if environment.renderMode == .wrapping {
+                pageWrapRender(context: context, environment: environment, rect: rect)
+            } else {
+                environment.renderMode = .wrapping
+                context.beginMultipageRendering(environment: environment, rect: rect)
+                context.renderPass2 = {
+                    pageWrapRender(context: context, environment: environment, rect: rect)
+                }
             }
-            let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: stackOffset), size: size)
-            block.render(context: context, environment: environment, rect: renderRect)
-            stackOffset += size.height + space
+        } else {
+            //  Get blocks and sizes
+            let blocks = content.getRenderables(environment: environment)
+            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: rect.size)
+            //  Compute spacing
+            let space: CGFloat
+            switch spacing {
+            case let .flex(size):
+                let sumHeight = sizes.map(\.height).reduce(0, +)
+                space = max(size.points, (rect.height - sumHeight) / CGFloat(blocks.count - 1))
+            case let .fixed(size):
+                space = size.points
+            }
+            //  Render blocks
+            var stackOffset = 0.0
+            for (block, size) in zip(blocks, sizes) {
+                // Compute alignment
+                let dx: CGFloat = switch alignment {
+                case .leading:
+                    0
+                case .center:
+                    (rect.width - size.width) / 2
+                case .trailing:
+                    rect.width - size.width
+                }
+                let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: stackOffset), size: size)
+                block.render(context: context, environment: environment, rect: renderRect)
+                stackOffset += size.height + space
+            }
         }
     }
 }

@@ -13,46 +13,48 @@ import Foundation
 // A VStack, Grid, or Table that allows PageWrap will take all proposed spaces.
 // If a PageWrap is already within a PageWrap region, then it will take zero height.
 
-
 // IDEA: allow overlay with multipage by pushing onto a stack.
 
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            Grid(columnCount: 3, columnSpacing: .in(0), rowSpacing: .in(0.5), allowPageWrap: true) {
+            VStack(spacing: .pt(4), allowPageWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
-                Text("D")
-                Text("E")
-                Text("F")
-                Text("G")
-                Text("H")
-                Text("I")
-                Text("J")
-                Text("K")
-                Text("L")
-                Text("M")
-                Text("N")
-                Text("O")
+                HGrid(columnCount: 3, columnSpacing: .in(0), rowSpacing: .pt(4), allowPageWrap: true) {
+                    Text("D")
+                    Text("E")
+                    Text("F")
+                    Text("G")
+                    Text("H")
+                    Text("I")
+                    Text("J")
+                    Text("K")
+                    Text("L")
+                    Text("M")
+                    Text("N")
+                    Text("O")
+                }
                 Text("P")
                 Text("Q")
-                Text("R")
-                Text("S")
+                HGrid(columnCount: 3, columnSpacing: .in(0), rowSpacing: .pt(4), allowPageWrap: true) {
+                    Text("R")
+                    Text("S")
+                    Text("T")
+                    Text("U")
+                    Text("V")
+                    Text("W")
+                }
+                Text("X")
+                Text("Y")
+                Text("Z")
             }
             .font(size: 36)
-            .padding(.pt(24))
+            .padding(.pt(12))
             .background {
                 Color.blue
-                    .padding(.pt(12))
             }
-            .overlay {
-                Color.orange
-                    .padding(.pt(36))
-            }
-            .border(color: .green, width: .pt(4))
-            .padding(.pt(12))
-            .border(color: .green, width: .pt(4))
         }
         .background {
             Color.yellow
