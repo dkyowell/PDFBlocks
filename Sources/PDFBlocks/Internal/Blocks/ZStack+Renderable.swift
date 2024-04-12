@@ -8,8 +8,6 @@ import Foundation
 
 extension ZStack: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("ZStack")
         let blocks = content.getRenderables(environment: environment)
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: proposedSize) }
         let maxWidth = sizes.map(\.max.width).reduce(0.0, max)
@@ -19,8 +17,6 @@ extension ZStack: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("ZStack")
         for block in content.getRenderables(environment: environment) {
             let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size)
             let dx: CGFloat =

@@ -28,20 +28,20 @@
     class CGRenderer: Renderer {
         init() {}
 
-        private var hasStartedPage = false
-
         func startNewPage(pageSize: CGSize) {
             #if os(macOS)
-                if hasStartedPage {
-                    cgContext?.endPDFPage()
-                }
                 var mediaBox = CGRect(origin: .zero, size: pageSize)
                 cgContext?.beginPage(mediaBox: &mediaBox)
                 cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
-                hasStartedPage = true
             #else
                 let mediaBox = CGRect(origin: .zero, size: pageSize)
                 pdfContext?.beginPage(withBounds: mediaBox, pageInfo: [:])
+            #endif
+        }
+
+        func endPage() {
+            #if os(macOS)
+                cgContext?.endPDFPage()
             #endif
         }
 
@@ -76,7 +76,6 @@
                 let graphicsContext = NSGraphicsContext(cgContext: cgContext, flipped: true)
                 NSGraphicsContext.current = graphicsContext
                 renderingCallback()
-                cgContext.endPDFPage()
                 cgContext.closePDF()
                 NSGraphicsContext.current = previousContext
                 return pdfData as Data
@@ -95,7 +94,7 @@
         func renderBorder(environment: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat) {
             cgContext?.saveGState()
             cgContext?.setAlpha(environment.opacity)
-            cgContext?.addRect(rect)
+            cgContext?.addRect(rect.insetBy(dx: width / 2, dy: width / 2))
             cgContext?.setLineWidth(width)
             cgContext?.setStrokeColor(color.cgColor)
             cgContext?.drawPath(using: .stroke)

@@ -18,7 +18,11 @@ private struct Document: Block {
             TableColumn("State", value: \.state, width: 10)
             TableColumn("Zip", value: \.zip, width: 10)
             TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
+        } pageHeader: { _ in
+            TableColumnTitles()
         }
+        .padding(.pt(12))
+        .border(color: .purple, width: .pt(4))
     }
 }
 
@@ -26,6 +30,7 @@ private struct Document: Block {
     import PDFKit
 
     #Preview {
+        print("\n>>>>")
         let view = PDFView()
         view.autoScales = true
         Task {

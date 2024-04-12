@@ -6,4 +6,7 @@
 
 import Foundation
 
-extension Page: PageBlock {}
+struct PageInfo {
+    let size: PageSize
+    let margins: EdgeInsets
+}

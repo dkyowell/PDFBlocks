@@ -6,7 +6,8 @@
 
 import Foundation
 
-// Used in Table, TableColumnTitles, and TableRow
+// A Table's columns are stored in the environment. They are read from the environment by TableColumnTitles and
+// TableRow.
 private struct TableColumnsKey: EnvironmentKey {
     static let defaultValue: [any TableColumnContent] = []
 }

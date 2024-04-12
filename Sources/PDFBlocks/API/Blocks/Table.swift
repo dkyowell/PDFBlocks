@@ -8,32 +8,14 @@ import Foundation
 
 /// A block that can generate entire multipage data-driven
 /// reports.
-public struct Table<Row>: MultipageBlock {
+public struct Table<Row>: Block {
     let data: [Row]
-    let printColumnTitles: Bool
     let columns: [any TableColumnContent<Row>]
     let groups: [any TableGroupContent<Row>]
     let header: any Block
     let footer: any Block
-    let row: (([any TableColumnContent<Row>], Row) -> (any Block))?
-    let pageHeader: (Int) -> (any Block)
-    let pageFooter: (Int) -> (any Block)
-
-    public init(
-        _ data: [Row],
-        @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
-        @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] }
-    ) {
-        self.data = data
-        printColumnTitles = true
-        self.columns = columns()
-        row = nil
-        self.groups = groups()
-        header = EmptyBlock()
-        footer = EmptyBlock()
-        pageHeader = { _ in EmptyBlock() }
-        pageFooter = { _ in EmptyBlock() }
-    }
+    let row: (Row) -> any Block
+    let pageFrame: (Int) -> any Block
 
     public init(
         _ data: [Row],
@@ -45,20 +27,26 @@ public struct Table<Row>: MultipageBlock {
         @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
     ) {
         self.data = data
-        printColumnTitles = false
         self.columns = columns()
-        row = nil
+        row = { row in
+            TableRow(record: row)
+        }
         self.groups = groups()
         self.header = header()
         self.footer = footer()
-        self.pageHeader = pageHeader
-        self.pageFooter = pageFooter
+        pageFrame = { pageNo in
+            VStack {
+                AnyBlock(pageHeader(pageNo))
+                TableContentSpacer()
+                AnyBlock(pageFooter(pageNo))
+            }
+        }
     }
 
     public init(
         _ data: [Row],
         @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
-        @BlockBuilder row: @escaping ([any TableColumnContent<Row>], Row) -> (any Block),
+        @BlockBuilder row: @escaping (Row) -> any Block,
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
@@ -66,20 +54,55 @@ public struct Table<Row>: MultipageBlock {
         @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
     ) {
         self.data = data
-        printColumnTitles = false
         self.columns = columns()
         self.row = row
         self.groups = groups()
         self.header = header()
         self.footer = footer()
-        self.pageHeader = pageHeader
-        self.pageFooter = pageFooter
+        pageFrame = { pageNo in
+            VStack {
+                AnyBlock(pageHeader(pageNo))
+                TableContentSpacer()
+                AnyBlock(pageFooter(pageNo))
+            }
+        }
     }
 
-    enum PrintWhen {
-        case always
-        case afterFirstPage
-        case never
+    public init(
+        _ data: [Row],
+        @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
+        @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
+        @BlockBuilder header: () -> any Block = { EmptyBlock() },
+        @BlockBuilder footer: () -> any Block = { EmptyBlock() },
+        @BlockBuilder pageFrame: @escaping (Int) -> any Block
+    ) {
+        self.data = data
+        self.columns = columns()
+        row = { row in
+            TableRow(record: row)
+        }
+        self.groups = groups()
+        self.header = header()
+        self.footer = footer()
+        self.pageFrame = pageFrame
+    }
+
+    public init(
+        _ data: [Row],
+        @TableColumnBuilder<Row> columns: @escaping () -> [any TableColumnContent<Row>],
+        @BlockBuilder row: @escaping (Row) -> any Block,
+        @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
+        @BlockBuilder header: () -> any Block = { EmptyBlock() },
+        @BlockBuilder footer: () -> any Block = { EmptyBlock() },
+        @BlockBuilder pageFrame: @escaping (Int) -> any Block
+    ) {
+        self.data = data
+        self.columns = columns()
+        self.row = row
+        self.groups = groups()
+        self.header = header()
+        self.footer = footer()
+        self.pageFrame = pageFrame
     }
 }
 

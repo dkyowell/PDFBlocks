@@ -6,6 +6,8 @@
 
 import Foundation
 
+// LayoutAxis is stored in the environment by blocks like VStack and HStack. It is read by blocks such as Divider and
+// Spacer so they can know which direction to orient themselves.
 enum LayoutAxis {
     case horizontal
     case vertical

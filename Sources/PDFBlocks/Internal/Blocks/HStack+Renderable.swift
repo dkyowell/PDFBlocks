@@ -7,7 +7,7 @@
 import Foundation
 
 extension HStack: Renderable {
-    func layoutBlocks(_ blocks: [Renderable], context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> ([CGSize]) {
+    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> ([CGSize]) {
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
         let layoutSize = CGSize(width: proposedSize.width - fixedSpacing, height: proposedSize.height)
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: layoutSize) }
@@ -49,17 +49,16 @@ extension HStack: Renderable {
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         var environment = environment
-        environment.allowMultipageBlocks = .false("HStack")
         environment.layoutAxis = .horizontal
         let blocks = content.getRenderables(environment: environment)
-        if blocks.filter({ $0.proportionalWidth(environment: environment) != nil }).isEmpty == false {
+        if blocks.filter({ $0.proportionalWidth(context: context, environment: environment) != nil }).isEmpty == false {
             // PROPORTIONAL LAYOUT
             let blocks = content.getRenderables(environment: environment)
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
             let adjustedWidth = proposedSize.width - fixedSpacing
-            let sumProportionalWidth = blocks.map { $0.proportionalWidth(environment: environment) ?? 1 }.reduce(0, +)
+            let sumProportionalWidth = blocks.map { $0.proportionalWidth(context: context, environment: environment) ?? 1 }.reduce(0, +)
             let sizes = blocks.map { item in
-                let width = ((item.proportionalWidth(environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
+                let width = ((item.proportionalWidth(context: context, environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
                 let blockSize = CGSize(width: width, height: proposedSize.height)
                 return item.sizeFor(context: context, environment: environment, proposedSize: blockSize)
             }
@@ -87,18 +86,17 @@ extension HStack: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
-        environment.allowMultipageBlocks = .false("HStack")
         environment.layoutAxis = .horizontal
         //  Get blocks and sizes
         let blocks = content.getRenderables(environment: environment)
-        if blocks.filter({ $0.proportionalWidth(environment: environment) != nil }).isEmpty == false {
+        if blocks.filter({ $0.proportionalWidth(context: context, environment: environment) != nil }).isEmpty == false {
             let blocks = content.getRenderables(environment: environment)
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
             let adjustedWidth = rect.width - fixedSpacing
-            let sumProportionalWidth = blocks.map { $0.proportionalWidth(environment: environment) ?? 1 }.reduce(0, +)
+            let sumProportionalWidth = blocks.map { $0.proportionalWidth(context: context, environment: environment) ?? 1 }.reduce(0, +)
             var dx: CGFloat = 0
             for block in blocks {
-                let width = ((block.proportionalWidth(environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
+                let width = ((block.proportionalWidth(context: context, environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
                 let proposedSize = CGSize(width: width, height: rect.height)
                 let height = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
                     .max.height

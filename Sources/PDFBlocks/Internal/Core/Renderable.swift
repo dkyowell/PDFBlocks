@@ -18,10 +18,10 @@ import Foundation
 //  wants to be. The block will then render the subblock at that size, or will shrink the size
 //  if necessary.
 
-protocol Renderable {
+protocol Renderable: Block {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize
     func render(context: Context, environment: EnvironmentValues, rect: CGRect)
-    func proportionalWidth(environment: EnvironmentValues) -> Double?
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
 }
 
 extension Renderable {
@@ -35,9 +35,16 @@ extension Renderable {
     }
 }
 
+// Default getTrait implementation
+extension Renderable {
+    func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        Trait()[keyPath: keypath]
+    }
+}
+
 extension Block {
     // A Renderable will call this upon its contents to obtain it as a Renderable.
-    func getRenderable(environment: EnvironmentValues) -> Renderable {
+    func getRenderable(environment: EnvironmentValues) -> any Renderable {
         updateEnvironmentProperties(environment: environment)
         if self is GroupBlock {
             // A group as contents of a block that is not expecting a group is treated as a VStack.
@@ -52,7 +59,7 @@ extension Block {
     }
 
     // A Renderable will call this upon its contents to obtain it as an array of Renderable.
-    func getRenderables(environment: EnvironmentValues) -> [Renderable] {
+    func getRenderables(environment: EnvironmentValues) -> [any Renderable] {
         updateEnvironmentProperties(environment: environment)
         if let cast = self as? any GroupBlock {
             return cast.flattenedBlocks().map { $0.getRenderable(environment: environment) }
@@ -70,8 +77,21 @@ extension Block {
     }
 }
 
+// These "shortcut" functions are for more ergonomic expression from calling site.
 extension Renderable {
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        nil
+    func proportionalWidth(context: Context, environment: EnvironmentValues) -> Double? {
+        getTrait(context: context, environment: environment, keypath: \.proprtionalWidth)
+    }
+
+    func allowPageWrap(context: Context, environment: EnvironmentValues) -> Bool {
+        getTrait(context: context, environment: environment, keypath: \.allowPageWrap)
+    }
+
+    func layoutPriority(context: Context, environment: EnvironmentValues) -> Int {
+        getTrait(context: context, environment: environment, keypath: \.layoutPriority)
+    }
+
+    func pageInfo(context: Context, environment: EnvironmentValues) -> PageInfo? {
+        getTrait(context: context, environment: environment, keypath: \.pageInfo)
     }
 }

@@ -27,11 +27,11 @@ extension EnvironmentBlock: Renderable {
         block.render(context: context, environment: environment, rect: rect)
     }
 
-    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+    func getTrait<X>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, X>) -> X {
         var environment = environment
         environment[keyPath: keyPath] = value
         let block = content.getRenderable(environment: environment)
-        return block.proportionalWidth(environment: environment)
+        return block.getTrait(context: context, environment: environment, keypath: keypath)
     }
 }
 

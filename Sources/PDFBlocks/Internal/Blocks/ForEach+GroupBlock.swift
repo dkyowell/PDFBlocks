@@ -8,6 +8,6 @@ import Foundation
 
 extension ForEach: GroupBlock {
     var blocks: [any Block] {
-        data.map { AnyBlock(content($0)) }
+        data.map { content($0) }
     }
 }

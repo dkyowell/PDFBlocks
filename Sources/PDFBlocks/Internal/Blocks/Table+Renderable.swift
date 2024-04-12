@@ -6,65 +6,73 @@
 
 import Foundation
 
-// TODO: Add pageFooter functionality. It is already in the API, but does not render.
 extension Table: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        .init(min: proposedSize, max: proposedSize)
+    func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+        if environment.renderMode == .wrapping {
+            BlockSize(width: proposedSize.width, height: 0)
+        } else {
+            BlockSize(proposedSize)
+        }
+    }
+
+    func wrappingModeRender(context: Context, environment: EnvironmentValues, rect _: CGRect) {
+        context.renderMultipageContent(block: header, environment: environment)
+        if let firstGroup = groups.first {
+            firstGroup.render(context: context, environment: environment, data: data) { record in
+                context.renderMultipageContent(block: row(record), environment: environment)
+            }
+        } else {
+            for record in data {
+                context.renderMultipageContent(block: row(record), environment: environment)
+            }
+        }
+        context.renderMultipageContent(block: footer, environment: environment)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
-        environment.isWithinMultipageContainer = true
+        environment.layoutAxis = .vertical
         environment.tableColumns = columns
-        func printRow(_ record: Row) {
-            if let row {
-                context.renderMultipageContent(block: row(columns, record), environment: environment)
-            } else {
-                context.renderMultipageContent(block: TableRow(record: record), environment: environment)
-            }
-        }
-        context.beginMultipageRendering(environment: environment, rect: rect, footer: pageFooter) { pageNo in
-            // This is the new page function called on the start of subsequant pages.
-            environment.startNewPage?()
-            context.renderMultipageContent(block: pageHeader(pageNo), environment: environment)
-            if printColumnTitles {
-                context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
-            }
-        }
-        if printColumnTitles {
-            context.renderMultipageContent(block: TableColumnTitles(), environment: environment)
-        }
-        context.renderMultipageContent(block: pageHeader(1), environment: environment)
-        context.renderMultipageContent(block: header, environment: environment)
-        if let first = groups.first {
-            first.render(data: data, onPrintRow: printRow, context: context, environment: environment)
+        if environment.renderMode == .wrapping {
+            // This is a secondary page wrapping block.
+            // Any page header, etc will be ignored.
+            wrappingModeRender(context: context, environment: environment, rect: rect)
         } else {
-            for record in data {
-                printRow(record)
+            // This is a primary page wrapping block.
+            let frame = pageFrame(context.pageNo).getRenderable(environment: environment)
+            frame.render(context: context, environment: environment, rect: rect)
+            guard context.renderPass2 == nil else {
+                return
+            }
+            context.renderPass2 = {
+                environment.renderMode = .wrapping
+                wrappingModeRender(context: context, environment: environment, rect: rect)
             }
         }
-        context.renderMultipageContent(block: footer, environment: environment)
-        context.renderPageFooter()
+    }
+
+    func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        Trait(allowPageWrap: true)[keyPath: keypath]
     }
 }
 
 extension TableGroupContent {
-    func render(data: [Row], onPrintRow: (Row) -> Void, context: Context, environment: EnvironmentValues) {
+    func render(context: Context, environment: EnvironmentValues, data: [Row], onPrintRow: (Row) -> Void) {
         let dict = [Value: [Row]].init(grouping: data, by: { $0[keyPath: value] })
         for (offset, key) in dict.keys.sorted(by: order).enumerated() {
-            if let data = dict[key], let first = data.first {
+            if let data = dict[key] {
                 if offset > 0 {
                     context.advanceMultipageCursor(spacing.points)
                 }
-                context.renderMultipageContent(block: header(data, first[keyPath: value]), environment: environment)
+                context.renderMultipageContent(block: header(data, key), environment: environment)
                 if let nextGroup {
-                    nextGroup.render(data: data, onPrintRow: onPrintRow, context: context, environment: environment)
+                    nextGroup.render(context: context, environment: environment, data: data, onPrintRow: onPrintRow)
                 } else {
                     for row in data {
                         onPrintRow(row)
                     }
                 }
-                context.renderMultipageContent(block: footer(data, first[keyPath: value]), environment: environment)
+                context.renderMultipageContent(block: footer(data, key), environment: environment)
             }
         }
     }

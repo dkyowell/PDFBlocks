@@ -37,4 +37,13 @@ extension ProporionalFrame: Renderable {
     func proportionalWidth(environment _: EnvironmentValues) -> Double? {
         width
     }
+
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if keypath == \.proprtionalWidth {
+            Trait(proprtionalWidth: width)[keyPath: keypath]
+        } else {
+            content.getRenderable(environment: environment)
+                .getTrait(context: context, environment: environment, keypath: keypath)
+        }
+    }
 }

@@ -23,12 +23,12 @@ extension Optional: Renderable where Wrapped: Block {
         }
     }
 
-    func proportionalWidth(environment: EnvironmentValues) -> Double? {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         if let self {
             self.getRenderable(environment: environment)
-                .proportionalWidth(environment: environment)
+                .getTrait(context: context, environment: environment, keypath: keypath)
         } else {
-            nil
+            Trait()[keyPath: keypath]
         }
     }
 }

@@ -24,13 +24,28 @@ private struct Document: Block {
                     .font(size: 12)
                     .bold()
                 TableColumnTitles()
-            } footer: { rows, value in
-                Divider(thickness: .pt(0.75), padding: .pt(2))
-                Text("\(rows.count) records for \(stateName(abberviation: value))")
-                    .bold()
-                    .padding(.leading, .max)
+            } footer: { _, _ in
+                HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(0.1), allowPageWrap: true) {
+                    Text("A")
+                    Text("B")
+                    Text("C")
+                    Text("D")
+                    Text("E")
+                    Text("F")
+                    Text("G")
+                    Text("H")
+                    Text("I")
+                    Text("J")
+                    Text("K")
+                }
+                .font(size: 48)
+                .padding(.vertical, .in(0.25))
+//                Divider(thickness: .pt(0.75), padding: .pt(2))
+//                Text("\(rows.count) records for \(stateName(abberviation: value))")
+//                    .bold()
+//                    .padding(.leading, .max)
             }
-        } pageHeader: { pageNo in
+        } header: {} pageHeader: { pageNo in
             HStack {
                 Text("Page \(pageNo)")
                     .padding(.trailing, .max)
@@ -66,6 +81,7 @@ private func stateName(abberviation: String) -> String {
     import PDFKit
 
     #Preview {
+        print("\n>>>>")
         let view = PDFView()
         view.autoScales = true
         Task {
