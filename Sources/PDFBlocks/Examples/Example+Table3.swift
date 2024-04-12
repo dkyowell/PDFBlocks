@@ -25,7 +25,7 @@ private struct Document: Block {
                     .bold()
                 TableColumnTitles()
             } footer: { _, _ in
-                HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(1), allowPageWrap: true) {
+                HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(0.1), allowPageWrap: true) {
                     Text("A")
                     Text("B")
                     Text("C")

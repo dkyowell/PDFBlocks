@@ -10,7 +10,6 @@ import Foundation
 // A Grid takes up its full width
 extension HGrid: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        print("HGrid.sizeFor", allowPageWrap, environment.renderMode)
         if allowPageWrap {
             if environment.renderMode == .wrapping {
                 return BlockSize(width: proposedSize.width, height: 0)
@@ -53,20 +52,20 @@ extension HGrid: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        print("HGrid.render", allowPageWrap, environment.renderMode)
+        var environment = environment
+        environment.layoutAxis = .horizontal
         if allowPageWrap {
             if environment.renderMode == .wrapping {
                 // This is a secondary page wrapping block
-                print("secondary wrapping block", context.multipageRect, context.multipageCursor)
                 wrappingModeRender(context: context, environment: environment, rect: rect)
             } else {
                 // This is a primary page wrapping block
-                var environment = environment
-                environment.renderMode = .wrapping
-                context.beginMultipageRendering(environment: environment, rect: rect)
-                // Though the renderPass2 function may be assigned multiple times, it will ever be invoked just
-                // once by context.
+                guard context.renderPass2 == nil else {
+                    return
+                }
                 context.renderPass2 = {
+                    context.setPageWrapRect(rect)
+                    environment.renderMode = .wrapping
                     wrappingModeRender(context: context, environment: environment, rect: rect)
                 }
             }

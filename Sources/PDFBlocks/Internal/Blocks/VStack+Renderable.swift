@@ -104,11 +104,12 @@ extension VStack: Renderable {
                 wrappingModeRender(context: context, environment: environment, rect: rect)
             } else {
                 // This is a primary page wrapping block
-                environment.renderMode = .wrapping
-                context.beginMultipageRendering(environment: environment, rect: rect)
-                // Though the renderPass2 function may be assigned multiple times, it will ever be invoked just
-                // once by context.
+                guard context.renderPass2 == nil else {
+                    return
+                }
                 context.renderPass2 = {
+                    context.setPageWrapRect(rect)
+                    environment.renderMode = .wrapping
                     wrappingModeRender(context: context, environment: environment, rect: rect)
                 }
             }

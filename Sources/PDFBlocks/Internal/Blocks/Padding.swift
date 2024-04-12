@@ -15,13 +15,7 @@ extension Padding: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         let block = content.getRenderable(environment: environment)
         if block.allowPageWrap(context: context, environment: environment), environment.renderMode == .wrapping {
-            // TODO: This presumes contents are full width
             return BlockSize(width: proposedSize.width, height: 0)
-//            if environment.multipageBegun {
-//                return BlockSize(width: proposedSize.width, height: 0)
-//            } else {
-//                return BlockSize(proposedSize)
-//            }
         } else {
             let size = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
             // 1. Determine min

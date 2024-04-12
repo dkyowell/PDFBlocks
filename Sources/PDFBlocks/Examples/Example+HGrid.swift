@@ -98,6 +98,9 @@ private struct Document: Block {
         .background {
             Color.yellow
         }
+        .overlay {
+            Color.orange
+        }
         .border(color: .black, width: .pt(12))
         .font(name: "American Typewriter")
     }

@@ -11,7 +11,7 @@ extension TableContentSpacer: Renderable {
         BlockSize(proposedSize)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.beginMultipageRendering(environment: environment, rect: rect)
+    func render(context: Context, environment _: EnvironmentValues, rect: CGRect) {
+        context.setPageWrapRect(rect)
     }
 }

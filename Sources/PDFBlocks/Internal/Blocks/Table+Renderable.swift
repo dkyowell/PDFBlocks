@@ -34,13 +34,16 @@ extension Table: Renderable {
         environment.layoutAxis = .vertical
         environment.tableColumns = columns
         if environment.renderMode == .wrapping {
-            // This is a secondary page wrapping block
+            // This is a secondary page wrapping block.
+            // Any page header, etc will be ignored.
             wrappingModeRender(context: context, environment: environment, rect: rect)
         } else {
-            // This is a primary page wrapping block
+            // This is a primary page wrapping block.
             let frame = pageFrame(context.pageNo).getRenderable(environment: environment)
             frame.render(context: context, environment: environment, rect: rect)
-            // renderPass2 can be set twice, but it will ever be called only once
+            guard context.renderPass2 == nil else {
+                return
+            }
             context.renderPass2 = {
                 environment.renderMode = .wrapping
                 wrappingModeRender(context: context, environment: environment, rect: rect)
