@@ -15,8 +15,6 @@ struct Frame<Content>: Block where Content: Block {
 
 extension Frame: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Frame")
         let block = content.getRenderable(environment: environment)
         var adjustedSize = proposedSize
         if let width, width.max == false {
@@ -40,8 +38,6 @@ extension Frame: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Frame")
         let block = content.getRenderable(environment: environment)
         let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size)
         let dx: CGFloat = switch alignment.horizontalAlignment {

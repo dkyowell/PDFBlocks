@@ -37,16 +37,19 @@ class Context {
 extension Context {
     func render(size: PageSize, margins: EdgeInsets, content: some Block) async throws -> Data? {
         try renderer.render {
-            let environment = EnvironmentValues()
+            var environment = EnvironmentValues()
+            environment.pageNo = {
+                self.pageNo
+            }
             let blocks = content.getRenderables(environment: environment)
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
                 // no defined pages. collect all into a VStack
-                let defaultPageSize = CGSize(width: size.width.points, height: size.height.points)
-                let page = Page(size: size, margins: margins, content: content)
+                let pageSize = CGSize(width: size.width.points, height: size.height.points)
+                let page = Page(size: size, margins: margins, content: {content})
                 renderPass1 = {
-                    page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: defaultPageSize))
+                    page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
                 }
-                beginPage(newPageSize: defaultPageSize)
+                beginPage(newPageSize: pageSize)
                 renderPass2?()
                 endPage()
             } else {
@@ -74,6 +77,7 @@ extension Context {
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
         pageNo += 1
         multipageCursor = 0
+        //renderPass1Block?.render(context: self, environment: environment, rect: .init(origin: .zero, size: pageSize))
         renderPass1?()
         renderPageFrame()
     }

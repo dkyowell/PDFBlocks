@@ -49,7 +49,6 @@ extension HStack: Renderable {
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         var environment = environment
-        environment.allowMultipageBlocks = .false("HStack")
         environment.layoutAxis = .horizontal
         let blocks = content.getRenderables(environment: environment)
         if blocks.filter({ $0.proportionalWidth(context: context, environment: environment) != nil }).isEmpty == false {
@@ -87,7 +86,6 @@ extension HStack: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
-        environment.allowMultipageBlocks = .false("HStack")
         environment.layoutAxis = .horizontal
         //  Get blocks and sizes
         let blocks = content.getRenderables(environment: environment)

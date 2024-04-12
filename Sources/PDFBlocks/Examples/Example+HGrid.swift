@@ -15,14 +15,42 @@ import Foundation
 
 // IDEA: allow overlay with multipage by pushing onto a stack.
 
+// VStack, HGrid, and Table are page wrapping blocks that can layout their contents across multiple pages. VStack and
+// HGrid opt into this behavior with the allowPageWrap: parameter; Tables are always page wrapping. The first page
+// wrapping block encountered in a document will be the primary page wrapping block. The primary block will fill all
+// of the space that it is alloted, even if it cannot fill that space. Any contents surrounding the primary block is
+// considered to be a page frame and will be repeated on subsequent pages.
+//
+// When one page wrapping block is embedded within another, the embedded block is a secondary page wrapping block.
+// A secondary block will be modified with a .frame, .border, .background, or .overlay. (A secondary page wrapping
+// block reports itself as having zero height. I could put special handling in those modifiers, but at present they
+// have no effect becuase of the zero height)
+//
+// Note: A non-wrapping VStack can be embedded within a wrapping VStack.
+//
+// Future work: allow a horizontal page wrap for horizontal overflow for VGrid, and HStack. This will require
+// support within Context, but it should not be difficult.
+
+
+// At present: .frame, .border, .background, .overlay cannot be applied upon
 private struct Document: Block {
+    @Environment(\.pageNo) var pageNo
+    
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            VStack(spacing: .pt(4), allowPageWrap: true) {
+            Text("Page \(pageNo())")
+                .font(size: 36)
+                .padding(.horizontal, .max)
+                .padding(.bottom, .pt(12))
+            VStack(alignment: .center, allowPageWrap: false) {
+
                 Text("A")
                 Text("B")
                 Text("C")
                 HGrid(columnCount: 3, columnSpacing: .in(0), rowSpacing: .pt(4), allowPageWrap: true) {
+                    Text("A")
+                    Text("B")
+                    Text("C")
                     Text("D")
                     Text("E")
                     Text("F")
@@ -35,22 +63,34 @@ private struct Document: Block {
                     Text("M")
                     Text("N")
                     Text("O")
-                }
-                Text("P")
-                Text("Q")
-                HGrid(columnCount: 3, columnSpacing: .in(0), rowSpacing: .pt(4), allowPageWrap: true) {
+                    Text("N")
+                    Text("O")
+                    Text("N")
+                    Text("O")
+                    Text("N")
+                    Text("O")
+                    Text("P")
+                    Text("Q")
                     Text("R")
                     Text("S")
                     Text("T")
                     Text("U")
                     Text("V")
                     Text("W")
+                    Text("X")
+                    Text("Y")
+                    Text("Z")
                 }
+                .border(color: .orange, width: .in(2))
+//                .background {
+//                    Color.orange
+//                }
+                .font(size: 12)
                 Text("X")
                 Text("Y")
                 Text("Z")
             }
-            .font(size: 36)
+            .font(size: 24)
             .padding(.pt(12))
             .background {
                 Color.blue
@@ -60,6 +100,7 @@ private struct Document: Block {
             Color.yellow
         }
         .border(color: .black, width: .pt(12))
+        .font(name: "American Typewriter")
     }
 }
 

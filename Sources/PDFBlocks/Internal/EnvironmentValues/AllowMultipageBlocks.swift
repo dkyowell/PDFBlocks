@@ -6,25 +6,7 @@
 
 import Foundation
 
-// A Block that does not allow multipage blocks within its contents will set allowMultiPageBlocks to false with an
-// associated value of its block name. The associated value is used in error reporting.
-enum AllowMultipageBlocks {
-    case `true`
-    case `false`(String)
-}
-
-private struct AllowMultipageBlocksKey: EnvironmentKey {
-    static let defaultValue = AllowMultipageBlocks.true
-}
-
-extension EnvironmentValues {
-    var allowMultipageBlocks: AllowMultipageBlocks {
-        get { self[AllowMultipageBlocksKey.self] }
-        set { self[AllowMultipageBlocksKey.self] = newValue }
-    }
-}
-
-private struct RenderModeKey: EnvironmentKey {
+struct RenderModeKey: EnvironmentKey {
     static let defaultValue = RenderMode.measured
 }
 
@@ -37,5 +19,19 @@ extension EnvironmentValues {
     var renderMode: RenderMode {
         get { self[RenderModeKey.self] }
         set { self[RenderModeKey.self] = newValue }
+    }
+}
+
+
+
+
+struct PageNoReaderKey: EnvironmentKey {
+    static let defaultValue: () -> Int = {1}
+}
+
+extension EnvironmentValues {
+    var pageNo: () -> Int {
+        get { self[PageNoReaderKey.self] }
+        set { self[PageNoReaderKey.self] = newValue}
     }
 }

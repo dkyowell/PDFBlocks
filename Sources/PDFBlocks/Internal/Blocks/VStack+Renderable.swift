@@ -73,7 +73,7 @@ extension VStack: Renderable {
         }
     }
 
-    func pageWrapRender(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func renderForPageWrap(context: Context, environment: EnvironmentValues, rect: CGRect) {
         let blocks = content.getRenderables(environment: environment)
         blocks.enumerated().forEach { (offset, block) in
             if offset > 0 {
@@ -101,12 +101,12 @@ extension VStack: Renderable {
         environment.layoutAxis = .vertical
         if allowPageWrap {
             if environment.renderMode == .wrapping {
-                pageWrapRender(context: context, environment: environment, rect: rect)
+                renderForPageWrap(context: context, environment: environment, rect: rect)
             } else {
                 environment.renderMode = .wrapping
                 context.beginMultipageRendering(environment: environment, rect: rect)
                 context.renderPass2 = {
-                    pageWrapRender(context: context, environment: environment, rect: rect)
+                    renderForPageWrap(context: context, environment: environment, rect: rect)
                 }
             }
         } else {

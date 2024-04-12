@@ -14,7 +14,6 @@ struct Border<Content>: Block where Content: Block {
 
 extension Border: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        return BlockSize(proposedSize)
         return content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }

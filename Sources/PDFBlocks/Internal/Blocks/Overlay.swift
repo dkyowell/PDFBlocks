@@ -14,15 +14,11 @@ struct Overlay<Content, OverlayContent>: Block where Content: Block, OverlayCont
 
 extension Overlay: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Overlay")
         return content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        var environment = environment
-        environment.allowMultipageBlocks = .false("Overlay")
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
         context.renderPass3.append {
