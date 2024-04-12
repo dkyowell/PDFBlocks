@@ -9,10 +9,10 @@
 
 A SwiftUI inspired framework for generating reports and other PDF documents.
 
-##  Look Ma, no Commands
-PDFBlocks uses a declarative language for describing document layout. There are no print(), draw(), newPage() or any other 
-kind of print command. Instead, you specify the elements you want to appear within a layout heirarchy. Here is the "code"
-used to generate the PDFBlocks logo used at the top of this document:
+## Document Descriptions, not Instructions. 
+PDFBlocks uses a declarative language for describing document layout and appearance, not commands such as print(),
+draw(), or newPage(). Here is the "code" used to generate the PDFBlocks logo used at the top of this document:
+
 ```swift
 struct Document: Block {
     var body: some Block {
@@ -45,8 +45,9 @@ struct LetterBlock: Block {
 }
 ```
 
-## Easy to write reports.
-Tables in PDFBlocks are aware of the data type of the table, so you can define table columns and groups based on key paths with implied types. This makes writing reports a breeze with editor autocompletion.
+## Easy to Write Reports.
+Tables in PDFBlocks are aware of the data type of the table, so you can define table columns and groups based on key
+ paths with implied types. This makes writing reports a breeze with editor autocompletion.
 ```swift
 struct Document: Block {
     let data: [Donor]
