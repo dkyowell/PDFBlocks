@@ -39,7 +39,7 @@ private struct Document: Block {
                     Text("K")
                 }
                 .font(size: 48)
-                .padding(.vertical, .in(1))
+                .padding(.vertical, .in(0.25))
 //                Divider(thickness: .pt(0.75), padding: .pt(2))
 //                Text("\(rows.count) records for \(stateName(abberviation: value))")
 //                    .bold()

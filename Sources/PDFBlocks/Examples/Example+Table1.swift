@@ -21,6 +21,8 @@ private struct Document: Block {
         } pageHeader: { _ in
             TableColumnTitles()
         }
+        .padding(.pt(12))
+        .border(color: .purple, width: .pt(4))
     }
 }
 
@@ -28,6 +30,7 @@ private struct Document: Block {
     import PDFKit
 
     #Preview {
+        print("\n>>>>")
         let view = PDFView()
         view.autoScales = true
         Task {

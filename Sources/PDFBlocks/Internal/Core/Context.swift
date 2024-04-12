@@ -22,12 +22,8 @@ class Context {
 
     var pageNo = 0
     var pageSize: CGSize = .init(width: 8.5, height: 11).scaled(by: 72)
-    var multipageMode = false
-    var multipageFrameRect: CGRect = .zero
     var multipageRect: CGRect = .zero
     var multipageCursor: CGFloat = 0
-    var pageFrame: ((Int) -> any Block)?
-    var pageFrameEnvironment: EnvironmentValues = .init()
 
     var renderPass1: (() -> Void)?
     var renderPass2: (() -> Void)?
@@ -37,15 +33,12 @@ class Context {
 extension Context {
     func render(size: PageSize, margins: EdgeInsets, content: some Block) async throws -> Data? {
         try renderer.render {
-            var environment = EnvironmentValues()
-            environment.pageNo = {
-                self.pageNo
-            }
+            let environment = EnvironmentValues()
             let blocks = content.getRenderables(environment: environment)
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
                 // no defined pages. collect all into a VStack
                 let pageSize = CGSize(width: size.width.points, height: size.height.points)
-                let page = Page(size: size, margins: margins, content: {content})
+                let page = Page(size: size, margins: margins, content: { content })
                 renderPass1 = {
                     page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
                 }
@@ -77,9 +70,8 @@ extension Context {
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
         pageNo += 1
         multipageCursor = 0
-        //renderPass1Block?.render(context: self, environment: environment, rect: .init(origin: .zero, size: pageSize))
+        // renderPass1Block?.render(context: self, environment: environment, rect: .init(origin: .zero, size: pageSize))
         renderPass1?()
-        renderPageFrame()
     }
 
     func endPage() {
@@ -90,27 +82,20 @@ extension Context {
         renderer.endPage()
     }
 
-    func renderPageFrame() {
-        if let pageFrame {
-            let block = pageFrame(pageNo).getRenderable(environment: pageFrameEnvironment)
-            block.render(context: self, environment: pageFrameEnvironment, rect: multipageFrameRect)
-        }
-        multipageCursor = 0
-    }
-
-    func beginMultipageRendering(environment: EnvironmentValues,
-                                 pageFrame: ((Int) -> any Block)? = nil,
+    func beginMultipageRendering(environment _: EnvironmentValues,
+//                                 pageFrame: ((Int) -> any Block)? = nil,
                                  rect: CGRect)
     {
-        guard multipageMode == false else {
-            return
-        }
-        self.pageFrame = pageFrame
-        pageFrameEnvironment = environment
-        multipageFrameRect = rect
+//        guard multipageMode == false else {
+//            return
+//        }
+//        self.pageFrame = pageFrame
+//        pageFrameEnvironment = environment
+//        multipageFrameRect = rect
         multipageRect = rect
-        multipageMode = true
-        renderPageFrame()
+        multipageCursor = 0
+//        multipageMode = true
+//        renderPageFrame()
     }
 
     private func getMultipageRenderingRect(height: CGFloat) -> CGRect {

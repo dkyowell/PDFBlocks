@@ -12,11 +12,10 @@ import Foundation
 /// not be embedded in a stack or given padding or a frame.
 public struct Page<Content>: Block where Content: Block {
     let pageInfo: PageInfo
-    // Page is dynamically generated so that @Environment(\.pageNo) will work
-    let content: () -> Content
+    let content: Content
 
     public init(size: PageSize, margins: EdgeInsets, @BlockBuilder content: @escaping () -> Content) {
         pageInfo = .init(size: size, margins: margins)
-        self.content = content
+        self.content = content()
     }
 }

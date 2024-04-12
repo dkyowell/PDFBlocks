@@ -14,12 +14,11 @@ struct Border<Content>: Block where Content: Block {
 
 extension Border: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        return content.getRenderable(environment: environment)
+        content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        print("border render", rect)
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
         context.renderer.renderBorder(environment: environment, rect: rect, color: color,

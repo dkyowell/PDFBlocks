@@ -21,17 +21,3 @@ extension EnvironmentValues {
         set { self[RenderModeKey.self] = newValue }
     }
 }
-
-
-
-
-struct PageNoReaderKey: EnvironmentKey {
-    static let defaultValue: () -> Int = {1}
-}
-
-extension EnvironmentValues {
-    var pageNo: () -> Int {
-        get { self[PageNoReaderKey.self] }
-        set { self[PageNoReaderKey.self] = newValue}
-    }
-}

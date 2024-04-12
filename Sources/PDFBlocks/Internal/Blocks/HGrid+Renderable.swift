@@ -10,9 +10,9 @@ import Foundation
 // A Grid takes up its full width
 extension HGrid: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+        print("HGrid.sizeFor", allowPageWrap, environment.renderMode)
         if allowPageWrap {
             if environment.renderMode == .wrapping {
-                print("yes, wrapping")
                 return BlockSize(width: proposedSize.width, height: 0)
             } else {
                 return BlockSize(proposedSize)
@@ -28,37 +28,46 @@ extension HGrid: Renderable {
         }
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        if allowPageWrap {
-            func wrappingModeRender() {
-                let blocks = content.getRenderables(environment: environment)
-                let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
-                let cellSize = CGSize(width: cellWidth, height: .infinity)
-                let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: cellSize) }
-                let rows = zip(blocks, sizes).map { $0 }.chunks(ofCount: columnCount)
-                for (offset, row) in rows.enumerated() {
-                    if offset > 0 {
-                        context.advanceMultipageCursor(rowSpacing.points)
-                    }
-                    let rowHeight = row.map(\.1.max.height).reduce(0, max)
-                    context.renderMultipageContent(rect: rect, height: rowHeight) { rowRect in
-                        var dx = 0.0
-                        for (block, size) in row {
-                            let cellRect = CGRect(origin: rowRect.origin.offset(dx: dx, dy: 0),
-                                                  size: .init(width: cellWidth, height: rowHeight))
-                            let renderRect = cellRect.rectInCenter(size: size.max)
-                            block.render(context: context, environment: environment, rect: renderRect)
-                            dx += cellWidth + columnSpacing.points
-                        }
-                    }
+    func wrappingModeRender(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        let blocks = content.getRenderables(environment: environment)
+        let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
+        let cellSize = CGSize(width: cellWidth, height: .infinity)
+        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: cellSize) }
+        let rows = zip(blocks, sizes).map { $0 }.chunks(ofCount: columnCount)
+        for (offset, row) in rows.enumerated() {
+            if offset > 0 {
+                context.advanceMultipageCursor(rowSpacing.points)
+            }
+            let rowHeight = row.map(\.1.max.height).reduce(0, max)
+            context.renderMultipageContent(rect: rect, height: rowHeight) { rowRect in
+                var dx = 0.0
+                for (block, size) in row {
+                    let cellRect = CGRect(origin: rowRect.origin.offset(dx: dx, dy: 0),
+                                          size: .init(width: cellWidth, height: rowHeight))
+                    let renderRect = cellRect.rectInCenter(size: size.max)
+                    block.render(context: context, environment: environment, rect: renderRect)
+                    dx += cellWidth + columnSpacing.points
                 }
             }
+        }
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        print("HGrid.render", allowPageWrap, environment.renderMode)
+        if allowPageWrap {
             if environment.renderMode == .wrapping {
-                wrappingModeRender()
+                // This is a secondary page wrapping block
+                print("secondary wrapping block", context.multipageRect, context.multipageCursor)
+                wrappingModeRender(context: context, environment: environment, rect: rect)
             } else {
+                // This is a primary page wrapping block
+                var environment = environment
+                environment.renderMode = .wrapping
                 context.beginMultipageRendering(environment: environment, rect: rect)
+                // Though the renderPass2 function may be assigned multiple times, it will ever be invoked just
+                // once by context.
                 context.renderPass2 = {
-                    wrappingModeRender()
+                    wrappingModeRender(context: context, environment: environment, rect: rect)
                 }
             }
         } else {

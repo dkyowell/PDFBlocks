@@ -73,21 +73,20 @@ extension VStack: Renderable {
         }
     }
 
-    func renderForPageWrap(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func wrappingModeRender(context: Context, environment: EnvironmentValues, rect: CGRect) {
         let blocks = content.getRenderables(environment: environment)
-        blocks.enumerated().forEach { (offset, block) in
+        for (offset, block) in blocks.enumerated() {
             if offset > 0 {
                 context.advanceMultipageCursor(spacing.fixedPoints)
             }
             let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size).max
-            let dx: CGFloat
-            switch alignment {
+            let dx: CGFloat = switch alignment {
             case .leading:
-                dx = 0
+                0
             case .center:
-                dx = (rect.width - size.width) / 2
+                (rect.width - size.width) / 2
             case .trailing:
-                dx = rect.width - size.width
+                rect.width - size.width
             }
             let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: 0), size: size)
             context.renderMultipageContent(rect: renderRect, height: size.height) { rect in
@@ -101,12 +100,16 @@ extension VStack: Renderable {
         environment.layoutAxis = .vertical
         if allowPageWrap {
             if environment.renderMode == .wrapping {
-                renderForPageWrap(context: context, environment: environment, rect: rect)
+                // This is a secondary page wrapping block
+                wrappingModeRender(context: context, environment: environment, rect: rect)
             } else {
+                // This is a primary page wrapping block
                 environment.renderMode = .wrapping
                 context.beginMultipageRendering(environment: environment, rect: rect)
+                // Though the renderPass2 function may be assigned multiple times, it will ever be invoked just
+                // once by context.
                 context.renderPass2 = {
-                    renderForPageWrap(context: context, environment: environment, rect: rect)
+                    wrappingModeRender(context: context, environment: environment, rect: rect)
                 }
             }
         } else {

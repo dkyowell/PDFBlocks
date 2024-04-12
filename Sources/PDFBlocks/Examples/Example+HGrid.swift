@@ -31,19 +31,18 @@ import Foundation
 // Future work: allow a horizontal page wrap for horizontal overflow for VGrid, and HStack. This will require
 // support within Context, but it should not be difficult.
 
-
 // At present: .frame, .border, .background, .overlay cannot be applied upon
+
 private struct Document: Block {
-    @Environment(\.pageNo) var pageNo
-    
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            Text("Page \(pageNo())")
-                .font(size: 36)
-                .padding(.horizontal, .max)
-                .padding(.bottom, .pt(12))
-            VStack(alignment: .center, allowPageWrap: false) {
-
+            PageNumberReader { pageNo in
+                Text("Page \(pageNo)")
+            }
+            .font(size: 36)
+            .padding(.horizontal, .max)
+            .padding(.bottom, .pt(12))
+            VStack(alignment: .center, allowPageWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")

@@ -14,7 +14,7 @@ struct Overlay<Content, OverlayContent>: Block where Content: Block, OverlayCont
 
 extension Overlay: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        return content.getRenderable(environment: environment)
+        content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }
 

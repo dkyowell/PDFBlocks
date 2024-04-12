@@ -6,12 +6,12 @@
 
 import Foundation
 
-extension PageFrameReader: Renderable {
+extension TableContentSpacer: Renderable {
     func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         BlockSize(proposedSize)
     }
 
-    func render(context: Context, environment _: EnvironmentValues, rect: CGRect) {
-        context.multipageRect = rect
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        context.beginMultipageRendering(environment: environment, rect: rect)
     }
 }

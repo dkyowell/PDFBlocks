@@ -41,7 +41,6 @@ extension Padding: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         let block = content.getRenderable(environment: environment)
         if block.allowPageWrap(context: context, environment: environment), environment.renderMode == .wrapping {
-            context.beginMultipageRendering(environment: environment, rect: rect)
             context.advanceMultipageCursor(padding.top.points)
             let block = content.getRenderable(environment: environment)
             let renderRect = CGRect(x: rect.minX + padding.leading.points,

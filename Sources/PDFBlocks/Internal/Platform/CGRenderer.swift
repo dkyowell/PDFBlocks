@@ -33,7 +33,6 @@
                 var mediaBox = CGRect(origin: .zero, size: pageSize)
                 cgContext?.beginPage(mediaBox: &mediaBox)
                 cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
-                hasStartedPage = true
             #else
                 let mediaBox = CGRect(origin: .zero, size: pageSize)
                 pdfContext?.beginPage(withBounds: mediaBox, pageInfo: [:])

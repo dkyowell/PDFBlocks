@@ -37,7 +37,7 @@ public struct Table<Row>: Block {
         pageFrame = { pageNo in
             VStack {
                 AnyBlock(pageHeader(pageNo))
-                PageFrameReader()
+                TableContentSpacer()
                 AnyBlock(pageFooter(pageNo))
             }
         }
@@ -62,7 +62,7 @@ public struct Table<Row>: Block {
         pageFrame = { pageNo in
             VStack {
                 AnyBlock(pageHeader(pageNo))
-                PageFrameReader()
+                TableContentSpacer()
                 AnyBlock(pageFooter(pageNo))
             }
         }

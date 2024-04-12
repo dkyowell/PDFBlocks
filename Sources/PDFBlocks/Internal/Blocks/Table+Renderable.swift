@@ -7,15 +7,15 @@
 import Foundation
 
 extension Table: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        BlockSize(proposedSize)
+    func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+        if environment.renderMode == .wrapping {
+            BlockSize(width: proposedSize.width, height: 0)
+        } else {
+            BlockSize(proposedSize)
+        }
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        var environment = environment
-        environment.tableColumns = columns
-        environment.renderMode = .wrapping
-        context.beginMultipageRendering(environment: environment, pageFrame: pageFrame, rect: rect)
+    func wrappingModeRender(context: Context, environment: EnvironmentValues, rect _: CGRect) {
         context.renderMultipageContent(block: header, environment: environment)
         if let firstGroup = groups.first {
             firstGroup.render(context: context, environment: environment, data: data) { record in
@@ -27,6 +27,25 @@ extension Table: Renderable {
             }
         }
         context.renderMultipageContent(block: footer, environment: environment)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        var environment = environment
+        environment.layoutAxis = .vertical
+        environment.tableColumns = columns
+        if environment.renderMode == .wrapping {
+            // This is a secondary page wrapping block
+            wrappingModeRender(context: context, environment: environment, rect: rect)
+        } else {
+            // This is a primary page wrapping block
+            let frame = pageFrame(context.pageNo).getRenderable(environment: environment)
+            frame.render(context: context, environment: environment, rect: rect)
+            // renderPass2 can be set twice, but it will ever be called only once
+            context.renderPass2 = {
+                environment.renderMode = .wrapping
+                wrappingModeRender(context: context, environment: environment, rect: rect)
+            }
+        }
     }
 
     func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
