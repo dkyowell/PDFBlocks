@@ -11,7 +11,7 @@ public protocol Shape: Block {
 }
 
 public extension Shape {
-    @BlockBuilder var body: some Block {
-        fatalError()
+    var body: some Block {
+        RenderableShape(shape: self)
     }
 }

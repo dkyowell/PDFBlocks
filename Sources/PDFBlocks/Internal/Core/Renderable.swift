@@ -51,8 +51,6 @@ extension Block {
             return VStack(content: { self })
         } else if let cast = self as? any Renderable {
             return cast
-        } else if let cast = self as? any Shape {
-            return RenderableShape(shape: cast)
         } else {
             // Recursively call getRenderable upon body
             return body.getRenderable(environment: environment)
@@ -66,8 +64,6 @@ extension Block {
             return cast.flattenedBlocks().map { $0.getRenderable(environment: environment) }
         } else if let cast = self as? any Renderable {
             return [cast]
-        } else if let cast = self as? any Shape {
-            return [RenderableShape(shape: cast)]
         } else {
             return body.getRenderables(environment: environment)
         }
