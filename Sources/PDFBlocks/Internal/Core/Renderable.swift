@@ -50,8 +50,9 @@ extension Block {
             // A group as contents of a block that is not expecting a group is treated as a VStack.
             return VStack(content: { self })
         } else if let cast = self as? any Renderable {
-            // This is a Renderable.
             return cast
+        } else if let cast = self as? any Shape {
+            return RenderableShape(shape: cast)
         } else {
             // Recursively call getRenderable upon body
             return body.getRenderable(environment: environment)
@@ -65,6 +66,8 @@ extension Block {
             return cast.flattenedBlocks().map { $0.getRenderable(environment: environment) }
         } else if let cast = self as? any Renderable {
             return [cast]
+        } else if let cast = self as? any Shape {
+            return [RenderableShape(shape: cast)]
         } else {
             return body.getRenderables(environment: environment)
         }

@@ -91,6 +91,19 @@
             cgContext?.restoreGState()
         }
 
+        func renderPath(environment: EnvironmentValues, path: CGPath) {
+            cgContext?.saveGState()
+            cgContext?.setAlpha(environment.opacity)
+            cgContext?.addPath(path)
+            cgContext?.setLineWidth(environment.strokeLineWidth.points)
+            cgContext?.setStrokeColor(environment.strokeColor.cgColor)
+            cgContext?.drawPath(using: .stroke)
+            cgContext?.addPath(path)
+            cgContext?.setFillColor(environment.fill.cgColor)
+            cgContext?.drawPath(using: .fill)
+            cgContext?.restoreGState()
+        }
+
         func renderBorder(environment: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat) {
             cgContext?.saveGState()
             cgContext?.setAlpha(environment.opacity)
