@@ -7,28 +7,20 @@
 import Foundation
 
 public extension Block {
-    func stroke(_ value: Color, lineWidth: Size) -> some Block {
-        environment(\.strokeColor, value)
+    func stroke(_ content: ShapeStyle, lineWidth: Size = .pt(1)) -> some Block {
+        environment(\.strokeContent, content)
             .environment(\.strokeLineWidth, lineWidth)
-    }
-
-    func strokeColor(_ value: Color) -> some Block {
-        environment(\.strokeColor, value)
-    }
-
-    func strokeLineWidth(_ value: Size) -> some Block {
-        environment(\.strokeLineWidth, value)
     }
 }
 
-struct StokeColorKey: EnvironmentKey {
-    static let defaultValue = Color.black
+struct StokeContentKey: EnvironmentKey {
+    static let defaultValue: ShapeStyle = Color.black
 }
 
 extension EnvironmentValues {
-    var strokeColor: Color {
-        get { self[StokeColorKey.self] }
-        set { self[StokeColorKey.self] = newValue }
+    var strokeContent: ShapeStyle {
+        get { self[StokeContentKey.self] }
+        set { self[StokeContentKey.self] = newValue }
     }
 }
 

@@ -7,25 +7,32 @@
 import Foundation
 
 private struct Document: Block {
+    let gradient = Gradient(colors: [.red, .orange, .yellow])
+    let linearGradient = LinearGradient(colors: [.red, .orange, .yellow],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing)
+    let radial = RadialGradient(colors: [.red, .orange, .yellow],
+                                center: .center,
+                                startRadius: .in(0),
+                                endRadius: .in(5))
+    let customGradient = Gradient(stops: [.init(color: .red, location: 0),
+                                          .init(color: .orange, location: 0.25),
+                                          .init(color: .orange, location: 0.75),
+                                          .init(color: .yellow, location: 1)])
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
-            VStack(spacing: .in(0.5)) {
-                Square()
-                    .border(color: .blue)
-                Rectangle()
-                RoundedRectangle(cornerRadius: .pt(8))
-                Capsule()
-                Circle()
-                    .border(color: .blue)
-                Ellipse()
-                StarShape()
-                    .border(color: .blue)
+            VStack(alignment: .center, spacing: .pt(12)) {
+                Text("Houston")
+                Text("Astros")
             }
-            .strokeLineWidth(.pt(4))
-            .strokeColor(.red)
-            .fill(Color(UIColor.green.withAlphaComponent(0)))
-            // .frame(width: .in(2), height: .in(2))
+            .font(size: 96)
+            .bold()
+            .foregroundStyle(radial)
             .padding(.max)
+
+//            StarShape()
+//                .fill(radial)
+//                .padding(.max)
         }
     }
 }

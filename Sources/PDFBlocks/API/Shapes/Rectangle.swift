@@ -6,9 +6,10 @@
 
 import Foundation
 
-extension Color: Block {
-    public var body: some Block {
-        Rectangle()
-            .fill(self)
+public struct Rectangle: Shape {
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        Path(rect)
     }
 }

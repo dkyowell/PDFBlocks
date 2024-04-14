@@ -6,7 +6,7 @@
 
 import Foundation
 
-extension Color: Block {
+extension LinearGradient: Block {
     public var body: some Block {
         Rectangle()
             .fill(self)

@@ -12,7 +12,6 @@ protocol Renderer {
     func render(renderingCallback: () -> Void) throws -> Data?
     func startNewPage(pageSize: CGSize)
     func endPage()
-    func renderColor(_ color: Color, environment: EnvironmentValues, rect: CGRect)
     func renderBorder(environment: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat)
     func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect)
     func renderPath(environment: EnvironmentValues, path: CGPath)

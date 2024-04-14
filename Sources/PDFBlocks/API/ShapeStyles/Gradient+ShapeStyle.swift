@@ -6,9 +6,4 @@
 
 import Foundation
 
-extension Color: Block {
-    public var body: some Block {
-        Rectangle()
-            .fill(self)
-    }
-}
+// extension Gradient: ShapeStyle {}
