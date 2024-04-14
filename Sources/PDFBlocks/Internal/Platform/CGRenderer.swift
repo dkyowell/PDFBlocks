@@ -93,10 +93,12 @@
             let startY = rect.minY + gradient.startPoint.y * rect.height
             let endX = rect.minX + gradient.endPoint.x * rect.width
             let endY = rect.minY + gradient.endPoint.y * rect.height
+            print("drawLinearGradient", rect)
+            print(startX, startY, endX, endY)
             cgContext?.drawLinearGradient(cgGradient,
                                           start: .init(x: startX, y: startY),
                                           end: .init(x: endX, y: endY),
-                                          options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+                                          options: [])
         }
 
         func drawRadialGradient(gradient: RadialGradient, rect: CGRect) {
@@ -119,34 +121,43 @@
         func renderPath(environment: EnvironmentValues, path: CGPath) {
             cgContext?.saveGState()
             cgContext?.setAlpha(environment.opacity)
-            cgContext?.addPath(path)
-            cgContext?.setLineWidth(environment.strokeLineWidth.points)
             if let strokeContent = environment.strokeContent as? Color {
+                cgContext?.addPath(path)
+                cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.setStrokeColor(strokeContent.cgColor)
                 cgContext?.drawPath(using: .stroke)
             } else if let strokeContent = environment.strokeContent as? LinearGradient {
+                cgContext?.addPath(path)
+                cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.replacePathWithStrokedPath()
                 cgContext?.clip()
                 drawLinearGradient(gradient: strokeContent, rect: path.boundingBox)
                 cgContext?.resetClip()
             } else if let strokeContent = environment.strokeContent as? RadialGradient {
+                cgContext?.addPath(path)
+                cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.replacePathWithStrokedPath()
                 cgContext?.clip()
                 drawRadialGradient(gradient: strokeContent, rect: path.boundingBox)
                 cgContext?.resetClip()
             }
-            cgContext?.addPath(path)
-            if let fill = environment.fill as? Color {
-                cgContext?.setFillColor(fill.cgColor)
-                cgContext?.drawPath(using: .fill)
-            } else if let fill = environment.fill as? LinearGradient {
-                cgContext?.clip()
-                drawLinearGradient(gradient: fill, rect: path.boundingBox)
-                cgContext?.resetClip()
-            } else if let fill = environment.fill as? RadialGradient {
-                cgContext?.clip()
-                drawRadialGradient(gradient: fill, rect: path.boundingBox)
-                cgContext?.resetClip()
+            if environment.strokeContent == nil || environment.fill != nil {
+                let fill = environment.fill ?? environment.foregroundStyle
+                if let fill = fill as? Color {
+                    cgContext?.addPath(path)
+                    cgContext?.setFillColor(fill.cgColor)
+                    cgContext?.drawPath(using: .fill)
+                } else if let fill = fill as? LinearGradient {
+                    cgContext?.addPath(path)
+                    cgContext?.clip()
+                    drawLinearGradient(gradient: fill, rect: path.boundingBox)
+                    cgContext?.resetClip()
+                } else if let fill = fill as? RadialGradient {
+                    cgContext?.addPath(path)
+                    cgContext?.clip()
+                    drawRadialGradient(gradient: fill, rect: path.boundingBox)
+                    cgContext?.resetClip()
+                }
             }
             cgContext?.restoreGState()
         }
@@ -337,20 +348,43 @@
             }
             //  It seems that some rounding errors are causing the last line to truncate, so give it just a hair
             //  more room.
-            if let style = environment.foregroundStyle as? Color {
-                let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))
-                attributes[.foregroundColor] = style.nsuiColor
-                string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-            } else if let style = environment.foregroundStyle as? LinearGradient {
-                cgContext?.setTextDrawingMode(.clip)
-                let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))
-                string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                drawLinearGradient(gradient: style, rect: newRect)
-            } else if let style = environment.foregroundStyle as? RadialGradient {
-                cgContext?.setTextDrawingMode(.clip)
-                let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))
-                string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                drawRadialGradient(gradient: style, rect: newRect)
+            let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))
+            if let stroke = environment.textStroke {
+                if let color = environment.textFill {
+                    cgContext?.setTextDrawingMode(.fillStroke)
+                    cgContext?.setLineWidth(stroke.lineWidth.points)
+                    cgContext?.setStrokeColor(stroke.color.cgColor)
+                    attributes[.strokeColor] = stroke.color
+                    attributes[.foregroundColor] = color.cgColor
+                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+                } else {
+                    cgContext?.setTextDrawingMode(.stroke)
+                    cgContext?.setLineWidth(stroke.lineWidth.points)
+                    cgContext?.setStrokeColor(stroke.color.cgColor)
+                    attributes[.strokeColor] = stroke.color
+                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+                }
+            } else {
+                if let color = environment.foregroundStyle as? Color {
+                    attributes[.foregroundColor] = color.nsuiColor
+                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+                } else if let _ = environment.foregroundStyle as? LinearGradient {
+                    attributes[.foregroundColor] = Color.black.nsuiColor
+                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+                    // DISABLED BECAUSE THE GRADIENT WOULD SOMETIMES WORK BUT RANDOMLY FILL THE SCREEN WHEN RENDERED
+                    // IN COMBINATION WITH OTHER ELEMENTS IN A STACK.
+                    // cgContext?.setTextDrawingMode(.clip)
+                    // string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+                    // drawLinearGradient(gradient: gradient, rect: newRect)
+                } else if let _ = environment.foregroundStyle as? RadialGradient {
+                    attributes[.foregroundColor] = Color.black.nsuiColor
+                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+                    // DISABLED BECAUSE THE GRADIENT WOULD SOMETIMES WORK BUT RANDOMLY FILL THE SCREEN WHEN RENDERED
+                    // IN COMBINATION WITH OTHER ELEMENTS IN A STACK.
+                    // cgContext?.setTextDrawingMode(.clip)
+                    // string.draw(with: newRect, options: options, attributes: attributes, context: nil)
+                    // drawRadialGradient(gradient: gradient, rect: newRect)
+                }
             }
             cgContext?.restoreGState()
         }

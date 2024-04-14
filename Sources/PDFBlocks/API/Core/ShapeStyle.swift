@@ -6,4 +6,7 @@
 
 import Foundation
 
+/// A color or pattern to use when rendering a shape.
 public protocol ShapeStyle {}
+
+extension ShapeStyle {}

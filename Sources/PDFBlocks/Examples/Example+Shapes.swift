@@ -21,18 +21,20 @@ private struct Document: Block {
                                           .init(color: .yellow, location: 1)])
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
-            VStack(alignment: .center, spacing: .pt(12)) {
-                Text("Houston")
-                Text("Astros")
+            VStack {
+                Text("Outline")
+                    .textStroke(color: .purple, lineWidth: .pt(4))
+                Text("Blue")
+                    .textStroke(color: .purple, lineWidth: .pt(4))
+                    .textFill(.blue)
+                Text("Linear")
+                    .textStroke(lineWidth: .pt(2))
+                Circle()
+                    .fill(linearGradient)
             }
-            .font(size: 96)
+            .font(size: 128)
             .bold()
-            .foregroundStyle(radial)
             .padding(.max)
-
-//            StarShape()
-//                .fill(radial)
-//                .padding(.max)
         }
     }
 }

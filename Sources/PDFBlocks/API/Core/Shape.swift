@@ -6,6 +6,10 @@
 
 import Foundation
 
+/// A 2D shape that you can use when drawing a block.
+///
+/// Shapes without an explicit fill or stroke get a default fill based on the
+/// foreground color.
 public protocol Shape: Block {
     func path(in rect: CGRect) -> Path
 }

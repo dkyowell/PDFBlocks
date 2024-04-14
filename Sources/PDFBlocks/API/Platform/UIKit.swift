@@ -18,6 +18,10 @@ import Foundation
     }
 
     public extension Color {
+        static var clear: Color {
+            .init(UIColor.clear)
+        }
+
         static var blue: Color {
             .init(UIColor.systemBlue)
         }

@@ -8,21 +8,16 @@ import Foundation
 
 public extension Block {
     func fill(_ value: ShapeStyle) -> some Block {
-        if let value = value as? Gradient {
-            let linearGradient = LinearGradient(gradient: value, startPoint: .top, endPoint: .bottom)
-            return environment(\.fill, linearGradient)
-        } else {
-            return environment(\.fill, value)
-        }
+        environment(\.fill, value)
     }
 }
 
 struct FillKey: EnvironmentKey {
-    static let defaultValue: ShapeStyle = Color.black
+    static let defaultValue: ShapeStyle? = nil
 }
 
 extension EnvironmentValues {
-    var fill: ShapeStyle {
+    var fill: ShapeStyle? {
         get { self[FillKey.self] }
         set { self[FillKey.self] = newValue }
     }
