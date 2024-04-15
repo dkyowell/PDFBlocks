@@ -81,9 +81,6 @@ private struct Document: Block {
                     Text("Z")
                 }
                 .border(Color.orange, width: .in(2))
-//                .background {
-//                    Color.orange
-//                }
                 .font(size: 12)
                 Text("X")
                 Text("Y")
@@ -91,14 +88,8 @@ private struct Document: Block {
             }
             .font(size: 24)
             .padding(.pt(12))
-            .background {
-                Color.blue
-            }
         }
         .background {
-            Color.yellow
-        }
-        .overlay {
             Color.orange
         }
         .border(Color.black, width: .pt(12))
