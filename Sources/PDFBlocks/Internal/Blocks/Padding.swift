@@ -17,16 +17,37 @@ extension Padding: Renderable {
         if block.allowPageWrap(context: context, environment: environment), environment.renderMode == .wrapping {
             return BlockSize(width: proposedSize.width, height: 0)
         } else {
-            let size = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            var size = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            let insetWidth = proposedSize.width - padding.leading.points - padding.trailing.points
+            let insetHeight = proposedSize.height - padding.top.points - padding.bottom.points
             // 1. Determine min
             let minWidth = size.min.width + padding.leading.points + padding.trailing.points
             let minHeight = size.min.height + padding.top.points + padding.bottom.points
             let minSize = CGSize(width: minWidth, height: minHeight)
             // 2. Determine max
-            let maxWidth = (padding.leading.max || padding.trailing.max) ? proposedSize.width :
-                min(proposedSize.width, padding.leading.points + padding.trailing.points + size.max.width)
-            let maxHeight = (padding.top.max || padding.bottom.max) ? proposedSize.height :
-                min(proposedSize.height, padding.top.points + padding.bottom.points + size.max.height)
+            let overflowWidth = padding.leading.points + padding.trailing.points + size.max.width > proposedSize.width
+            var maxWidth: CGFloat
+            if padding.leading.max || padding.trailing.max {
+                maxWidth = proposedSize.width
+            } else if overflowWidth {
+                maxWidth = proposedSize.width
+                let proposedSize = CGSize(width: insetWidth, height: proposedSize.height)
+                size = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            } else {
+                maxWidth = size.max.width + padding.leading.points + padding.trailing.points
+            }
+            let overflowHeight = padding.top.points + padding.bottom.points + size.max.height > proposedSize.height
+            let maxHeight: CGFloat
+            if padding.top.max || padding.bottom.max {
+                maxHeight = proposedSize.height
+            } else if overflowHeight {
+                maxHeight = proposedSize.height
+                let proposedSize = CGSize(width: size.max.width, height: insetHeight)
+                size = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+                maxWidth = min(maxWidth, size.max.width + padding.leading.points + padding.trailing.points)
+            } else {
+                maxHeight = size.max.height + padding.top.points + padding.top.points
+            }
             let maxSize = CGSize(width: maxWidth, height: maxHeight)
             return .init(min: minSize, max: maxSize)
         }
