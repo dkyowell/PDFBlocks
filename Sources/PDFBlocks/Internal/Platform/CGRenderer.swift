@@ -127,18 +127,29 @@
                 cgContext?.setStrokeColor(strokeContent.cgColor)
                 cgContext?.drawPath(using: .stroke)
             } else if let strokeContent = environment.strokeContent as? LinearGradient {
+                print("Yo")
                 cgContext?.addPath(path)
                 cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.replacePathWithStrokedPath()
                 cgContext?.clip()
-                drawLinearGradient(gradient: strokeContent, rect: path.boundingBox)
+                // THIS GIVES PREVENTS GRADIENT FROM BEING CLIPPED
+                let box = path.copy(strokingWithWidth: environment.strokeLineWidth.points,
+                                    lineCap: .square,
+                                    lineJoin: .miter,
+                                    miterLimit: 90).boundingBox
+                drawLinearGradient(gradient: strokeContent, rect: box)
                 cgContext?.resetClip()
             } else if let strokeContent = environment.strokeContent as? RadialGradient {
                 cgContext?.addPath(path)
                 cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.replacePathWithStrokedPath()
                 cgContext?.clip()
-                drawRadialGradient(gradient: strokeContent, rect: path.boundingBox)
+                // THIS GIVES PREVENTS GRADIENT FROM BEING CLIPPED
+                let box = path.copy(strokingWithWidth: environment.strokeLineWidth.points,
+                                    lineCap: .square,
+                                    lineJoin: .miter,
+                                    miterLimit: 90).boundingBox
+                drawRadialGradient(gradient: strokeContent, rect: box)
                 cgContext?.resetClip()
             }
             if environment.strokeContent == nil || environment.fill != nil {
@@ -162,14 +173,31 @@
             cgContext?.restoreGState()
         }
 
-        func renderBorder(environment: EnvironmentValues, rect: CGRect, color: Color, width: CGFloat) {
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
-            cgContext?.addRect(rect.insetBy(dx: width / 2, dy: width / 2))
-            cgContext?.setLineWidth(width)
-            cgContext?.setStrokeColor(color.cgColor)
-            cgContext?.drawPath(using: .stroke)
-            cgContext?.restoreGState()
+        func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat) {
+            let insetRect = rect.insetBy(dx: width / 2, dy: width / 2)
+            let path = CGPath(rect: insetRect, transform: .none)
+            let copy = path.copy(strokingWithWidth: width, lineCap: .butt, lineJoin: .miter, miterLimit: 90)
+            var environment = environment
+            environment.fill = shapeStyle
+            renderPath(environment: environment, path: copy)
+            // OLD CODE BEFORE USING SHAPE STYLE. TO BE DELETED
+            // cgContext?.saveGState()
+            // cgContext?.setAlpha(environment.opacity)
+            // cgContext?.addRect(insetRect)
+            // cgContext?.setLineWidth(width)
+            // if let color = shapeStyle as? Color {
+            //     cgContext?.setStrokeColor(color.cgColor)
+            //     cgContext?.drawPath(using: .stroke)
+            // } else if let gradient = shapeStyle as? LinearGradient {
+            //     cgContext?.replacePathWithStrokedPath()
+            //     drawLinearGradient(gradient: gradient, rect: insetRect)
+            //     cgContext?.resetClip()
+            // } else if let gradient = shapeStyle as? RadialGradient {
+            //     cgContext?.replacePathWithStrokedPath()
+            //     cgContext?.clip()
+            //     drawRadialGradient(gradient: gradient, rect: rect)
+            // }
+            // cgContext?.restoreGState()
         }
 
         func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {

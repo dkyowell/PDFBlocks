@@ -22,7 +22,7 @@ private struct Document: Block {
             TableColumnTitles()
         }
         .padding(.pt(12))
-        .border(color: .purple, width: .pt(4))
+        .border(Color.purple, width: .pt(4))
     }
 }
 

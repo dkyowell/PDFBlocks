@@ -7,34 +7,39 @@
 import Foundation
 
 private struct Document: Block {
-    let gradient = Gradient(colors: [.red, .orange, .yellow])
-    let linearGradient = LinearGradient(colors: [.red, .orange, .yellow],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing)
-    let radial = RadialGradient(colors: [.red, .orange, .yellow],
-                                center: .center,
-                                startRadius: .in(0),
-                                endRadius: .in(5))
-    let customGradient = Gradient(stops: [.init(color: .red, location: 0),
-                                          .init(color: .orange, location: 0.25),
-                                          .init(color: .orange, location: 0.75),
-                                          .init(color: .yellow, location: 1)])
+    let linearGradient = LinearGradient(colors: [.cyan, .purple, .blue],
+                                        startPoint: .leading,
+                                        endPoint: .trailing)
+    let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
+                                        center: .center,
+                                        startRadius: .in(0),
+                                        endRadius: .in(5))
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
-            VStack {
-                Text("Outline")
-                    .textStroke(color: .purple, lineWidth: .pt(4))
-                Text("Blue")
-                    .textStroke(color: .purple, lineWidth: .pt(4))
-                    .textFill(.blue)
-                Text("Linear")
-                    .textStroke(lineWidth: .pt(2))
-                Circle()
-                    .fill(linearGradient)
-            }
-            .font(size: 128)
-            .bold()
-            .padding(.max)
+            Text("Stroked Text")
+                .padding(.horizontal, .max)
+                .font(size: 72)
+                .bold()
+                .textStroke(color: .red, lineWidth: .pt(2))
+            Arc(startAngle: .degrees(30), endAngle: .degrees(330), clockwise: false)
+                .fill(radialGradient)
+                .padding(.max)
+                .stroke(linearGradient, lineWidth: .pt(24))
+        }
+    }
+}
+
+struct Arc: Shape {
+    var startAngle: Angle
+    var endAngle: Angle
+    var clockwise: Bool
+
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            let radius = min(rect.width, rect.height) / 2
+            path.addLines([CGPoint(x: rect.midX, y: rect.midY)])
+            path.addArc(center: CGPoint(x: rect.midX, y: rect.midY), radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: clockwise)
+            path.addLine(to: CGPoint(x: rect.midX, y: rect.midY))
         }
     }
 }
@@ -72,11 +77,12 @@ struct StarShape: Shape {
             vertices.append(CGPoint(x: innerPoint.x + center.x, y: innerPoint.y + center.y))
         }
 
-        var path = Path()
-        for (n, pt) in vertices.enumerated() {
-            n == 0 ? path.move(to: pt) : path.addLine(to: pt)
+        let path = Path { path in
+            for (n, pt) in vertices.enumerated() {
+                n == 0 ? path.move(to: pt) : path.addLine(to: pt)
+            }
+            path.closeSubpath()
         }
-        path.closeSubpath()
         return path
     }
 }
