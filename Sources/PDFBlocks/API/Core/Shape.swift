@@ -12,10 +12,17 @@ import Foundation
 /// foreground color.
 public protocol Shape: Block {
     func path(in rect: CGRect) -> Path
+    func sizeThatFits(_ proposal: CGSize) -> CGSize
 }
 
 public extension Shape {
     var body: some Block {
         RenderableShape(shape: self)
+    }
+}
+
+public extension Shape {
+    func sizeThatFits(_ proposal: CGSize) -> CGSize {
+        proposal
     }
 }
