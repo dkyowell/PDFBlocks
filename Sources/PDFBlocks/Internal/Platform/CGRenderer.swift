@@ -82,6 +82,19 @@
             }
         #endif
 
+        func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect) {
+            cgContext?.saveGState()
+            let dx = rect.minX + anchor.x * rect.width
+            let dy = rect.minY + anchor.y * rect.height
+            cgContext?.concatenate(CGAffineTransform(translationX: dx, y: dy))
+            cgContext?.concatenate(CGAffineTransformMakeRotation(angle))
+            cgContext?.concatenate(CGAffineTransform(translationX: -dx, y: -dy))
+        }
+
+        func restoreState() {
+            cgContext?.restoreGState()
+        }
+
         func drawLinearGradient(gradient: LinearGradient, rect: CGRect) {
             guard let cgGradient = CGGradient(colorsSpace: nil,
                                               colors: gradient.gradient.stops.map(\.color.cgColor) as CFArray,
@@ -93,8 +106,6 @@
             let startY = rect.minY + gradient.startPoint.y * rect.height
             let endX = rect.minX + gradient.endPoint.x * rect.width
             let endY = rect.minY + gradient.endPoint.y * rect.height
-            print("drawLinearGradient", rect)
-            print(startX, startY, endX, endY)
             cgContext?.drawLinearGradient(cgGradient,
                                           start: .init(x: startX, y: startY),
                                           end: .init(x: endX, y: endY),
@@ -127,7 +138,6 @@
                 cgContext?.setStrokeColor(strokeContent.cgColor)
                 cgContext?.drawPath(using: .stroke)
             } else if let strokeContent = environment.strokeContent as? LinearGradient {
-                print("Yo")
                 cgContext?.addPath(path)
                 cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.replacePathWithStrokedPath()

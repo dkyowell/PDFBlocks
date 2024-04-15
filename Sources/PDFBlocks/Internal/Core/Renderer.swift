@@ -12,6 +12,8 @@ protocol Renderer {
     func render(renderingCallback: () -> Void) throws -> Data?
     func startNewPage(pageSize: CGSize)
     func endPage()
+    func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect)
+    func restoreState()
     func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat)
     func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect)
     func renderPath(environment: EnvironmentValues, path: CGPath)
