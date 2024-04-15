@@ -80,7 +80,7 @@ private struct Document: Block {
                     Text("Y")
                     Text("Z")
                 }
-                .border(color: .orange, width: .in(2))
+                .border(Color.orange, width: .in(2))
 //                .background {
 //                    Color.orange
 //                }
@@ -101,7 +101,7 @@ private struct Document: Block {
         .overlay {
             Color.orange
         }
-        .border(color: .black, width: .pt(12))
+        .border(Color.black, width: .pt(12))
         .font(name: "American Typewriter")
     }
 }

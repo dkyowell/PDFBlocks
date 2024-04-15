@@ -6,7 +6,4 @@
 
 import Foundation
 
-struct TextStroke {
-    let color: Color
-    let lineWidth: Size
-}
+extension Color: ShapeStyle {}

@@ -7,7 +7,7 @@
 import Foundation
 
 struct Border<Content>: Block where Content: Block {
-    let color: Color
+    let shapeStyle: ShapeStyle
     let width: Size
     let content: Content
 }
@@ -21,8 +21,10 @@ extension Border: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        context.renderer.renderBorder(environment: environment, rect: rect, color: color,
-                                      width: width.points)
+        context.renderPass3.append {
+            context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle,
+                                          width: width.points)
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
@@ -32,10 +34,10 @@ extension Border: Renderable {
 }
 
 struct BorderModifier: BlockModifier {
-    let color: Color
+    let shapeStyle: ShapeStyle
     let width: Size
 
     func body(content: Content) -> some Block {
-        Border(color: color, width: width, content: content)
+        Border(shapeStyle: shapeStyle, width: width, content: content)
     }
 }

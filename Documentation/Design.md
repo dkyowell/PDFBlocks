@@ -36,9 +36,25 @@ EnvironmentValues value.
 
 ...
  
+ 
+ 
+ ## Future
+ 
+ Offset
+ Clip
+ PageWrap Text
+ Stroked Text
+ StrokeStyle
+ Rotation
+ Text along Path?
+ https://medium.com/swlh/add-curved-text-in-your-app-3d41d4463c24
 
 
 
-
+Elliptical Gradient: Easy 
  
 
+## Issues
+
+* Text Gradient Fill: I had this working with a couple of caveats.  Multiline text would not render. This seems to be a
+limitation of CoreGraphics.

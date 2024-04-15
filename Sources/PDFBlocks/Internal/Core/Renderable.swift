@@ -50,7 +50,6 @@ extension Block {
             // A group as contents of a block that is not expecting a group is treated as a VStack.
             return VStack(content: { self })
         } else if let cast = self as? any Renderable {
-            // This is a Renderable.
             return cast
         } else {
             // Recursively call getRenderable upon body

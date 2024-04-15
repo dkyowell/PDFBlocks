@@ -6,7 +6,9 @@
 
 import Foundation
 
-struct TextStroke {
-    let color: Color
-    let lineWidth: Size
+extension LinearGradient: Block {
+    public var body: some Block {
+        Rectangle()
+            .fill(self)
+    }
 }
