@@ -58,3 +58,10 @@ Elliptical Gradient: Easy
 
 * Text Gradient Fill: I had this working with a couple of caveats.  Multiline text would not render. This seems to be a
 limitation of CoreGraphics.
+
+
+
+# SO, INSTEAD OF THAT...
+
+Run a page...when a 
+

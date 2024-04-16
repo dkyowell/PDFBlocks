@@ -12,19 +12,94 @@ private struct Document: Block {
                                         endPoint: .trailing)
     let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
                                         center: .center,
-                                        startRadius: .in(0),
-                                        endRadius: .in(5))
+                                        startRadius: .in(3),
+                                        endRadius: .in(8))
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
-            Text("Stroked Text")
-                .padding(.horizontal, .max)
-                .font(size: 72)
-                .bold()
-                .textStroke(color: .red, lineWidth: .pt(2))
-            Arc(startAngle: .degrees(30), endAngle: .degrees(330), clockwise: false)
-                .fill(radialGradient)
-                .padding(.max)
-                .stroke(linearGradient, lineWidth: .pt(24))
+            Rectangle()
+                .fill(.yellow)
+                .aspectRatio(1)
+                // .stroke(.black, lineWidth: .pt(4))
+                .border(Color.black)
+                .rotationEffect(.degrees(45))
+                .padding(.pt(100))
+        }
+    }
+
+//    var body: some Block {
+//        Page(size: .letter, margins: .in(1)) {
+//            VStack(spacing: .pt(16)) {
+//                VStack(alignment: .center) {
+//                    Text("Wonka Wonka")
+//                    Arc(startAngle: .degrees(35), endAngle: .degrees(325), clockwise: false)
+//                        .fill(.yellow)
+//                        .stroke(.black, lineWidth: .pt(4))
+//                        .padding(.max)
+//                }
+//                VStack(alignment: .center) {
+//                    Text("Wonka Wonka")
+//                    Arc(startAngle: .degrees(35), endAngle: .degrees(325), clockwise: false)
+//                        .fill(.yellow)
+//                        .stroke(.black, lineWidth: .pt(4))
+//                        .padding(.max)
+//                }
+//                .rotationEffect(.degrees(90), unitPoint: .leading)
+//                VStack(alignment: .center) {
+//                    Text("Wonka Wonka")
+//                    Arc(startAngle: .degrees(35), endAngle: .degrees(325), clockwise: false)
+//                        .fill(.yellow)
+//                        .stroke(.black, lineWidth: .pt(4))
+//                        .padding(.max)
+//                }
+//                .rotationEffect(.degrees(180))
+//                VStack(alignment: .center) {
+//                    Text("Wonka Wonka")
+//                    Arc(startAngle: .degrees(35), endAngle: .degrees(325), clockwise: false)
+//                        .fill(.yellow)
+//                        .stroke(.black, lineWidth: .pt(4))
+//                        .padding(.max)
+//                }
+//                .rotationEffect(.degrees(270))
+//            }
+//        }
+//    }
+}
+
+// TODO: ANOTHER EXAMPLE OF DEFERRED BORDERS NOT RENDERING PROPERLY
+// var body: some Block {
+//    Page(size: .letter, margins: .in(1)) {
+//        Rectangle()
+//            .fill(.yellow)
+//            .aspectRatio(1)
+//            //.stroke(.black, lineWidth: .pt(4))
+//            .border(Color.black)
+//            .rotationEffect(.degrees(45))
+//            .padding(.pt(100))
+//    }
+// }
+
+private struct DoesNotRenderSecondOverlay: Block {
+    let linearGradient = LinearGradient(colors: [.cyan, .purple, .blue],
+                                        startPoint: .leading,
+                                        endPoint: .trailing)
+    let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
+                                        center: .center,
+                                        startRadius: .in(3),
+                                        endRadius: .in(8))
+    var body: some Block {
+        Page(size: .letter, margins: .in(1)) {
+            Square()
+                .fill(.clear)
+                .overlay {
+                    Arc(startAngle: .degrees(35), endAngle: .degrees(325), clockwise: false)
+                        .fill(.yellow)
+                        .overlay {
+                            Circle()
+                                .fill(.black)
+                                .opacity(0.25)
+                        }
+                        .border(.black)
+                }
         }
     }
 }
@@ -39,8 +114,13 @@ struct Arc: Shape {
             let radius = min(rect.width, rect.height) / 2
             path.addLines([CGPoint(x: rect.midX, y: rect.midY)])
             path.addArc(center: CGPoint(x: rect.midX, y: rect.midY), radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: clockwise)
-            path.addLine(to: CGPoint(x: rect.midX, y: rect.midY))
+            path.closeSubpath()
         }
+    }
+
+    public func sizeThatFits(_ proposal: CGSize) -> CGSize {
+        let minLength = min(proposal.width, proposal.height)
+        return .init(width: minLength, height: minLength)
     }
 }
 
