@@ -29,58 +29,56 @@
         init() {}
 
         func startNewPage(pageSize: CGSize) {
-            #if os(macOS)
-                var mediaBox = CGRect(origin: .zero, size: pageSize)
-                cgContext?.beginPage(mediaBox: &mediaBox)
-                cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
-            #else
-                let mediaBox = CGRect(origin: .zero, size: pageSize)
-                pdfContext?.beginPage(withBounds: mediaBox, pageInfo: [:])
-            #endif
+            var mediaBox = CGRect(origin: .zero, size: pageSize)
+            cgContext?.beginPage(mediaBox: &mediaBox)
+            cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
         }
 
         func endPage() {
-            #if os(macOS)
-                cgContext?.endPDFPage()
-            #endif
+            cgContext?.endPDFPage()
         }
 
-        #if os(iOS)
-            var pdfContext: UIGraphicsPDFRendererContext?
-        #endif
         var cgContext: CGContext? = nil
 
-        #if os(iOS)
-            func render(renderingCallback: () -> Void) throws -> Data? {
-                let renderer = UIGraphicsPDFRenderer()
-                let pdfData = renderer.pdfData { rendererContext in
-                    self.pdfContext = rendererContext
-                    self.cgContext = rendererContext.cgContext
-                    renderingCallback()
-                }
-                return pdfData
-            }
-        #endif
+//        #if os(iOS)
+//            func render(renderingCallback: () -> Void) throws -> Data? {
+//                let renderer = UIGraphicsPDFRenderer()
+//                let pdfData = renderer.pdfData { rendererContext in
+//                    self.pdfContext = rendererContext
+//                    self.cgContext = rendererContext.cgContext
+//                    renderingCallback()
+//                }
+//                return pdfData
+//            }
+//        #endif
 
-        #if os(macOS)
-            func render(renderingCallback: () -> Void) throws -> Data? {
-                let pdfData = NSMutableData()
-                guard let consumer = CGDataConsumer(data: pdfData) else {
-                    fatalError()
-                }
-                guard let cgContext = CGContext(consumer: consumer, mediaBox: nil, nil) else {
-                    fatalError()
-                }
-                self.cgContext = cgContext
+        func render(renderingCallback: () -> Void) throws -> Data? {
+            let pdfData = NSMutableData()
+            guard let consumer = CGDataConsumer(data: pdfData) else {
+                fatalError()
+            }
+            guard let cgContext = CGContext(consumer: consumer, mediaBox: nil, nil) else {
+                fatalError()
+            }
+            self.cgContext = cgContext
+            #if os(macOS)
                 let previousContext = NSGraphicsContext.current
                 let graphicsContext = NSGraphicsContext(cgContext: cgContext, flipped: true)
                 NSGraphicsContext.current = graphicsContext
-                renderingCallback()
-                cgContext.closePDF()
+            #endif
+            #if os(iOS)
+                UIGraphicsPushContext(cgContext)
+            #endif
+            renderingCallback()
+            cgContext.closePDF()
+            #if os(macOS)
                 NSGraphicsContext.current = previousContext
-                return pdfData as Data
-            }
-        #endif
+            #endif
+            #if os(iOS)
+                UIGraphicsPopContext()
+            #endif
+            return pdfData as Data
+        }
 
         func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect) {
             cgContext?.saveGState()
