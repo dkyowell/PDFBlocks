@@ -23,6 +23,11 @@ extension Opacity: Renderable {
             .render(context: context, environment: environment, rect: rect)
         context.renderer.restoreOpacity()
     }
+
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        content.getRenderable(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
+    }
 }
 
 struct OpacityModifier: BlockModifier {
