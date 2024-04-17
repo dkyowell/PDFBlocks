@@ -6,7 +6,7 @@
 
 import Foundation
 
-extension Block {
+public extension Block {
     func rotationEffect(_ angle: Angle, anchor: UnitPoint = .center) -> some Block {
         modifier(RotationModifier(angle: angle, anchor: anchor))
     }
