@@ -6,23 +6,23 @@
 
 import Foundation
 
-struct Border<Content>: Block where Content: Block {
-    let shapeStyle: ShapeStyle
-    let width: Size
+struct RotationEffect<Content>: Block where Content: Block {
     let content: Content
+    let angle: Angle
+    let anchor: UnitPoint
 }
 
-extension Border: Renderable {
+extension RotationEffect: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        context.renderer.startRotation(angle: angle.radians, anchor: anchor, rect: rect)
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle,
-                                      width: width.points)
+        context.renderer.restoreState()
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
@@ -31,11 +31,11 @@ extension Border: Renderable {
     }
 }
 
-struct BorderModifier: BlockModifier {
-    let shapeStyle: ShapeStyle
-    let width: Size
+struct RotationModifier: BlockModifier {
+    let angle: Angle
+    let anchor: UnitPoint
 
     func body(content: Content) -> some Block {
-        Border(shapeStyle: shapeStyle, width: width, content: content)
+        RotationEffect(content: content, angle: angle, anchor: anchor)
     }
 }

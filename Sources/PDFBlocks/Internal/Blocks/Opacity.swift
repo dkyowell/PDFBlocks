@@ -6,23 +6,22 @@
 
 import Foundation
 
-struct Border<Content>: Block where Content: Block {
-    let shapeStyle: ShapeStyle
-    let width: Size
+struct Opacity<Content>: Block where Content: Block {
+    let opacity: CGFloat
     let content: Content
 }
 
-extension Border: Renderable {
+extension Opacity: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        context.renderer.startOpacity(opacity: opacity)
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle,
-                                      width: width.points)
+        context.renderer.restoreOpacity()
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
@@ -31,11 +30,10 @@ extension Border: Renderable {
     }
 }
 
-struct BorderModifier: BlockModifier {
-    let shapeStyle: ShapeStyle
-    let width: Size
+struct OpacityModifier: BlockModifier {
+    let opacity: CGFloat
 
     func body(content: Content) -> some Block {
-        Border(shapeStyle: shapeStyle, width: width, content: content)
+        Opacity(opacity: opacity, content: content)
     }
 }

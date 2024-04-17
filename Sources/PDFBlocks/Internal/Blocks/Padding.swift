@@ -11,6 +11,7 @@ struct Padding<Content>: Block where Content: Block {
     let content: Content
 }
 
+// TODO: Fix issue with padding on flexible sized blocks with fixed aspect ratios.
 extension Padding: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
         let block = content.getRenderable(environment: environment)

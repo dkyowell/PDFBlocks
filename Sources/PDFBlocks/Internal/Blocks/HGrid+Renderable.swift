@@ -60,11 +60,12 @@ extension HGrid: Renderable {
                 wrappingModeRender(context: context, environment: environment, rect: rect)
             } else {
                 // This is a primary page wrapping block
-                guard context.renderPass2 == nil else {
+                context.renderer.setLayer(2)
+                context.setPageWrapRect(rect)
+                guard context.multiPagePass == nil else {
                     return
                 }
-                context.renderPass2 = {
-                    context.setPageWrapRect(rect)
+                context.multiPagePass = {
                     environment.renderMode = .wrapping
                     wrappingModeRender(context: context, environment: environment, rect: rect)
                 }

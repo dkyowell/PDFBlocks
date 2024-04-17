@@ -38,18 +38,16 @@ private struct Document: Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
             PageNumberReader { pageNo in
                 Text("Page \(pageNo)")
+                    .padding(.bottom, .pt(CGFloat(pageNo * 12)))
             }
             .font(size: 36)
             .padding(.horizontal, .max)
-            .padding(.bottom, .pt(12))
+            // .padding(.bottom, .pt(12))
             VStack(alignment: .center, allowPageWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
-                HGrid(columnCount: 3, columnSpacing: .in(0), rowSpacing: .pt(4), allowPageWrap: true) {
-                    Text("A")
-                    Text("B")
-                    Text("C")
+                HGrid(columnCount: 3, columnSpacing: .pt(0), rowSpacing: .pt(0), allowPageWrap: true) {
                     Text("D")
                     Text("E")
                     Text("F")
@@ -76,22 +74,26 @@ private struct Document: Block {
                     Text("U")
                     Text("V")
                     Text("W")
-                    Text("X")
-                    Text("Y")
-                    Text("Z")
                 }
-                .border(Color.orange, width: .in(2))
-                .font(size: 12)
                 Text("X")
                 Text("Y")
                 Text("Z")
             }
+            .padding(.horizontal, .max)
+            .overlay {
+                Color.clear
+                    .border(.blue, width: .pt(12))
+                    .opacity(0.75)
+            }
             .font(size: 24)
             .padding(.pt(12))
+            .rotationEffect(.degrees(10))
+            Text("Footer")
         }
         .background {
             Color.orange
         }
+        .offset(x: .pt(-36), y: .pt(36))
         .border(Color.black, width: .pt(12))
         .font(name: "American Typewriter")
     }

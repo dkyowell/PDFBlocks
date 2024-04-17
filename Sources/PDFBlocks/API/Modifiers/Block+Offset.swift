@@ -6,4 +6,8 @@
 
 import Foundation
 
-// extension Gradient: ShapeStyle {}
+extension Block {
+    func offset(x: Size, y: Size) -> some Block {
+        modifier(OffsetModifier(x: x, y: y))
+    }
+}

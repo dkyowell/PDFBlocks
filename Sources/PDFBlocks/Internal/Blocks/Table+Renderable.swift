@@ -41,10 +41,12 @@ extension Table: Renderable {
             // This is a primary page wrapping block.
             let frame = pageFrame(context.pageNo).getRenderable(environment: environment)
             frame.render(context: context, environment: environment, rect: rect)
-            guard context.renderPass2 == nil else {
+            context.renderer.setLayer(2)
+            context.setPageWrapRect(rect)
+            guard context.multiPagePass == nil else {
                 return
             }
-            context.renderPass2 = {
+            context.multiPagePass = {
                 environment.renderMode = .wrapping
                 wrappingModeRender(context: context, environment: environment, rect: rect)
             }

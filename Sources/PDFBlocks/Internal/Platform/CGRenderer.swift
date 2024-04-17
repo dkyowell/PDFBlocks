@@ -28,59 +28,102 @@
     class CGRenderer: Renderer {
         init() {}
 
+        // The layer allows a page to be rendered in two passes. This is required for handling page wrapping blocks.
+        var layer = 1
+        var renderLayer = 1
+        func setLayer(_ value: Int) {
+            layer = value
+        }
+
+        func setRenderLayer(_ value: Int) {
+            renderLayer = value
+        }
+
         func startNewPage(pageSize: CGSize) {
-            #if os(macOS)
-                var mediaBox = CGRect(origin: .zero, size: pageSize)
-                cgContext?.beginPage(mediaBox: &mediaBox)
-                cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
-            #else
-                let mediaBox = CGRect(origin: .zero, size: pageSize)
-                pdfContext?.beginPage(withBounds: mediaBox, pageInfo: [:])
-            #endif
+            var mediaBox = CGRect(origin: .zero, size: pageSize)
+            cgContext?.beginPage(mediaBox: &mediaBox)
+            cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
         }
 
         func endPage() {
-            #if os(macOS)
-                cgContext?.endPDFPage()
-            #endif
+            cgContext?.endPDFPage()
         }
 
-        #if os(iOS)
-            var pdfContext: UIGraphicsPDFRendererContext?
-        #endif
         var cgContext: CGContext? = nil
 
-        #if os(iOS)
-            func render(renderingCallback: () -> Void) throws -> Data? {
-                let renderer = UIGraphicsPDFRenderer()
-                let pdfData = renderer.pdfData { rendererContext in
-                    self.pdfContext = rendererContext
-                    self.cgContext = rendererContext.cgContext
-                    renderingCallback()
-                }
-                return pdfData
+        func render(renderingCallback: () -> Void) throws -> Data? {
+            let pdfData = NSMutableData()
+            guard let consumer = CGDataConsumer(data: pdfData) else {
+                fatalError()
             }
-        #endif
-
-        #if os(macOS)
-            func render(renderingCallback: () -> Void) throws -> Data? {
-                let pdfData = NSMutableData()
-                guard let consumer = CGDataConsumer(data: pdfData) else {
-                    fatalError()
-                }
-                guard let cgContext = CGContext(consumer: consumer, mediaBox: nil, nil) else {
-                    fatalError()
-                }
-                self.cgContext = cgContext
+            guard let cgContext = CGContext(consumer: consumer, mediaBox: nil, nil) else {
+                fatalError()
+            }
+            self.cgContext = cgContext
+            #if os(macOS)
                 let previousContext = NSGraphicsContext.current
                 let graphicsContext = NSGraphicsContext(cgContext: cgContext, flipped: true)
                 NSGraphicsContext.current = graphicsContext
-                renderingCallback()
-                cgContext.closePDF()
+            #endif
+            #if os(iOS)
+                UIGraphicsPushContext(cgContext)
+            #endif
+            renderingCallback()
+            cgContext.closePDF()
+            #if os(macOS)
                 NSGraphicsContext.current = previousContext
-                return pdfData as Data
+            #endif
+            #if os(iOS)
+                UIGraphicsPopContext()
+            #endif
+            return pdfData as Data
+        }
+
+        func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect) {
+            guard layer == renderLayer else {
+                return
             }
-        #endif
+            cgContext?.saveGState()
+            let dx = rect.minX + anchor.x * rect.width
+            let dy = rect.minY + anchor.y * rect.height
+            cgContext?.concatenate(CGAffineTransform(translationX: dx, y: dy))
+            cgContext?.concatenate(CGAffineTransformMakeRotation(angle))
+            cgContext?.concatenate(CGAffineTransform(translationX: -dx, y: -dy))
+        }
+
+        var opacityStack: [CGFloat] = []
+        func startOpacity(opacity: CGFloat) {
+            guard layer == renderLayer else {
+                return
+            }
+            opacityStack.append(opacity)
+            cgContext?.saveGState()
+            cgContext?.setAlpha(opacityStack.reduce(1.0, *))
+        }
+
+        func restoreOpacity() {
+            guard layer == renderLayer else {
+                return
+            }
+            cgContext?.restoreGState()
+            opacityStack = opacityStack.dropLast()
+            cgContext?.setAlpha(opacityStack.reduce(1.0, *))
+        }
+
+        func restoreState() {
+            guard layer == renderLayer else {
+                return
+            }
+            cgContext?.restoreGState()
+        }
+
+        func startOffset(x: CGFloat, y: CGFloat) {
+            guard layer == renderLayer else {
+                return
+            }
+            cgContext?.saveGState()
+            cgContext?.concatenate(CGAffineTransform(translationX: x, y: y))
+        }
 
         func drawLinearGradient(gradient: LinearGradient, rect: CGRect) {
             guard let cgGradient = CGGradient(colorsSpace: nil,
@@ -93,8 +136,6 @@
             let startY = rect.minY + gradient.startPoint.y * rect.height
             let endX = rect.minX + gradient.endPoint.x * rect.width
             let endY = rect.minY + gradient.endPoint.y * rect.height
-            print("drawLinearGradient", rect)
-            print(startX, startY, endX, endY)
             cgContext?.drawLinearGradient(cgGradient,
                                           start: .init(x: startX, y: startY),
                                           end: .init(x: endX, y: endY),
@@ -119,15 +160,15 @@
         }
 
         func renderPath(environment: EnvironmentValues, path: CGPath) {
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
+            guard layer == renderLayer else {
+                return
+            }
             if let strokeContent = environment.strokeContent as? Color {
                 cgContext?.addPath(path)
                 cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.setStrokeColor(strokeContent.cgColor)
                 cgContext?.drawPath(using: .stroke)
             } else if let strokeContent = environment.strokeContent as? LinearGradient {
-                print("Yo")
                 cgContext?.addPath(path)
                 cgContext?.setLineWidth(environment.strokeLineWidth.points)
                 cgContext?.replacePathWithStrokedPath()
@@ -170,10 +211,12 @@
                     cgContext?.resetClip()
                 }
             }
-            cgContext?.restoreGState()
         }
 
         func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat) {
+            guard layer == renderLayer else {
+                return
+            }
             let insetRect = rect.insetBy(dx: width / 2, dy: width / 2)
             let path = CGPath(rect: insetRect, transform: .none)
             let copy = path.copy(strokingWithWidth: width, lineCap: .butt, lineJoin: .miter, miterLimit: 90)
@@ -181,8 +224,6 @@
             environment.fill = shapeStyle
             renderPath(environment: environment, path: copy)
             // OLD CODE BEFORE USING SHAPE STYLE. TO BE DELETED
-            // cgContext?.saveGState()
-            // cgContext?.setAlpha(environment.opacity)
             // cgContext?.addRect(insetRect)
             // cgContext?.setLineWidth(width)
             // if let color = shapeStyle as? Color {
@@ -197,12 +238,12 @@
             //     cgContext?.clip()
             //     drawRadialGradient(gradient: gradient, rect: rect)
             // }
-            // cgContext?.restoreGState()
         }
 
         func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.addLines(between: [
                 .init(x: rect.minX, y: rect.midY),
                 .init(x: rect.maxX, y: rect.midY),
@@ -216,19 +257,18 @@
             let color = (environment.foregroundStyle as? Color) ?? Color.black
             cgContext?.setStrokeColor(color.cgColor)
             cgContext?.drawPath(using: .stroke)
-            cgContext?.restoreGState()
         }
 
-        func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect) {
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
+        func renderImage(_ image: PlatformImage, environment _: EnvironmentValues, rect: CGRect) {
+            guard layer == renderLayer else {
+                return
+            }
             guard let image = image as? NSUIImage else {
                 return
             }
             if let ds = image.downscaled(maxSize: rect.size.scaled(by: 300 / 72.0)) {
                 ds.draw(in: rect)
             }
-            cgContext?.restoreGState()
         }
 
         func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: ProposedSize) -> (min: CGSize, max: CGSize) {
@@ -307,8 +347,9 @@
         }
 
         func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
+            guard layer == renderLayer else {
+                return
+            }
             let string = NSString(string: text)
             var attributes = [NSAttributedString.Key: Any]()
             let fontName = environment.fontName
@@ -414,7 +455,6 @@
                     // drawRadialGradient(gradient: gradient, rect: newRect)
                 }
             }
-            cgContext?.restoreGState()
         }
     }
 #endif

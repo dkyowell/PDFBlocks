@@ -15,4 +15,9 @@ public struct Circle: Shape {
         let origin = CGPoint(x: (rect.width - length) / 2, y: (rect.height - length) / 2)
         return Path(ellipseIn: CGRect(origin: origin, size: size))
     }
+
+    public func sizeThatFits(_ proposal: CGSize) -> CGSize {
+        let minLength = min(proposal.width, proposal.height)
+        return .init(width: minLength, height: minLength)
+    }
 }
