@@ -8,7 +8,7 @@ import Foundation
 
 private struct Document: Block {
     var body: some Block {
-        VStack(spacing: .pt(2)) {
+        VStack(alignment: .leading, spacing: .pt(2)) {
             HStack(spacing: .pt(2)) {
                 ForEach(["P", "D", "F"]) { item in
                     LetterBlock(letter: item, color: .red)

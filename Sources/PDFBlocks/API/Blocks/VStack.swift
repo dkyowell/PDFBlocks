@@ -29,7 +29,7 @@ public struct VStack<Content>: Block where Content: Block {
     ///   - alignment: The horizontal alignment for the contents of the stack.
     ///   - spacing: The distance between  elements of the stack.
     ///   - content: A block builder that creates the content of this stack.
-    public init(alignment: HorizontalAlignment = .leading,
+    public init(alignment: HorizontalAlignment = .center,
                 spacing: StackSpacing = .none,
                 allowPageWrap: Bool = false,
                 @BlockBuilder content: () -> Content)

@@ -29,7 +29,7 @@ public struct TableColumnTitles: Block {
 
     public var body: some Block {
         VStack {
-            HStack(spacing: .pt(2)) {
+            HStack(alignment: .top, spacing: .pt(2)) {
                 ForEach(columns.filter(\.visible)) { column in
                     Text(column.title)
                         .bold()

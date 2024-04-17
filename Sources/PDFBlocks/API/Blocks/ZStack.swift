@@ -30,7 +30,7 @@ public struct ZStack<Content: Block>: Block {
     /// - Parameters:
     ///   - alignment: The horizontal and vertical alignment for the contents of the stack.
     ///   - content: A block builder that creates the content of this stack.
-    public init(alignment: Alignment = .topLeading, @BlockBuilder content: () -> Content) {
+    public init(alignment: Alignment = .center, @BlockBuilder content: () -> Content) {
         self.alignment = alignment
         self.content = content()
     }

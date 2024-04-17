@@ -24,7 +24,9 @@ extension Page: Renderable {
                                 height: rect.height - pageInfo.margins.top.points - pageInfo.margins.bottom.points)
         let block = content.getRenderable(environment: environment)
         let size = block.sizeFor(context: context, environment: environment, proposedSize: marginRect.size).max
-        let renderRect = CGRect(origin: marginRect.origin, size: size)
+        let dx: CGFloat = (marginRect.width - size.width) / 2.0
+        let dy: CGFloat = (marginRect.height - size.height) / 2.0
+        let renderRect = CGRect(origin: marginRect.origin.offset(dx: dx, dy: dy), size: size)
         block.render(context: context, environment: environment, rect: renderRect)
     }
 
@@ -33,9 +35,3 @@ extension Page: Renderable {
     }
 }
 
-// public extension Page {
-//    init(size: PageSize, margins: EdgeInsets, content: @escaping () -> Content) {
-//        pageInfo = .init(size: size, margins: margins)
-//        self.content = content
-//    }
-// }

@@ -23,6 +23,7 @@ private struct Document: Block {
                 Text(stateName(abberviation: value))
                     .font(size: 12)
                     .bold()
+                    .padding(.trailing, .max)
                 TableColumnTitles()
             } footer: { _, _ in
                 HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(0.1), allowPageWrap: true) {
