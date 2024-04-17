@@ -14,6 +14,7 @@ protocol Renderer {
     func render(renderingCallback: () -> Void) throws -> Data?
     func startNewPage(pageSize: CGSize)
     func endPage()
+    func startOffset(x: CGFloat, y: CGFloat)
     func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect)
     func startOpacity(opacity: CGFloat)
     func restoreOpacity()

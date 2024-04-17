@@ -117,6 +117,14 @@
             cgContext?.restoreGState()
         }
 
+        func startOffset(x: CGFloat, y: CGFloat) {
+            guard layer == renderLayer else {
+                return
+            }
+            cgContext?.saveGState()
+            cgContext?.concatenate(CGAffineTransform(translationX: x, y: y))
+        }
+
         func drawLinearGradient(gradient: LinearGradient, rect: CGRect) {
             guard let cgGradient = CGGradient(colorsSpace: nil,
                                               colors: gradient.gradient.stops.map(\.color.cgColor) as CFArray,
