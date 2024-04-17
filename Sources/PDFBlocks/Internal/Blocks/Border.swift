@@ -8,7 +8,7 @@ import Foundation
 
 struct Border<Content>: Block where Content: Block {
     let shapeStyle: ShapeStyle
-    let width: Dimmension
+    let width: Dimension
     let content: Content
 }
 
@@ -33,7 +33,7 @@ extension Border: Renderable {
 
 struct BorderModifier: BlockModifier {
     let shapeStyle: ShapeStyle
-    let width: Dimmension
+    let width: Dimension
 
     func body(content: Content) -> some Block {
         Border(shapeStyle: shapeStyle, width: width, content: content)

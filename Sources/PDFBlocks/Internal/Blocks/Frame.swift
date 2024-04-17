@@ -7,8 +7,8 @@
 import Foundation
 
 struct Frame<Content>: Block where Content: Block {
-    var width: Dimmension?
-    var height: Dimmension?
+    var width: Dimension?
+    var height: Dimension?
     var alignment: Alignment = .center
     let content: Content
 }
@@ -72,8 +72,8 @@ extension Frame: Renderable {
 }
 
 struct FrameModifier: BlockModifier {
-    let width: Dimmension?
-    let height: Dimmension?
+    let width: Dimension?
+    let height: Dimension?
     let alignment: Alignment
 
     func body(content: Content) -> some Block {

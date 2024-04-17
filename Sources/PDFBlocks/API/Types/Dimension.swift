@@ -26,35 +26,35 @@ import Foundation
 ///     Text("Hello, world.")
 ///         .padding(horizontal: .max)
 ///
-public struct Dimmension: Equatable {
+public struct Dimension: Equatable {
     public let points: CGFloat
     public let max: Bool
 
-    public static var max: Dimmension {
+    public static var max: Dimension {
         .init(points: 0, max: true)
     }
 
-    public static func pt(_ value: CGFloat) -> Dimmension {
+    public static func pt(_ value: CGFloat) -> Dimension {
         .init(points: value, max: false)
     }
 
-    public static func `in`(_ value: CGFloat) -> Dimmension {
+    public static func `in`(_ value: CGFloat) -> Dimension {
         .init(points: value * 72, max: false)
     }
 
-    public static func mm(_ value: CGFloat) -> Dimmension {
+    public static func mm(_ value: CGFloat) -> Dimension {
         .init(points: value * 72 / 25.4, max: false)
     }
 }
 
-extension Dimmension: ExpressibleByIntegerLiteral {
+extension Dimension: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: IntegerLiteralType) {
         points = CGFloat(value)
         max = false
     }
 }
 
-extension Dimmension: ExpressibleByFloatLiteral {
+extension Dimension: ExpressibleByFloatLiteral {
     public init(floatLiteral value: FloatLiteralType) {
         points = value
         max = false

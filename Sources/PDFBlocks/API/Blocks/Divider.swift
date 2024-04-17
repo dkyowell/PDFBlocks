@@ -11,10 +11,10 @@ import Foundation
 /// When contained in a stack, the divider extends across the minor axis of the stack,
 /// or horizontally when not in a stack.
 public struct Divider: Block {
-    let thickness: Dimmension
-    let padding: Dimmension
+    let thickness: Dimension
+    let padding: Dimension
 
-    public init(thickness: Dimmension = .pt(0.75), padding: Dimmension = .pt(1)) {
+    public init(thickness: Dimension = .pt(0.75), padding: Dimension = .pt(1)) {
         self.thickness = thickness
         self.padding = padding
     }
