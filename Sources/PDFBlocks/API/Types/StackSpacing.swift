@@ -9,8 +9,8 @@ import Foundation
 /// A type for expressing the spacing between elements
 /// in a stack.
 public enum StackSpacing {
-    case flex(min: Size)
-    case fixed(Size)
+    case flex(min: Dimmension)
+    case fixed(Dimmension)
 }
 
 public extension StackSpacing {

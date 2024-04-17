@@ -8,10 +8,10 @@ import Foundation
 
 /// A type for expressing page size.
 public struct PageSize {
-    public let width: Size
-    public let height: Size
+    public let width: Dimmension
+    public let height: Dimmension
 
-    public init(width: Size, height: Size) {
+    public init(width: Dimmension, height: Dimmension) {
         self.width = width
         self.height = height
     }

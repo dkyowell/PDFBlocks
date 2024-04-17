@@ -19,7 +19,7 @@ public extension Block {
     ///
     /// - Returns: A block with fixed dimensions of `width` and `height`, for the
     ///   parameters that are non-`nil`.
-    func frame(width: Size? = nil, height: Size? = nil, alignment: Alignment = .topLeading) -> some Block {
+    func frame(width: Dimmension? = nil, height: Dimmension? = nil, alignment: Alignment = .topLeading) -> some Block {
         modifier(FrameModifier(width: width, height: height, alignment: alignment))
     }
 }

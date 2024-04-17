@@ -9,14 +9,14 @@ import Foundation
 /// A grid can span multiple pages.
 public struct HGrid<Content>: Block where Content: Block {
     let columnCount: Int
-    let columnSpacing: Size
-    let rowSpacing: Size
+    let columnSpacing: Dimmension
+    let rowSpacing: Dimmension
     let allowPageWrap: Bool
     let content: Content
 
     public init(columnCount: Int,
-                columnSpacing: Size,
-                rowSpacing: Size,
+                columnSpacing: Dimmension,
+                rowSpacing: Dimmension,
                 allowPageWrap: Bool = false,
                 @BlockBuilder content: () -> Content)
     {

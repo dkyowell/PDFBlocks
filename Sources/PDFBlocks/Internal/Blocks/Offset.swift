@@ -7,8 +7,8 @@
 import Foundation
 
 struct Offset<Content>: Block where Content: Block {
-    let x: Size
-    let y: Size
+    let x: Dimmension
+    let y: Dimmension
     let content: Content
 }
 
@@ -32,8 +32,8 @@ extension Offset: Renderable {
 }
 
 struct OffsetModifier: BlockModifier {
-    let x: Size
-    let y: Size
+    let x: Dimmension
+    let y: Dimmension
 
     func body(content: Content) -> some Block {
         Offset(x: x, y: y, content: content)

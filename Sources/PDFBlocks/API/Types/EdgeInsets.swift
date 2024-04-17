@@ -10,47 +10,47 @@ import Foundation
 ///
 /// Used for page margins and block padding.
 public struct EdgeInsets: Equatable {
-    public var top: Size
-    public var leading: Size
-    public var bottom: Size
-    public var trailing: Size
+    public var top: Dimmension
+    public var leading: Dimmension
+    public var bottom: Dimmension
+    public var trailing: Dimmension
 
-    public init(top: Size = .pt(0), leading: Size = .pt(0), bottom: Size = .pt(0), trailing: Size = .pt(0)) {
+    public init(top: Dimmension = .pt(0), leading: Dimmension = .pt(0), bottom: Dimmension = .pt(0), trailing: Dimmension = .pt(0)) {
         self.top = top
         self.leading = leading
         self.bottom = bottom
         self.trailing = trailing
     }
 
-    public init(top: Size) {
+    public init(top: Dimmension) {
         self.top = top
         leading = .pt(0)
         bottom = .pt(0)
         trailing = .pt(0)
     }
 
-    public init(leading: Size) {
+    public init(leading: Dimmension) {
         top = .pt(0)
         self.leading = leading
         bottom = .pt(0)
         trailing = .pt(0)
     }
 
-    public init(bottom: Size) {
+    public init(bottom: Dimmension) {
         top = .pt(0)
         leading = .pt(0)
         self.bottom = bottom
         trailing = .pt(0)
     }
 
-    public init(trailing: Size) {
+    public init(trailing: Dimmension) {
         top = .pt(0)
         leading = .pt(0)
         bottom = .pt(0)
         self.trailing = trailing
     }
 
-    public init(_ value: Size) {
+    public init(_ value: Dimmension) {
         top = value
         leading = value
         bottom = value

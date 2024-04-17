@@ -7,7 +7,7 @@
 import Foundation
 
 extension Block {
-    func offset(x: Size, y: Size) -> some Block {
+    func offset(x: Dimmension, y: Dimmension) -> some Block {
         modifier(OffsetModifier(x: x, y: y))
     }
 }

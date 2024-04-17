@@ -8,7 +8,7 @@ import Foundation
 
 /// A type for expressing width and height dimmensions or spacing.
 ///
-/// `Size` can be expressed in points (72 ppi), inches, milimeters.
+/// `Dimmension` can be expressed in points (72 ppi), inches, milimeters.
 ///
 /// The following paddings values are all equivalent.
 ///
@@ -20,29 +20,29 @@ import Foundation
 ///         .padding(.pt(72))
 ///
 ///
-/// `Size` can also be given a pseudo-value of `max` that indicates the maximum
+/// `Dimmension` can also be given a pseudo-value of `max` that indicates the maximum
 /// availible width, height, or spacing.
 ///
 ///     Text("Hello, world.")
 ///         .padding(horizontal: .max)
 ///
-public struct Size: Equatable {
+public struct Dimmension: Equatable {
     public let points: CGFloat
     public let max: Bool
 
-    public static var max: Size {
+    public static var max: Dimmension {
         .init(points: 0, max: true)
     }
 
-    public static func pt(_ value: CGFloat) -> Size {
+    public static func pt(_ value: CGFloat) -> Dimmension {
         .init(points: value, max: false)
     }
 
-    public static func `in`(_ value: CGFloat) -> Size {
+    public static func `in`(_ value: CGFloat) -> Dimmension {
         .init(points: value * 72, max: false)
     }
 
-    public static func mm(_ value: CGFloat) -> Size {
+    public static func mm(_ value: CGFloat) -> Dimmension {
         .init(points: value * 72 / 25.4, max: false)
     }
 }

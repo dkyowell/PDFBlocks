@@ -8,5 +8,5 @@ import Foundation
 
 struct TextStroke {
     let color: Color
-    let lineWidth: Size
+    let lineWidth: Dimmension
 }
