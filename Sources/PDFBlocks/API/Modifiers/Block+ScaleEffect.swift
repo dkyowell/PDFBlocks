@@ -6,7 +6,6 @@
 
 import Foundation
 
-// TODO: Prevent from being applied on a secondary page wrap region
 public extension Block {
     func scaleEffect(_ scale: Size, anchor: UnitPoint = .center) -> some Block {
         modifier(ScaleModifier(scale: scale, anchor: anchor))

@@ -18,10 +18,14 @@ extension Opacity: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.renderer.startOpacity(opacity: opacity)
-        content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: rect)
-        context.renderer.restoreOpacity()
+        let renderable = content.getRenderable(environment: environment)
+        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            renderable.render(context: context, environment: environment, rect: rect)
+        } else {
+            context.renderer.startOpacity(opacity: opacity)
+            renderable.render(context: context, environment: environment, rect: rect)
+            context.renderer.restoreOpacity()
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

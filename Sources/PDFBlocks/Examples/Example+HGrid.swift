@@ -76,9 +76,16 @@ private struct Document: Block {
                         Text("U")
                         Text("V")
                         Text("W")
+                            .scaleEffect(3)
                     }
                 }
+                .opacity(0.25)
+                .scaleEffect(3)
+                .scaleEffect(3)
+                .offset(x: 3, y: 3)
+                .rotationEffect(.degrees(3))
                 Text("X")
+                    .scaleEffect(3)
                 Text("Y")
                 Text("Z")
             }

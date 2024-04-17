@@ -94,3 +94,9 @@ extension Renderable {
         getTrait(context: context, environment: environment, keypath: \.pageInfo)
     }
 }
+
+extension Renderable {
+    func isSecondaryPageWrapBlock(context: Context, environment: EnvironmentValues) -> Bool {
+        (environment.renderMode == .wrapping) && allowPageWrap(context: context, environment: environment)
+    }
+}

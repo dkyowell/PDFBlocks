@@ -19,10 +19,14 @@ extension Offset: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.renderer.startOffset(x: x.points, y: y.points)
-        content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: rect)
-        context.renderer.restoreState()
+        let renderable = content.getRenderable(environment: environment)
+        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            renderable.render(context: context, environment: environment, rect: rect)
+        } else {
+            context.renderer.startOffset(x: x.points, y: y.points)
+            renderable.render(context: context, environment: environment, rect: rect)
+            context.renderer.restoreOpacity()
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

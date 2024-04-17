@@ -19,10 +19,14 @@ extension RotationEffect: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.renderer.startRotation(angle: angle.radians, anchor: anchor, rect: rect)
-        content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: rect)
-        context.renderer.restoreState()
+        let renderable = content.getRenderable(environment: environment)
+        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            renderable.render(context: context, environment: environment, rect: rect)
+        } else {
+            context.renderer.startRotation(angle: angle.radians, anchor: anchor, rect: rect)
+            renderable.render(context: context, environment: environment, rect: rect)
+            context.renderer.restoreState()
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
