@@ -47,6 +47,7 @@ private struct Document: Block {
                 Text("A")
                 Text("B")
                 Text("C")
+                    .scaleEffect(x: 4.0)
                 HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowPageWrap: true) {
                     Group {
                         Text("D")
@@ -81,6 +82,7 @@ private struct Document: Block {
                 Text("Y")
                 Text("Z")
             }
+            .scaleEffect(0.5)
             .padding(12)
             .overlay {
                 Color.clear

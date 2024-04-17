@@ -15,6 +15,7 @@ protocol Renderer {
     func startNewPage(pageSize: CGSize)
     func endPage()
     func startOffset(x: CGFloat, y: CGFloat)
+    func startScale(scale: CGSize, anchor: UnitPoint, rect: CGRect)
     func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect)
     func startOpacity(opacity: CGFloat)
     func restoreOpacity()

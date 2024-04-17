@@ -110,6 +110,18 @@
             cgContext?.setAlpha(opacityStack.reduce(1.0, *))
         }
 
+        func startScale(scale: CGSize, anchor: UnitPoint, rect: CGRect) {
+            guard layer == renderLayer else {
+                return
+            }
+            cgContext?.saveGState()
+            let dx = rect.minX + anchor.x * rect.width
+            let dy = rect.minY + anchor.y * rect.height
+            cgContext?.concatenate(CGAffineTransform(translationX: dx, y: dy))
+            cgContext?.concatenate(CGAffineTransform(scaleX: scale.width, y: scale.height))
+            cgContext?.concatenate(CGAffineTransform(translationX: -dx, y: -dy))
+        }
+
         func restoreState() {
             guard layer == renderLayer else {
                 return
