@@ -46,3 +46,17 @@ public struct Dimmension: Equatable {
         .init(points: value * 72 / 25.4, max: false)
     }
 }
+
+extension Dimmension: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: IntegerLiteralType) {
+        points = CGFloat(value)
+        max = false
+    }
+}
+
+extension Dimmension: ExpressibleByFloatLiteral {
+    public init(floatLiteral value: FloatLiteralType) {
+        points = value
+        max = false
+    }
+}

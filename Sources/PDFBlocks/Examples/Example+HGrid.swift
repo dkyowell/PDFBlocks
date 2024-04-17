@@ -47,68 +47,54 @@ private struct Document: Block {
                 Text("A")
                 Text("B")
                 Text("C")
-                HGrid(columnCount: 3, columnSpacing: .pt(0), rowSpacing: .pt(0), allowPageWrap: true) {
-                    Text("D")
-                    Text("E")
-                    Text("F")
-                    Text("G")
-                    Text("H")
-                    Text("I")
-                    Text("J")
-                    Text("K")
-                    Text("L")
-                    Text("M")
-                    Text("N")
-                    Text("O")
-                    Text("N")
-                    Text("O")
-                    Text("N")
-                    Text("O")
-                    Text("N")
-                    Text("O")
-                    Text("P")
-                    Text("Q")
-                    Text("R")
-                    Text("S")
-                    Text("T")
-                    Text("U")
-                    Text("V")
-                    Text("W")
+                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowPageWrap: true) {
+                    Group {
+                        Text("D")
+                        Text("E")
+                        Text("F")
+                        Text("G")
+                        Text("H")
+                        Text("I")
+                        Text("J")
+                        Text("K")
+                        Text("L")
+                        Text("M")
+                        Text("N")
+                        Text("O")
+                        Text("N")
+                        Text("O")
+                        Text("N")
+                        Text("O")
+                        Text("N")
+                        Text("O")
+                        Text("P")
+                        Text("Q")
+                        Text("R")
+                        Text("S")
+                        Text("T")
+                        Text("U")
+                        Text("V")
+                        Text("W")
+                    }
                 }
                 Text("X")
                 Text("Y")
                 Text("Z")
             }
-            .padding(.horizontal, .max)
+            .padding(12)
             .overlay {
                 Color.clear
-                    .border(.blue, width: .pt(12))
-                    .opacity(0.75)
+                    .border(.blue, width: 12)
             }
             .font(size: 24)
-            .padding(.pt(12))
+            .padding(12)
             .rotationEffect(.degrees(10))
-            Text("Footer")
         }
         .background {
             Color.orange
         }
-        .offset(x: .pt(-36), y: .pt(36))
-        .border(Color.black, width: .pt(12))
+        .border(Color.black, width: 12)
         .font(name: "American Typewriter")
-    }
-}
-
-private struct LetterBlock: Block {
-    let letter: String
-    let color: Color
-    var body: some Block {
-        Text(letter)
-            .foregroundColor(.white)
-            .frame(width: .pt(48), height: .pt(48), alignment: .center)
-            .background { color }
-            .font(name: "American Typewriter", size: 36)
-            .bold()
     }
 }
 
