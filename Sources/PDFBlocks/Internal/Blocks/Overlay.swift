@@ -19,11 +19,15 @@ extension Overlay: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: rect)
-        let block = overlay.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size)
-        let dx: CGFloat =
+        let renderable = overlay.getRenderable(environment: environment)
+        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            content.getRenderable(environment: environment)
+                .render(context: context, environment: environment, rect: rect)
+        } else {
+            content.getRenderable(environment: environment)
+                .render(context: context, environment: environment, rect: rect)
+            let size = renderable.sizeFor(context: context, environment: environment, proposedSize: rect.size)
+            let dx: CGFloat =
             switch alignment.horizontalAlignment {
             case .leading:
                 0
@@ -32,7 +36,7 @@ extension Overlay: Renderable {
             case .trailing:
                 rect.width - size.max.width
             }
-        let dy: CGFloat =
+            let dy: CGFloat =
             switch alignment.verticalAlignment {
             case .top:
                 0
@@ -41,8 +45,9 @@ extension Overlay: Renderable {
             case .bottom:
                 rect.height - size.max.height
             }
-        let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
-        block.render(context: context, environment: environment, rect: renderRect)
+            let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
+            renderable.render(context: context, environment: environment, rect: renderRect)
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

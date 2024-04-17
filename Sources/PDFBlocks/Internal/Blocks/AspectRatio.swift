@@ -13,19 +13,23 @@ struct AspectRatio<Content>: Block where Content: Block {
 
 extension AspectRatio: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        let constrainedSize = if proposedSize.width < proposedSize.height {
-            CGSize(width: proposedSize.width, height: proposedSize.width / value)
+        let renderable = content.getRenderable(environment: environment)
+        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            return BlockSize(width: proposedSize.width, height: 0)
         } else {
-            CGSize(width: proposedSize.height * value, height: proposedSize.height)
+            let constrainedSize = if proposedSize.width < proposedSize.height {
+                CGSize(width: proposedSize.width, height: proposedSize.width / value)
+            } else {
+                CGSize(width: proposedSize.height * value, height: proposedSize.height)
+            }
+            let size = renderable.sizeFor(context: context, environment: environment, proposedSize: constrainedSize)
+            return .init(min: size.min, max: size.max)
         }
-        let block = content.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposedSize: constrainedSize)
-        return .init(min: size.min, max: size.max)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        let block = content.getRenderable(environment: environment)
-        block.render(context: context, environment: environment, rect: rect)
+        content.getRenderable(environment: environment)
+            .render(context: context, environment: environment, rect: rect)
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

@@ -19,10 +19,14 @@ extension Border: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: rect)
-        context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle,
-                                      width: width.points)
+        let renderable = content.getRenderable(environment: environment)
+        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            renderable.render(context: context, environment: environment, rect: rect)
+        } else {
+            renderable.render(context: context, environment: environment, rect: rect)
+            context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle,
+                                          width: width.points)
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

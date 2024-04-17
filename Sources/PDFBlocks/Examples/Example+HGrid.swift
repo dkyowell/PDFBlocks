@@ -84,6 +84,16 @@ private struct Document: Block {
                 .scaleEffect(3)
                 .offset(x: 3, y: 3)
                 .rotationEffect(.degrees(3))
+                .aspectRatio(3)
+                .border(.black)
+                .background {
+                    Color.red
+                }
+                .overlay {
+                    Color.red
+                }
+                .frame(width: .in(1))
+                .proportionalFrame(width: 0.5)
                 Text("X")
                     .scaleEffect(3)
                 Text("Y")

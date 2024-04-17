@@ -19,19 +19,22 @@ extension ProporionalFrame: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        let size = content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: rect.size).max
-        let dx: CGFloat = switch horizontalAlignment {
-        case .leading:
-            0
-        case .center:
-            (rect.width - size.width) / 2
-        case .trailing:
-            rect.width - size.width
+        let renderable = content.getRenderable(environment: environment)
+        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            renderable.render(context: context, environment: environment, rect: rect)
+        } else {
+            let size = renderable.sizeFor(context: context, environment: environment, proposedSize: rect.size).max
+            let dx: CGFloat = switch horizontalAlignment {
+            case .leading:
+                0
+            case .center:
+                (rect.width - size.width) / 2
+            case .trailing:
+                rect.width - size.width
+            }
+            let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: size.width, height: rect.height)
+            renderable.render(context: context, environment: environment, rect: renderRect)
         }
-        let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: size.width, height: rect.height)
-        content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: renderRect)
     }
 
     func proportionalWidth(environment _: EnvironmentValues) -> Double? {
