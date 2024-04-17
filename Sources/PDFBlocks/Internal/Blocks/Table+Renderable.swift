@@ -42,6 +42,7 @@ extension Table: Renderable {
             let frame = pageFrame(context.pageNo).getRenderable(environment: environment)
             frame.render(context: context, environment: environment, rect: rect)
             context.renderer.setLayer(2)
+            context.setPageWrapRect(rect)
             guard context.multiPagePass == nil else {
                 return
             }
