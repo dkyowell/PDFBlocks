@@ -15,6 +15,8 @@ protocol Renderer {
     func startNewPage(pageSize: CGSize)
     func endPage()
     func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect)
+    func startOpacity(opacity: CGFloat)
+    func restoreOpacity()
     func restoreState()
     func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat)
     func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect)

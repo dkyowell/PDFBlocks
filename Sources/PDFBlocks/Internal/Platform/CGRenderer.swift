@@ -51,18 +51,6 @@
 
         var cgContext: CGContext? = nil
 
-//        #if os(iOS)
-//            func render(renderingCallback: () -> Void) throws -> Data? {
-//                let renderer = UIGraphicsPDFRenderer()
-//                let pdfData = renderer.pdfData { rendererContext in
-//                    self.pdfContext = rendererContext
-//                    self.cgContext = rendererContext.cgContext
-//                    renderingCallback()
-//                }
-//                return pdfData
-//            }
-//        #endif
-
         func render(renderingCallback: () -> Void) throws -> Data? {
             let pdfData = NSMutableData()
             guard let consumer = CGDataConsumer(data: pdfData) else {
@@ -101,6 +89,25 @@
             cgContext?.concatenate(CGAffineTransform(translationX: dx, y: dy))
             cgContext?.concatenate(CGAffineTransformMakeRotation(angle))
             cgContext?.concatenate(CGAffineTransform(translationX: -dx, y: -dy))
+        }
+
+        var opacityStack: [CGFloat] = []
+        func startOpacity(opacity: CGFloat) {
+            guard layer == renderLayer else {
+                return
+            }
+            opacityStack.append(opacity)
+            cgContext?.saveGState()
+            cgContext?.setAlpha(opacityStack.reduce(1.0, *))
+        }
+
+        func restoreOpacity() {
+            guard layer == renderLayer else {
+                return
+            }
+            cgContext?.restoreGState()
+            opacityStack = opacityStack.dropLast()
+            cgContext?.setAlpha(opacityStack.reduce(1.0, *))
         }
 
         func restoreState() {
@@ -148,8 +155,6 @@
             guard layer == renderLayer else {
                 return
             }
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
             if let strokeContent = environment.strokeContent as? Color {
                 cgContext?.addPath(path)
                 cgContext?.setLineWidth(environment.strokeLineWidth.points)
@@ -198,7 +203,6 @@
                     cgContext?.resetClip()
                 }
             }
-            cgContext?.restoreGState()
         }
 
         func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat) {
@@ -212,8 +216,6 @@
             environment.fill = shapeStyle
             renderPath(environment: environment, path: copy)
             // OLD CODE BEFORE USING SHAPE STYLE. TO BE DELETED
-            // cgContext?.saveGState()
-            // cgContext?.setAlpha(environment.opacity)
             // cgContext?.addRect(insetRect)
             // cgContext?.setLineWidth(width)
             // if let color = shapeStyle as? Color {
@@ -228,15 +230,12 @@
             //     cgContext?.clip()
             //     drawRadialGradient(gradient: gradient, rect: rect)
             // }
-            // cgContext?.restoreGState()
         }
 
         func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {
             guard layer == renderLayer else {
                 return
             }
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
             cgContext?.addLines(between: [
                 .init(x: rect.minX, y: rect.midY),
                 .init(x: rect.maxX, y: rect.midY),
@@ -250,19 +249,18 @@
             let color = (environment.foregroundStyle as? Color) ?? Color.black
             cgContext?.setStrokeColor(color.cgColor)
             cgContext?.drawPath(using: .stroke)
-            cgContext?.restoreGState()
         }
 
-        func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect) {
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
+        func renderImage(_ image: PlatformImage, environment _: EnvironmentValues, rect: CGRect) {
+            guard layer == renderLayer else {
+                return
+            }
             guard let image = image as? NSUIImage else {
                 return
             }
             if let ds = image.downscaled(maxSize: rect.size.scaled(by: 300 / 72.0)) {
                 ds.draw(in: rect)
             }
-            cgContext?.restoreGState()
         }
 
         func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: ProposedSize) -> (min: CGSize, max: CGSize) {
@@ -344,8 +342,6 @@
             guard layer == renderLayer else {
                 return
             }
-            cgContext?.saveGState()
-            cgContext?.setAlpha(environment.opacity)
             let string = NSString(string: text)
             var attributes = [NSAttributedString.Key: Any]()
             let fontName = environment.fontName
@@ -451,7 +447,6 @@
                     // drawRadialGradient(gradient: gradient, rect: newRect)
                 }
             }
-            cgContext?.restoreGState()
         }
     }
 #endif
