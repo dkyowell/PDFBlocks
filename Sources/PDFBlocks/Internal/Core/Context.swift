@@ -24,15 +24,8 @@ class Context {
     // Because new page commands can be issued, rendering cannot simply walk down the block tree and back up again,
     // rendering as it goes along. On the way back up the tree, blocks might draw themselves on an entirely different
     // page than they expect.
-    //
-    // A Page is rendered by renderPass1 up until it encounters a page wrap block. It defers rendering the page wrap
-    // block by storing the render function in renderPass2; any overlays within pass 1 defer their rendering by
-    // appending their rendering to the renderPass3 array. renderPass2 is then called to render the page wrap region.
-    // When a pdf page is filled, endPage() is called and the overlay rendering functions stored in renderPass3 are
-    // called. If there is more content, beginPage() is called again, calling renderPass1 again...
-    var renderPass1: (() -> Void)?
-    var renderPass2: (() -> Void)?
-    var renderPass3: [() -> Void] = []
+    var pageFramePass: ((Int) -> Void)?
+    var multiPagePass: (() -> Void)?
 
     private var pageSize: CGSize = .init(width: 8.5, height: 11).scaled(by: 72)
     private var pageWrapRect: CGRect = .zero
@@ -46,11 +39,14 @@ class Context {
                 // no defined pages. collect all into a VStack
                 let pageSize = CGSize(width: size.width.points, height: size.height.points)
                 let page = Page(size: size, margins: margins, content: { content })
-                renderPass1 = {
+                pageFramePass = { renderLayer in
+                    self.renderer.setLayer(1)
+                    self.renderer.setRenderLayer(renderLayer)
                     page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
+                    self.renderer.setLayer(1)
                 }
                 beginPage(newPageSize: pageSize)
-                renderPass2?()
+                multiPagePass?()
                 endPage()
             } else {
                 for block in blocks {
@@ -59,11 +55,14 @@ class Context {
                         continue
                     }
                     let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
-                    renderPass1 = {
+                    pageFramePass = { renderLayer in
+                        self.renderer.setLayer(1)
+                        self.renderer.setRenderLayer(renderLayer)
                         block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
+                        self.renderer.setLayer(1)
                     }
                     beginPage(newPageSize: pageSize)
-                    renderPass2?()
+                    multiPagePass?()
                     endPage()
                 }
             }
@@ -77,15 +76,11 @@ class Context {
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
         pageNo += 1
         pageWrapCursorY = 0
-        renderPass1?()
+        pageFramePass?(1)
     }
 
     func endPage() {
-        // overlay blocks
-        for f in renderPass3 {
-            f()
-        }
-        renderPass3 = []
+        pageFramePass?(2)
         renderer.endPage()
     }
 

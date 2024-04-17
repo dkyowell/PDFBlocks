@@ -28,6 +28,17 @@
     class CGRenderer: Renderer {
         init() {}
 
+        // The layer allows a page to be rendered in two passes. This is required for handling page wrapping blocks.
+        var layer = 1
+        var renderLayer = 1
+        func setLayer(_ value: Int) {
+            layer = value
+        }
+
+        func setRenderLayer(_ value: Int) {
+            renderLayer = value
+        }
+
         func startNewPage(pageSize: CGSize) {
             var mediaBox = CGRect(origin: .zero, size: pageSize)
             cgContext?.beginPage(mediaBox: &mediaBox)
@@ -81,6 +92,9 @@
         }
 
         func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect) {
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.saveGState()
             let dx = rect.minX + anchor.x * rect.width
             let dy = rect.minY + anchor.y * rect.height
@@ -90,6 +104,9 @@
         }
 
         func restoreState() {
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.restoreGState()
         }
 
@@ -128,6 +145,9 @@
         }
 
         func renderPath(environment: EnvironmentValues, path: CGPath) {
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.saveGState()
             cgContext?.setAlpha(environment.opacity)
             if let strokeContent = environment.strokeContent as? Color {
@@ -182,6 +202,9 @@
         }
 
         func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat) {
+            guard layer == renderLayer else {
+                return
+            }
             let insetRect = rect.insetBy(dx: width / 2, dy: width / 2)
             let path = CGPath(rect: insetRect, transform: .none)
             let copy = path.copy(strokingWithWidth: width, lineCap: .butt, lineJoin: .miter, miterLimit: 90)
@@ -209,6 +232,9 @@
         }
 
         func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.saveGState()
             cgContext?.setAlpha(environment.opacity)
             cgContext?.addLines(between: [
@@ -315,6 +341,9 @@
         }
 
         func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.saveGState()
             cgContext?.setAlpha(environment.opacity)
             let string = NSString(string: text)

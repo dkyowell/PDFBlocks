@@ -21,10 +21,8 @@ extension Border: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        context.renderPass3.append {
-            context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle,
-                                          width: width.points)
-        }
+        context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle,
+                                      width: width.points)
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
