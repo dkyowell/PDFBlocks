@@ -8,13 +8,13 @@ import Foundation
 
 private struct Document: Block {
     var body: some Block {
-        VStack(alignment: .leading, spacing: .pt(2)) {
-            HStack(spacing: .pt(2)) {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 2) {
                 ForEach(["P", "D", "F"]) { item in
                     LetterBlock(letter: item, color: .red)
                 }
             }
-            HStack(spacing: .pt(2)) {
+            HStack(spacing: 2) {
                 ForEach(["B", "L", "O", "C", "K", "S"]) { item in
                     LetterBlock(letter: item, color: .cyan)
                 }
@@ -29,7 +29,7 @@ private struct LetterBlock: Block {
     var body: some Block {
         Text(letter)
             .foregroundColor(.white)
-            .frame(width: .pt(48), height: .pt(48), alignment: .center)
+            .frame(width: 48, height: 48, alignment: .center)
             .background { color }
             .font(name: "American Typewriter", size: 36)
             .bold()

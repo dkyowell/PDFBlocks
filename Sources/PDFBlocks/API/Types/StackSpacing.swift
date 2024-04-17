@@ -34,3 +34,15 @@ public extension StackSpacing {
         .fixed(.mm(value))
     }
 }
+
+extension StackSpacing: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: IntegerLiteralType) {
+        self = .fixed(.pt(CGFloat(value)))
+    }
+}
+
+extension StackSpacing: ExpressibleByFloatLiteral {
+    public init(floatLiteral value: FloatLiteralType) {
+        self = .fixed(.pt(value))
+    }
+}
