@@ -34,4 +34,3 @@ extension Page: Renderable {
         Trait(pageInfo: pageInfo)[keyPath: keypath]
     }
 }
-

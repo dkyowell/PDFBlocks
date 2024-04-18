@@ -28,23 +28,23 @@ extension Overlay: Renderable {
                 .render(context: context, environment: environment, rect: rect)
             let size = renderable.sizeFor(context: context, environment: environment, proposedSize: rect.size)
             let dx: CGFloat =
-            switch alignment.horizontalAlignment {
-            case .leading:
-                0
-            case .center:
-                (rect.width - size.max.width) / 2.0
-            case .trailing:
-                rect.width - size.max.width
-            }
+                switch alignment.horizontalAlignment {
+                case .leading:
+                    0
+                case .center:
+                    (rect.width - size.max.width) / 2.0
+                case .trailing:
+                    rect.width - size.max.width
+                }
             let dy: CGFloat =
-            switch alignment.verticalAlignment {
-            case .top:
-                0
-            case .center:
-                (rect.height - size.max.height) / 2.0
-            case .bottom:
-                rect.height - size.max.height
-            }
+                switch alignment.verticalAlignment {
+                case .top:
+                    0
+                case .center:
+                    (rect.height - size.max.height) / 2.0
+                case .bottom:
+                    rect.height - size.max.height
+                }
             let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
             renderable.render(context: context, environment: environment, rect: renderRect)
         }

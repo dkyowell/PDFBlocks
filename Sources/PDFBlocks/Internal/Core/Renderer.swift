@@ -9,6 +9,8 @@ import Foundation
 
 // A protocol that allows for different PDF rendering libraries to be used.
 protocol Renderer {
+    var layer: Int { get }
+    var renderLayer: Int { get }
     func setLayer(_ value: Int)
     func setRenderLayer(_ value: Int)
     func render(renderingCallback: () -> Void) throws -> Data?
@@ -25,5 +27,7 @@ protocol Renderer {
     func renderPath(environment: EnvironmentValues, path: CGPath)
     func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect)
     func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect)
+    func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String
     func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
+    func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
 }

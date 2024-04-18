@@ -10,6 +10,7 @@
 
     #if os(macOS)
         import AppKit
+        import CoreText
 
         public typealias NSUIFont = NSFont
         public typealias NSUIColor = NSColor
@@ -17,6 +18,7 @@
     #endif
 
     #if os(iOS)
+        import CoreText
         import UIKit
 
         public typealias NSUIFont = UIFont
@@ -39,9 +41,11 @@
             renderLayer = value
         }
 
+        var pageSize: CGSize = .zero
         func startNewPage(pageSize: CGSize) {
             var mediaBox = CGRect(origin: .zero, size: pageSize)
             cgContext?.beginPage(mediaBox: &mediaBox)
+            self.pageSize = pageSize
             cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
         }
 
@@ -356,6 +360,55 @@
 
             return (min: .init(width: min(rect.width, proposedSize.width), height: min(rect.height, proposedSize.height)),
                     max: .init(width: min(rect.width, proposedSize.width), height: min(rect.height, proposedSize.height)))
+        }
+
+        func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: ProposedSize) -> (min: CGSize, max: CGSize) {
+            let attrString = NSMutableAttributedString(string: text)
+            let stringRange = CFRangeMake(0, attrString.length)
+
+            let font = CTFontCreateWithName(environment.fontName.value as CFString,
+                                            environment.fontSize,
+                                            .none)
+            CFAttributedStringSetAttribute(attrString, stringRange, kCTFontAttributeName, font)
+            let framesetter = CTFramesetterCreateWithAttributedString(attrString)
+            let s = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, proposedSize, nil)
+            return (min: s, max: s)
+        }
+
+        func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String {
+            guard layer == renderLayer else {
+                return ""
+            }
+            guard let context = cgContext else {
+                return ""
+            }
+            context.saveGState()
+            context.concatenate(CGAffineTransformIdentity
+                .concatenating(.init(translationX: 0, y: -rect.height))
+                .concatenating(.init(scaleX: 1, y: -1))
+            )
+
+            let attrString = NSMutableAttributedString(string: text)
+            let stringRange = CFRangeMake(0, attrString.length)
+            let font = CTFontCreateWithName(environment.fontName.value as CFString,
+                                            environment.fontSize, .none)
+            CFAttributedStringSetAttribute(attrString, stringRange, kCTFontAttributeName, font)
+            let framesetter = CTFramesetterCreateWithAttributedString(attrString)
+            var xform = CGAffineTransformIdentity
+                .concatenating(.init(translationX: 0, y: -rect.height))
+                .concatenating(.init(scaleX: 1, y: -1))
+            let frame = CTFramesetterCreateFrame(framesetter,
+                                                 CFRangeMake(0, 0),
+                                                 CGPath(rect: rect, transform: &xform),
+                                                 nil)
+            CTFrameDraw(frame, context)
+
+            let drawnRange = CTFrameGetVisibleStringRange(frame)
+            let nsRange = NSMakeRange(drawnRange.location == kCFNotFound ? NSNotFound : drawnRange.location, drawnRange.length)
+
+            attrString.deleteCharacters(in: nsRange)
+            context.restoreGState()
+            return attrString.string
         }
 
         func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
