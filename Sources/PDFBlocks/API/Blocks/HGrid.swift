@@ -11,19 +11,19 @@ public struct HGrid<Content>: Block where Content: Block {
     let columnCount: Int
     let columnSpacing: Dimension
     let rowSpacing: Dimension
-    let allowPageWrap: Bool
+    let allowWrap: Bool
     let content: Content
 
     public init(columnCount: Int,
                 columnSpacing: Dimension,
                 rowSpacing: Dimension,
-                allowPageWrap: Bool = false,
+                allowWrap: Bool = false,
                 @BlockBuilder content: () -> Content)
     {
         self.columnCount = max(1, columnCount)
         self.columnSpacing = columnSpacing
         self.rowSpacing = rowSpacing
-        self.allowPageWrap = allowPageWrap
+        self.allowWrap = allowWrap
         self.content = content()
     }
 }

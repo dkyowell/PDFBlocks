@@ -9,16 +9,17 @@ import Foundation
 struct RenderableShape: Renderable {
     let shape: any Shape
 
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        BlockSize(min: .zero, max: shape.sizeThatFits(proposedSize))
+    func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        BlockSize(min: .zero, max: shape.sizeThatFits(proposal))
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let zeroOrignRect = CGRect(origin: .zero, size: rect.size)
         let path = shape.path(in: zeroOrignRect).cgPath
         var transform = CGAffineTransform(translationX: rect.minX, y: rect.minY)
         if let offsetPath = path.copy(using: &transform) {
             context.renderer.renderPath(environment: environment, path: offsetPath)
         }
+        return nil
     }
 }

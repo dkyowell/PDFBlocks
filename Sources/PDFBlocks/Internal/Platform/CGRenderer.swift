@@ -42,6 +42,7 @@
         }
 
         var pageSize: CGSize = .zero
+        var pageNo = 0
         func startNewPage(pageSize: CGSize) {
             var mediaBox = CGRect(origin: .zero, size: pageSize)
             cgContext?.beginPage(mediaBox: &mediaBox)
@@ -51,6 +52,7 @@
 
         func endPage() {
             cgContext?.endPDFPage()
+            pageNo += 1
         }
 
         var cgContext: CGContext? = nil
@@ -287,7 +289,7 @@
             }
         }
 
-        func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: ProposedSize) -> (min: CGSize, max: CGSize) {
+        func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
             let string = NSString(string: text)
             var attributes = [NSAttributedString.Key: Any]()
             let fontName = environment.fontName
@@ -362,7 +364,7 @@
                     max: .init(width: min(rect.width, proposedSize.width), height: min(rect.height, proposedSize.height)))
         }
 
-        func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: ProposedSize) -> (min: CGSize, max: CGSize) {
+        func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
             let attrString = NSMutableAttributedString(string: text)
             let stringRange = CFRangeMake(0, attrString.length)
 
@@ -371,8 +373,8 @@
                                             .none)
             CFAttributedStringSetAttribute(attrString, stringRange, kCTFontAttributeName, font)
             let framesetter = CTFramesetterCreateWithAttributedString(attrString)
-            let s = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, proposedSize, nil)
-            return (min: s, max: s)
+            let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, attrString.length), nil, proposedSize, nil)
+            return (min: size, max: CGSize(width: size.width, height: min(size.height, proposedSize.height)))
         }
 
         func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String {
@@ -387,11 +389,16 @@
                 .concatenating(.init(translationX: 0, y: -rect.height))
                 .concatenating(.init(scaleX: 1, y: -1))
             )
-
             let attrString = NSMutableAttributedString(string: text)
             let stringRange = CFRangeMake(0, attrString.length)
+            var fontMatrix = CGAffineTransformIdentity
+            if pageNo > 0 {
+                // fontMatrix = fontMatrix.concatenating(.init(scaleX: 1, y: -1))
+            }
+
             let font = CTFontCreateWithName(environment.fontName.value as CFString,
-                                            environment.fontSize, .none)
+                                            environment.fontSize, &fontMatrix)
+            // CGContextSetTextMatrix(context)
             CFAttributedStringSetAttribute(attrString, stringRange, kCTFontAttributeName, font)
             let framesetter = CTFramesetterCreateWithAttributedString(attrString)
             var xform = CGAffineTransformIdentity

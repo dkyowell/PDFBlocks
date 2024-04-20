@@ -13,17 +13,17 @@ struct ProporionalFrame<Content>: Block where Content: Block {
 }
 
 extension ProporionalFrame: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let renderable = content.getRenderable(environment: environment)
         if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
             renderable.render(context: context, environment: environment, rect: rect)
         } else {
-            let size = renderable.sizeFor(context: context, environment: environment, proposedSize: rect.size).max
+            let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size).max
             let dx: CGFloat = switch horizontalAlignment {
             case .leading:
                 0
@@ -35,6 +35,8 @@ extension ProporionalFrame: Renderable {
             let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: size.width, height: rect.height)
             renderable.render(context: context, environment: environment, rect: renderRect)
         }
+        // TODO: ?
+        return nil
     }
 
     func proportionalWidth(environment _: EnvironmentValues) -> Double? {

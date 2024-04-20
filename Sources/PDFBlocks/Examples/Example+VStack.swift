@@ -9,23 +9,18 @@ import Foundation
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(8), height: .in(6)), margins: .in(0.5)) {
-            Columns(count: 3, spacing: 12, atomic: false) {
-                VStack(allowWrap: true) {
-                    CTText(text)
-                    CTText(text)
-                }
-                .border(.blue)
-//                CTText(text)
-//                Text("Fox")
-//                Text("Jumped")
-//                Text("Over")
-//                Text("The")
-//                Text("Lazy")
-//                Text("Dog")
+            VStack {
+                Text("The")
+                Text("Quick")
+                Text("Brown")
+                Text("Fox")
+                Text("Jumped")
+                Text("Over")
+                Text("The")
+                Text("Lazy")
+                Text("Dog")
             }
-//            .border(.black)
-            .frame(height: .in(2.5))
-            .font(size: 20)
+            .font(size: 44)
         }
     }
 }

@@ -13,19 +13,20 @@ struct ScaleEffect<Content>: Block where Content: Block {
 }
 
 extension ScaleEffect: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        let renderable = content.getRenderable(environment: environment)
-        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
-            renderable.render(context: context, environment: environment, rect: rect)
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let block = content.getRenderable(environment: environment)
+        context.renderer.startScale(scale: scale, anchor: anchor, rect: rect)
+        let remainder = block.render(context: context, environment: environment, rect: rect)
+        context.renderer.restoreState()
+        if let content = remainder as? AnyBlock {
+            return ScaleEffect<AnyBlock>(scale: scale, anchor: anchor, content: content)
         } else {
-            context.renderer.startScale(scale: scale, anchor: anchor, rect: rect)
-            renderable.render(context: context, environment: environment, rect: rect)
-            context.renderer.restoreState()
+            return nil
         }
     }
 

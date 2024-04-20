@@ -43,12 +43,12 @@ private struct Document: Block {
             .font(size: 36)
             .padding(.horizontal, .max)
             // .padding(.bottom, .pt(12))
-            VStack(alignment: .center, allowPageWrap: true) {
+            VStack(alignment: .center, allowWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
                     .scaleEffect(x: 4.0)
-                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowPageWrap: true) {
+                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: true) {
                     Group {
                         Text("D")
                         Text("E")

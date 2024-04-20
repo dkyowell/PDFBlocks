@@ -10,12 +10,13 @@ import Foundation
 // TODO: Implement AVMakeRect without AVFoundation.
 
 extension Image: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        let rect = AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: proposedSize))
+    func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        let rect = AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: proposal))
         return .init(min: rect.size, max: rect.size)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         context.renderer.renderImage(image, environment: environment, rect: rect)
+        return nil
     }
 }

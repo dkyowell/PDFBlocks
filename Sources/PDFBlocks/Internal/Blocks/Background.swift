@@ -13,17 +13,18 @@ struct Background<Content, BackgroundContent>: Block where Content: Block, Backg
 }
 
 extension Background: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let renderable = background.getRenderable(environment: environment)
         if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
             renderable.render(context: context, environment: environment, rect: rect)
+            return nil
         } else {
-            let size = renderable.sizeFor(context: context, environment: environment, proposedSize: rect.size)
+            let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
             let dx: CGFloat =
                 switch alignment.horizontalAlignment {
                 case .leading:
@@ -44,8 +45,13 @@ extension Background: Renderable {
                 }
             let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
             renderable.render(context: context, environment: environment, rect: renderRect)
-            content.getRenderable(environment: environment)
+            let remainder = content.getRenderable(environment: environment)
                 .render(context: context, environment: environment, rect: rect)
+            if let content = remainder as? AnyBlock {
+                return Background<AnyBlock, BackgroundContent>.init(content: content, background: background, alignment: alignment)
+            } else {
+                return nil
+            }
         }
     }
 

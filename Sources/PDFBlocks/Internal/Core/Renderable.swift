@@ -19,8 +19,8 @@ import Foundation
 //  if necessary.
 
 protocol Renderable: Block {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect)
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize
+    @discardableResult func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)?
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
 }
 
@@ -82,7 +82,7 @@ extension Renderable {
         getTrait(context: context, environment: environment, keypath: \.proprtionalWidth)
     }
 
-    func allowPageWrap(context: Context, environment: EnvironmentValues) -> Bool {
+    func allowWrap(context: Context, environment: EnvironmentValues) -> Bool {
         getTrait(context: context, environment: environment, keypath: \.allowPageWrap)
     }
 
@@ -97,6 +97,6 @@ extension Renderable {
 
 extension Renderable {
     func isSecondaryPageWrapBlock(context: Context, environment: EnvironmentValues) -> Bool {
-        (environment.renderMode == .wrapping) && allowPageWrap(context: context, environment: environment)
+        (environment.renderMode == .wrapping) && allowWrap(context: context, environment: environment)
     }
 }

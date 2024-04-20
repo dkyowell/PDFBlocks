@@ -7,11 +7,12 @@
 import Foundation
 
 extension TableContentSpacer: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        BlockSize(proposedSize)
+    func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        BlockSize(proposal)
     }
 
-    func render(context: Context, environment _: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment _: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         context.setPageWrapRect(rect)
+        return nil
     }
 }

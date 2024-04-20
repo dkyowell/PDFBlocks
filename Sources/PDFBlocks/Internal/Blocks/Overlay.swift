@@ -13,20 +13,21 @@ struct Overlay<Content, OverlayContent>: Block where Content: Block, OverlayCont
 }
 
 extension Overlay: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let renderable = overlay.getRenderable(environment: environment)
         if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
             content.getRenderable(environment: environment)
                 .render(context: context, environment: environment, rect: rect)
+            return nil
         } else {
-            content.getRenderable(environment: environment)
+            let remainder = content.getRenderable(environment: environment)
                 .render(context: context, environment: environment, rect: rect)
-            let size = renderable.sizeFor(context: context, environment: environment, proposedSize: rect.size)
+            let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
             let dx: CGFloat =
                 switch alignment.horizontalAlignment {
                 case .leading:
@@ -47,6 +48,11 @@ extension Overlay: Renderable {
                 }
             let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
             renderable.render(context: context, environment: environment, rect: renderRect)
+            if let content = remainder as? AnyBlock {
+                return Overlay<AnyBlock, OverlayContent>(content: content, overlay: overlay, alignment: alignment)
+            } else {
+                return nil
+            }
         }
     }
 

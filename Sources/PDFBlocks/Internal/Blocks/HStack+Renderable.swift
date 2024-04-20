@@ -7,10 +7,10 @@
 import Foundation
 
 extension HStack: Renderable {
-    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> ([CGSize]) {
+    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposedSize: Proposal) -> ([CGSize]) {
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
         let layoutSize = CGSize(width: proposedSize.width - fixedSpacing, height: proposedSize.height)
-        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: layoutSize) }
+        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: layoutSize) }
         var unsizedDict = sizes.enumerated().reduce(into: [:]) { $0[$1.offset] = $1.element }
         var sizedDict = [Int: BlockSize]()
         // Iterate to find blocks narrower than the average width, changing the average as it goes.
@@ -32,7 +32,7 @@ extension HStack: Renderable {
             let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
             let averageWidth = (proposedSize.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
             let averageSize = CGSize(width: averageWidth, height: proposedSize.height)
-            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposedSize: averageSize)
+            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
             unsizedDict[key] = nil
         }
         // Size the remaining flexible blocks.
@@ -40,14 +40,14 @@ extension HStack: Renderable {
             let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
             let averageWidth = (proposedSize.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
             let averageSize = CGSize(width: averageWidth, height: proposedSize.height)
-            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposedSize: averageSize)
+            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
             unsizedDict[key] = nil
         }
         //  Return results. I don't like to use !, but here if it crashes, it should crash.
         return blocks.indices.map { sizedDict[$0]!.max }
     }
 
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment.layoutAxis = .horizontal
         let blocks = content.getRenderables(environment: environment)
@@ -55,18 +55,18 @@ extension HStack: Renderable {
             // PROPORTIONAL LAYOUT
             let blocks = content.getRenderables(environment: environment)
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-            let adjustedWidth = proposedSize.width - fixedSpacing
+            let adjustedWidth = proposal.width - fixedSpacing
             let sumProportionalWidth = blocks.map { $0.proportionalWidth(context: context, environment: environment) ?? 1 }.reduce(0, +)
             let sizes = blocks.map { item in
                 let width = ((item.proportionalWidth(context: context, environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
-                let blockSize = CGSize(width: width, height: proposedSize.height)
-                return item.sizeFor(context: context, environment: environment, proposedSize: blockSize)
+                let blockSize = CGSize(width: width, height: proposal.height)
+                return item.sizeFor(context: context, environment: environment, proposal: blockSize)
             }
             let maxHeight = sizes.map(\.max.height).reduce(0, max)
-            return .init(width: proposedSize.width, height: maxHeight)
+            return .init(width: proposal.width, height: maxHeight)
         } else {
             // STANDARD LAYOUT
-            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposedSize)
+            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposal)
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
             let maxHeight = sizes.map(\.height).reduce(0.0, max)
             let sumMaxWidth = sizes.map(\.width).reduce(0, +)
@@ -75,16 +75,16 @@ extension HStack: Renderable {
             let sumMinWidth = sizes.map(\.width).reduce(0.0, +)
             switch spacing {
             case .flex:
-                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposedSize.width), height: maxHeight),
-                             max: .init(width: proposedSize.width, height: maxHeight))
+                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposal.width), height: maxHeight),
+                             max: .init(width: proposal.width, height: maxHeight))
             case .fixed:
-                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposedSize.width), height: maxHeight),
-                             max: .init(width: min(sumMaxWidth + fixedSpacing, proposedSize.width), height: maxHeight))
+                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposal.width), height: maxHeight),
+                             max: .init(width: min(sumMaxWidth + fixedSpacing, proposal.width), height: maxHeight))
             }
         }
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
         environment.layoutAxis = .horizontal
         //  Get blocks and sizes
@@ -98,7 +98,7 @@ extension HStack: Renderable {
             for block in blocks {
                 let width = ((block.proportionalWidth(context: context, environment: environment) ?? 1) / sumProportionalWidth) * adjustedWidth
                 let proposedSize = CGSize(width: width, height: rect.height)
-                let height = block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+                let height = block.sizeFor(context: context, environment: environment, proposal: proposedSize)
                     .max.height
                 let dy: CGFloat = switch alignment {
                 case .top:
@@ -140,5 +140,6 @@ extension HStack: Renderable {
                 stackOffset += size.width + space
             }
         }
+        return nil
     }
 }

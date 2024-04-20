@@ -26,9 +26,9 @@ class Context {
     // page than they expect.
     var pageFramePass: ((Int) -> Void)?
     var multiPagePass: (() -> Void)?
+    var pageWrapRect: CGRect = .zero
 
     private var pageSize: CGSize = .init(width: 8.5, height: 11).scaled(by: 72)
-    private var pageWrapRect: CGRect = .zero
     private var pageWrapCursorY: CGFloat = 0
 
     func render(size: PageSize, margins: EdgeInsets, content: some Block) async throws -> Data? {
@@ -89,26 +89,29 @@ class Context {
         pageWrapCursorY = 0
     }
 
-    private func getMultipageRenderingRect(height: CGFloat) -> CGRect {
-        if (pageWrapRect.minY + pageWrapCursorY + height) > pageWrapRect.maxY {
-            endPage()
-            beginPage()
+    func renderMultipageContent(block: any Block, environment: EnvironmentValues) {
+        var block: (any Renderable)? = block.getRenderable(environment: environment)
+        while block != nil {
+            if let unwrapped = block {
+                let proposal = CGSize(width: pageWrapRect.width, height: pageWrapRect.size.height - pageWrapCursorY)
+                let size = unwrapped.sizeFor(context: self, environment: environment, proposal: proposal)
+                if (pageWrapRect.minY + pageWrapCursorY + size.min.height) > pageWrapRect.maxY {
+                    endPage()
+                    beginPage()
+                    pageWrapCursorY = 0
+                }
+                let rect = CGRect(x: pageWrapRect.minX, y: pageWrapRect.minY + pageWrapCursorY,
+                                  width: pageWrapRect.width, height: size.max.height)
+                block = unwrapped.render(context: self, environment: environment, rect: rect)
+                if block != nil {
+                    endPage()
+                    beginPage()
+                    pageWrapCursorY = 0
+                } else {
+                    pageWrapCursorY += size.max.height
+                }
+            }
         }
-        let result = CGRect(x: pageWrapRect.minX, y: pageWrapRect.minY + pageWrapCursorY,
-                            width: pageWrapRect.width, height: height)
-        pageWrapCursorY += height
-        return result
-    }
-
-    private func getMultipageRenderingRect(rect: CGRect, height: CGFloat) -> CGRect {
-        if (pageWrapRect.minY + pageWrapCursorY + height) > pageWrapRect.maxY {
-            endPage()
-            beginPage()
-        }
-        let result = CGRect(x: rect.minX, y: pageWrapRect.minY + pageWrapCursorY,
-                            width: rect.width, height: height)
-        pageWrapCursorY += height
-        return result
     }
 
     func advanceMultipageCursor(_ value: CGFloat) {
@@ -118,23 +121,5 @@ class Context {
         } else {
             pageWrapCursorY += value
         }
-    }
-
-    func renderMultipageContent(block: any Block, environment: EnvironmentValues) {
-        renderMultipageContent(block: block.getRenderable(environment: environment), environment: environment)
-    }
-
-    func renderMultipageContent(block: any Renderable, environment: EnvironmentValues) {
-        let size = block.sizeFor(context: self, environment: environment, proposedSize: pageWrapRect.size)
-        let renderRect = getMultipageRenderingRect(height: size.max.height)
-        block.render(context: self, environment: environment, rect: renderRect)
-    }
-
-    func renderMultipageContent(height: CGFloat, callback: (CGRect) -> Void) {
-        callback(getMultipageRenderingRect(height: height))
-    }
-
-    func renderMultipageContent(rect: CGRect, height: CGFloat, callback: (CGRect) -> Void) {
-        callback(getMultipageRenderingRect(rect: rect, height: height))
     }
 }
