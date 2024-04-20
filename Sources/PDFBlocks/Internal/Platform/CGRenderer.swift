@@ -85,6 +85,14 @@
             return pdfData as Data
         }
 
+        func starClipRegion(rect: CGRect) {
+            cgContext?.clip(to: rect)
+        }
+
+        func endClipRegion() {
+            cgContext?.resetClip()
+        }
+
         func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect) {
             guard layer == renderLayer else {
                 return

@@ -13,6 +13,8 @@ protocol Renderer {
     var renderLayer: Int { get }
     func setLayer(_ value: Int)
     func setRenderLayer(_ value: Int)
+    func starClipRegion(rect: CGRect)
+    func endClipRegion()
     func render(renderingCallback: () -> Void) throws -> Data?
     func startNewPage(pageSize: CGSize)
     func endPage()
