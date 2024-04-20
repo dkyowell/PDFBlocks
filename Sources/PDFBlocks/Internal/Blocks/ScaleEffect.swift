@@ -37,10 +37,10 @@ extension ScaleEffect: Renderable {
 }
 
 struct ScaleModifier: BlockModifier {
-    let scale: Size
+    let scale: CGSize
     let anchor: UnitPoint
 
     func body(content: Content) -> some Block {
-        ScaleEffect(scale: .init(width: scale.width.points, height: scale.height.points), anchor: anchor, content: content)
+        ScaleEffect(scale: scale, anchor: anchor, content: content)
     }
 }
