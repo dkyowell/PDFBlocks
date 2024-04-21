@@ -51,13 +51,11 @@ extension Frame: Renderable {
 //        }
     }
 
+    // TODO: ContentSize?
+
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let renderable = content.getRenderable(environment: environment)
-//        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
-//            renderable.render(context: context, environment: environment, rect: rect)
-//            return nil
-//        } else {
-        let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
+        let size = renderable.contentSize(context: context, environment: environment, proposal: rect.size)
         let dx: CGFloat = switch alignment.horizontalAlignment {
         case .leading:
             0
@@ -81,7 +79,6 @@ extension Frame: Renderable {
         } else {
             return nil
         }
-//        }
     }
 }
 

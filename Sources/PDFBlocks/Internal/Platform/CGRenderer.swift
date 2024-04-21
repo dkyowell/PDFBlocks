@@ -368,8 +368,7 @@
                                            attributes: attributes,
                                            context: nil)
 
-            return (min: .init(width: min(rect.width, proposedSize.width), height: min(rect.height, proposedSize.height)),
-                    max: .init(width: min(rect.width, proposedSize.width), height: min(rect.height, proposedSize.height)))
+            return (min: rect.size, max: rect.size)
         }
 
         func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {

@@ -13,6 +13,11 @@ struct Background<Content, BackgroundContent>: Block where Content: Block, Backg
 }
 
 extension Background: Renderable {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        content.getRenderable(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposal: proposal)
@@ -20,44 +25,34 @@ extension Background: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let renderable = background.getRenderable(environment: environment)
-        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
-            renderable.render(context: context, environment: environment, rect: rect)
-            return nil
-        } else {
-            let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
-            let dx: CGFloat =
-                switch alignment.horizontalAlignment {
-                case .leading:
-                    0
-                case .center:
-                    (rect.width - size.max.width) / 2.0
-                case .trailing:
-                    rect.width - size.max.width
-                }
-            let dy: CGFloat =
-                switch alignment.verticalAlignment {
-                case .top:
-                    0
-                case .center:
-                    (rect.height - size.max.height) / 2.0
-                case .bottom:
-                    rect.height - size.max.height
-                }
-            let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
-            renderable.render(context: context, environment: environment, rect: renderRect)
-            let remainder = content.getRenderable(environment: environment)
-                .render(context: context, environment: environment, rect: rect)
-            if let content = remainder as? AnyBlock {
-                return Background<AnyBlock, BackgroundContent>.init(content: content, background: background, alignment: alignment)
-            } else {
-                return nil
+        let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
+        let dx: CGFloat =
+            switch alignment.horizontalAlignment {
+            case .leading:
+                0
+            case .center:
+                (rect.width - size.max.width) / 2.0
+            case .trailing:
+                rect.width - size.max.width
             }
+        let dy: CGFloat =
+            switch alignment.verticalAlignment {
+            case .top:
+                0
+            case .center:
+                (rect.height - size.max.height) / 2.0
+            case .bottom:
+                rect.height - size.max.height
+            }
+        let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
+        renderable.render(context: context, environment: environment, rect: renderRect)
+        let remainder = content.getRenderable(environment: environment)
+            .render(context: context, environment: environment, rect: rect)
+        if let content = remainder as? AnyBlock {
+            return Background<AnyBlock, BackgroundContent>.init(content: content, background: background, alignment: alignment)
+        } else {
+            return nil
         }
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content.getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 }
 

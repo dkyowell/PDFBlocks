@@ -10,7 +10,7 @@ import Foundation
 // A Grid takes up its full width
 extension HGrid: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowPageWrap: allowWrap)[keyPath: keypath]
+        Trait(allowWrap: allowWrap)[keyPath: keypath]
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {

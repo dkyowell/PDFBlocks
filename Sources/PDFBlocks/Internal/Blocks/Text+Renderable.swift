@@ -9,7 +9,7 @@ import Foundation
 extension Text: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let result = context.renderer.sizeForText(format.format(input), environment: environment, proposedSize: proposal)
-        return .init(min: result.min, max: result.max)
+        return BlockSize(min: result.min, max: result.max)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {

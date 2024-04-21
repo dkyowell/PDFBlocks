@@ -12,18 +12,18 @@ private struct Document: Block {
             Square()
                 .fill(.red)
                 .rotationEffect(.degrees(45))
-                .clipped()
                 .overlay {
-                    Text("STOP")
+                    VStack(allowWrap: false) {
+                        Text("STOP")
+                    }
                     .foregroundColor(.white)
-                        .font(size: 90)
-                        .bold()
+                    .font(size: 90)
+                    .bold()
                 }
+                .clipped()
         }
     }
 }
-
-
 
 #if os(iOS) || os(macOS)
     import PDFKit

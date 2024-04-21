@@ -55,7 +55,7 @@ extension Table: Renderable {
     }
 
     func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowPageWrap: true)[keyPath: keypath]
+        Trait(allowWrap: true)[keyPath: keypath]
     }
 }
 

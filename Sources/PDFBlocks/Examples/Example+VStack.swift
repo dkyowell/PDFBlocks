@@ -20,7 +20,8 @@ private struct Document: Block {
                 Text("Lazy")
                 Text("Dog")
             }
-            .font(size: 44)
+            .border(.cyan)
+            .font(size: 22)
         }
     }
 }

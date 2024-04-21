@@ -39,6 +39,8 @@ extension Padding: Renderable {
         return .init(min: minSize, max: maxSize)
     }
 
+    // TODO: ContentSize?
+
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let block = content.getRenderable(environment: environment)
         // atomic render

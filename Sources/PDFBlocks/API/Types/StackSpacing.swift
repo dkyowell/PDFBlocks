@@ -35,6 +35,16 @@ public extension StackSpacing {
     }
 }
 
+extension StackSpacing {
+    var isFlexible: Bool {
+        if case .flex = self {
+            true
+        } else {
+            false
+        }
+    }
+}
+
 extension StackSpacing: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: IntegerLiteralType) {
         self = .fixed(.pt(CGFloat(value)))

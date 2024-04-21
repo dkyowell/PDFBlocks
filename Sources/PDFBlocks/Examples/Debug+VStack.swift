@@ -6,19 +6,32 @@
 
 import Foundation
 
-// TODO: The orange bar should not appear. (ContentHeight > Size)
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
             VStack(alignment: .center, spacing: 12, allowWrap: true) {
-                VStack(spacing: 8, allowWrap: false) {
+                VStack(spacing: 0, allowWrap: false) {
                     Text("One")
+                        .padding(4)
+                        .border(.red)
                     Text("Two")
+                        .padding(4)
+                        .border(.red)
                     Text("Three")
+                        .padding(4)
+                        .border(.red)
                     Text("Four")
+                        .padding(4)
+                        .border(.red)
                     Text("Five")
+                        .padding(4)
+                        .border(.red)
                     Text("Six")
+                        .padding(4)
+                        .border(.red)
                     Text("Seven")
+                        .padding(4)
+                        .border(.red)
                     Color.orange
                         .tag("Orange")
                     Text("Eight")

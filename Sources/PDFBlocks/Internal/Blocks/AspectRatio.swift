@@ -14,18 +14,16 @@ struct AspectRatio<Content>: Block where Content: Block {
 extension AspectRatio: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let renderable = content.getRenderable(environment: environment)
-        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
-            return BlockSize(width: proposal.width, height: 0)
+        let constrainedSize = if proposal.width < proposal.height {
+            CGSize(width: proposal.width, height: proposal.width / value)
         } else {
-            let constrainedSize = if proposal.width < proposal.height {
-                CGSize(width: proposal.width, height: proposal.width / value)
-            } else {
-                CGSize(width: proposal.height * value, height: proposal.height)
-            }
-            let size = renderable.sizeFor(context: context, environment: environment, proposal: constrainedSize)
-            return .init(min: size.min, max: size.max)
+            CGSize(width: proposal.height * value, height: proposal.height)
         }
+        let size = renderable.sizeFor(context: context, environment: environment, proposal: constrainedSize)
+        return .init(min: size.min, max: size.max)
     }
+
+    // TODO: Not sure about contentSize
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let remainder = content.getRenderable(environment: environment)
