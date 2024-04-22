@@ -86,10 +86,16 @@
         }
 
         func starClipRegion(rect: CGRect) {
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.clip(to: rect)
         }
 
         func endClipRegion() {
+            guard layer == renderLayer else {
+                return
+            }
             cgContext?.resetClip()
         }
 

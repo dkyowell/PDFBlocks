@@ -36,6 +36,7 @@ extension VStack: Renderable {
         environment.layoutAxis = .vertical
         switch wrapMode(context: context, environment: environment) {
         case .none:
+            print("VStack.sizeFor.none", environment.tag, proposal)
             let blocks = content.getRenderables(environment: environment)
             let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
             let sumFixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
@@ -43,12 +44,13 @@ extension VStack: Renderable {
             let sumMaxHeight = sizes.map(\.max.height).reduce(0, +) + sumFixedSpacing
             if (spacing.isFlexible && blocks.count > 1) || (sumMaxHeight >= proposal.height) {
                 // This is an optimization to avoid the complex heuristics of layoutBlocks.
-                print("Optimized sizeFor", environment.tag, sumMaxHeight, proposal.height)
+                //print("Optimized sizeFor", environment.tag, sumMaxHeight, proposal.height)
                 let maxMinWidth = sizes.map(\.min.width).reduce(0, max)
                 let maxMaxWidth = sizes.map(\.max.width).reduce(0, max)
                 let minSize = CGSize(width: maxMinWidth, height: min(sumMinHeight, proposal.height))
                 let maxSize = CGSize(width: maxMaxWidth, height: proposal.height)
-                print(minSize, maxSize)
+                //print(minSize, maxSize)
+                print("   ***", maxSize)
                 return BlockSize(min: minSize, max: maxSize)
             } else {
                 print("Not Optimized sizeFor", environment.tag, sumMaxHeight, proposal.height)
@@ -66,7 +68,9 @@ extension VStack: Renderable {
                 }
             }
         case .primary:
-            return BlockSize(proposal)
+            //print("VStack.sizeFor.primary", environment.tag)
+            print("VStack.sizeFor.primary", environment.tag, proposal)
+            return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
         case .secondary:
             // Ignore flex spacing? Probably could put it in.
             let blocks = content.getRenderables(environment: environment)
@@ -116,7 +120,9 @@ extension VStack: Renderable {
                 minSize
             }
             return BlockSize(min: minSize, max: maxSize)
-        case .primary, .secondary:
+        case .primary:
+            return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
+        case .secondary:
             return BlockSize(proposal)
         }
     }
@@ -143,6 +149,7 @@ extension VStack: Renderable {
 
 extension VStack {
     func renderAtomic(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        print("VStack.renderAtomic", rect.size)
         var environment = environment
         environment.layoutAxis = .vertical
         let contentSize = contentSize(context: context, environment: environment, proposal: rect.size).max
@@ -214,9 +221,6 @@ extension VStack {
     }
 
     func renderSecondaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        guard context.renderer.layer == context.renderer.renderLayer else {
-            return nil
-        }
         print("VStack.renderSecondaryWrap", rect)
         var environment = environment
         environment.layoutAxis = .vertical

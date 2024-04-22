@@ -28,9 +28,6 @@ extension ClipRegion: Renderable {
 
     // TODO: Should a ClippedRegion return a remainder? What about contentSize?
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        guard context.renderer.layer == context.renderer.renderLayer else {
-            return nil
-        }
         context.renderer.starClipRegion(rect: rect)
         content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
