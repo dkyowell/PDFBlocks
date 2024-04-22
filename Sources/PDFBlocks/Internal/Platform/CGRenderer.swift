@@ -32,13 +32,13 @@
 
         // The layer allows a page to be rendered in two passes. This is required for handling page wrapping blocks.
         var layer = 1
-        var renderLayer = 1
+        var layerFilter = 1
         func setLayer(_ value: Int) {
             layer = value
         }
 
-        func setRenderLayer(_ value: Int) {
-            renderLayer = value
+        func setLayerFilter(_ value: Int) {
+            layerFilter = value
         }
 
         var pageSize: CGSize = .zero
@@ -86,21 +86,21 @@
         }
 
         func starClipRegion(rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.clip(to: rect)
         }
 
         func endClipRegion() {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.resetClip()
         }
 
         func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.saveGState()
@@ -113,7 +113,7 @@
 
         var opacityStack: [CGFloat] = []
         func startOpacity(opacity: CGFloat) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             opacityStack.append(opacity)
@@ -122,7 +122,7 @@
         }
 
         func restoreOpacity() {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.restoreGState()
@@ -131,7 +131,7 @@
         }
 
         func startScale(scale: CGSize, anchor: UnitPoint, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.saveGState()
@@ -143,14 +143,14 @@
         }
 
         func restoreState() {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.restoreGState()
         }
 
         func startOffset(x: CGFloat, y: CGFloat) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.saveGState()
@@ -192,7 +192,7 @@
         }
 
         func renderPath(environment: EnvironmentValues, path: CGPath) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             if let strokeContent = environment.strokeContent as? Color {
@@ -246,7 +246,7 @@
         }
 
         func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             let insetRect = rect.insetBy(dx: width / 2, dy: width / 2)
@@ -273,7 +273,7 @@
         }
 
         func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.addLines(between: [
@@ -292,7 +292,7 @@
         }
 
         func renderImage(_ image: PlatformImage, environment _: EnvironmentValues, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             guard let image = image as? NSUIImage else {
@@ -391,7 +391,7 @@
         }
 
         func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return ""
             }
             guard let context = cgContext else {
@@ -432,7 +432,7 @@
         }
 
         func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             let string = NSString(string: text)

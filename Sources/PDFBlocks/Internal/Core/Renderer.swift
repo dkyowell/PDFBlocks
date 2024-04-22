@@ -9,10 +9,8 @@ import Foundation
 
 // A protocol that allows for different PDF rendering libraries to be used.
 protocol Renderer {
-    var layer: Int { get }
-    var renderLayer: Int { get }
     func setLayer(_ value: Int)
-    func setRenderLayer(_ value: Int)
+    func setLayerFilter(_ value: Int)
     func starClipRegion(rect: CGRect)
     func endClipRegion()
     func render(renderingCallback: () -> Void) throws -> Data?

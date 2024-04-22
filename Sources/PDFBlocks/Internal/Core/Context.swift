@@ -41,7 +41,7 @@ class Context {
                 let page = Page(size: size, margins: margins, content: { content })
                 pageFramePass = { renderLayer in
                     self.renderer.setLayer(1)
-                    self.renderer.setRenderLayer(renderLayer)
+                    self.renderer.setLayerFilter(renderLayer)
                     page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
                     self.renderer.setLayer(1)
                 }
@@ -57,7 +57,7 @@ class Context {
                     let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
                     pageFramePass = { renderLayer in
                         self.renderer.setLayer(1)
-                        self.renderer.setRenderLayer(renderLayer)
+                        self.renderer.setLayerFilter(renderLayer)
                         block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
                         self.renderer.setLayer(1)
                     }
