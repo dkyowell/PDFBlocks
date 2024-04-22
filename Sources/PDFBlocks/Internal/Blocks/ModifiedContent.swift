@@ -14,6 +14,13 @@ extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModif
         return block.sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
+        let modifiedContent = modifier.body(content: nmc)
+        let block = modifiedContent.getRenderable(environment: environment)
+        return block.contentSize(context: context, environment: environment, proposal: proposal)
+    }
+
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let nmc = _BlockModifier_Content(modifier: modifier, block: content)
         let modifiedContent = modifier.body(content: nmc)
