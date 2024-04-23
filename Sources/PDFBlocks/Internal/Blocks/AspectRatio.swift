@@ -12,18 +12,28 @@ struct AspectRatio<Content>: Block where Content: Block {
 }
 
 extension AspectRatio: Renderable {
+    // TODO: See Debug+AspectRatio. Behavior is not the same as SwiftUI. SwiftUI seems to apply
+    // aspect ratios in limited circumstances that I do not understand.
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let renderable = content.getRenderable(environment: environment)
-        let constrainedSize = if proposal.width < proposal.height {
-            CGSize(width: proposal.width, height: proposal.width / value)
+        let block = content.getRenderable(environment: environment)
+        let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
+        if size.min != size.max {
+            let constrainedSize = if proposal.width < proposal.height {
+                CGSize(width: proposal.width, height: proposal.width / value)
+            } else {
+                CGSize(width: proposal.height * value, height: proposal.height)
+            }
+            return BlockSize(constrainedSize)
         } else {
-            CGSize(width: proposal.height * value, height: proposal.height)
+            return size
         }
-        let size = renderable.sizeFor(context: context, environment: environment, proposal: constrainedSize)
-        return .init(min: size.min, max: size.max)
     }
 
     // TODO: Not sure about contentSize
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        content.getRenderable(environment: environment)
+            .contentSize(context: context, environment: environment, proposal: proposal)
+    }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let remainder = content.getRenderable(environment: environment)

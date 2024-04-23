@@ -28,7 +28,7 @@ extension HGrid: Renderable {
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        print("HGrid.sizeFor", proposal)
+        print("HGrid.sizeFor", proposal, wrapMode(context: context, environment: environment))
         var environment = environment
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
@@ -45,21 +45,19 @@ extension HGrid: Renderable {
         case .primary:
             return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
         case .secondary:
-            return BlockSize(proposal)
-//            let blocks = content.getRenderables(environment: environment)
-//            let cellWidth = (proposal.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
-//            let cellSize = CGSize(width: cellWidth, height: .infinity)
-//            let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: cellSize) }
-//            let rows = sizes.map(\.max.height).chunks(ofCount: columnCount)
-//            let height = rows.map { $0.reduce(0, max) }.reduce(0, +) + Double(rows.count - 1) * rowSpacing.points
-//            let minSize = CGSize.zero
-//            let maxSize = CGSize(width: proposal.width, height: min(height, proposal.height))
-//            return BlockSize(min: minSize, max: maxSize)
-            
-            
+            print("HGrid.secondary", proposal)
+            let blocks = content.getRenderables(environment: environment)
+            let cellWidth = (proposal.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
+            let cellSize = CGSize(width: cellWidth, height: .infinity)
+            let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: cellSize) }
+            let rows = sizes.map(\.max.height).chunks(ofCount: columnCount)
+            let height = rows.map { $0.reduce(0, max) }.reduce(0, +) + Double(rows.count - 1) * rowSpacing.points
+            let maxSize = CGSize(width: proposal.width, height: min(height, proposal.height))
+            // TODO: changed min to maxSize. Is this right? Seems to work.
+            return BlockSize(min: maxSize, max: maxSize)
         }
     }
-    
+
     func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment.layoutAxis = .horizontal
@@ -78,7 +76,6 @@ extension HGrid: Renderable {
             return BlockSize(proposal)
         }
     }
-
 
     func renderPrimaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var blocks = content.getRenderables(environment: environment)
@@ -134,6 +131,7 @@ extension HGrid: Renderable {
                 return HGrid<ArrayBlock>(columnCount: columnCount,
                                          columnSpacing: columnSpacing,
                                          rowSpacing: rowSpacing,
+                                         allowWrap: allowWrap,
                                          content: { ArrayBlock(blocks: blocks) })
             }
         }
@@ -167,10 +165,11 @@ extension HGrid: Renderable {
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
         case .none:
+            print("HGrid.render.none", rect.size)
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
         case .primary:
-            print("HGrid.renderPrimary", rect.size)
+            print("HGrid.render.primary", rect.size)
             context.renderer.setLayer(2)
             context.setPageWrapRect(rect)
             if context.multiPagePass == nil {
@@ -181,6 +180,7 @@ extension HGrid: Renderable {
             }
             return nil
         case .secondary:
+            print("HGrid.render.secondary", rect.size)
             return renderSecondaryWrap(context: context, environment: environment, rect: rect)
         }
 

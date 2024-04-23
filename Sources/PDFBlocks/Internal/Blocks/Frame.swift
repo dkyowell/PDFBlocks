@@ -26,9 +26,6 @@ extension Frame: Renderable {
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let renderable = content.getRenderable(environment: environment)
-//        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
-//            return renderable.sizeFor(context: context, environment: environment, proposal: proposal)
-//        } else {
         var adjustedSize = proposal
         if let width, width.max == false {
             adjustedSize.width = width.points
@@ -47,8 +44,7 @@ extension Frame: Renderable {
         } else {
             size.max.height
         }
-        return .init(min: .init(width: w, height: h), max: .init(width: w, height: h))
-//        }
+        return BlockSize(min: .init(width: w, height: h), max: .init(width: w, height: h))
     }
 
     // TODO: ContentSize?
