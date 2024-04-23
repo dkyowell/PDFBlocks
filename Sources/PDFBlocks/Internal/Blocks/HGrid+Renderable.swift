@@ -7,54 +7,27 @@
 import Algorithms
 import Foundation
 
-extension HGrid {
-    func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if allowWrap {
-            if environment.renderMode == .wrapping {
-                .secondary
-            } else {
-                .primary
-            }
-        } else {
-            .none
-        }
-    }
-}
-
-// A Grid takes up its full width
+// The layout of HGrid is not necessarily final. An HGrid takes up its entire width. It is not re-sizable.
 extension HGrid: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait(allowWrap: allowWrap)[keyPath: keypath]
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        print("HGrid.sizeFor", proposal, wrapMode(context: context, environment: environment))
         var environment = environment
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
-        case .none:
+        case .none, .secondary:
             let blocks = content.getRenderables(environment: environment)
             let cellWidth = (proposal.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
-            let cellSize = CGSize(width: cellWidth, height: .infinity)
+            let cellSize = CGSize(width: cellWidth, height: proposal.height)
             let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: cellSize) }
-            let rows = sizes.map(\.max.height).chunks(ofCount: columnCount)
-            let height = rows.map { $0.reduce(0, max) }.reduce(0, +) + Double(rows.count - 1) * rowSpacing.points
-            let minSize = CGSize.zero
+            let rowsHeight = sizes.map(\.max.height).chunks(ofCount: columnCount)
+            let height = rowsHeight.map { $0.reduce(0, max) }.reduce(0, +) + Double(rowsHeight.count - 1) * rowSpacing.points
             let maxSize = CGSize(width: proposal.width, height: min(height, proposal.height))
-            return BlockSize(min: minSize, max: maxSize)
+            return BlockSize(maxSize)
         case .primary:
-            return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
-        case .secondary:
-            print("HGrid.secondary", proposal)
-            let blocks = content.getRenderables(environment: environment)
-            let cellWidth = (proposal.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
-            let cellSize = CGSize(width: cellWidth, height: .infinity)
-            let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: cellSize) }
-            let rows = sizes.map(\.max.height).chunks(ofCount: columnCount)
-            let height = rows.map { $0.reduce(0, max) }.reduce(0, +) + Double(rows.count - 1) * rowSpacing.points
-            let maxSize = CGSize(width: proposal.width, height: min(height, proposal.height))
-            // TODO: changed min to maxSize. Is this right? Seems to work.
-            return BlockSize(min: maxSize, max: maxSize)
+            return BlockSize(min: .init(width: proposal.width, height: 0), max: proposal)
         }
     }
 
@@ -165,11 +138,11 @@ extension HGrid: Renderable {
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
         case .none:
-            print("HGrid.render.none", rect.size)
+            //print("HGrid.render.none", rect.size)
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
         case .primary:
-            print("HGrid.render.primary", rect.size)
+            //print("HGrid.render.primary", rect.size)
             context.renderer.setLayer(2)
             context.setPageWrapRect(rect)
             if context.multiPagePass == nil {
@@ -180,7 +153,7 @@ extension HGrid: Renderable {
             }
             return nil
         case .secondary:
-            print("HGrid.render.secondary", rect.size)
+            //print("HGrid.render.secondary", rect.size)
             return renderSecondaryWrap(context: context, environment: environment, rect: rect)
         }
 
@@ -198,5 +171,19 @@ extension HGrid: Renderable {
 //        } else {
 //            return render2(context: context, environment: environment, rect: rect)
 //        }
+    }
+}
+
+extension HGrid {
+    func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
+        if allowWrap {
+            if environment.renderMode == .wrapping {
+                .secondary
+            } else {
+                .primary
+            }
+        } else {
+            .none
+        }
     }
 }

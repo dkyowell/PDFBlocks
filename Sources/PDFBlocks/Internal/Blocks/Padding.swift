@@ -27,8 +27,8 @@ extension Padding: Renderable {
         let block = content.getRenderable(environment: environment)
         let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
         // 1. Determine min
-        let minWidth = size.min.width + padding.leading.points + padding.trailing.points
-        let minHeight = size.min.height + padding.top.points + padding.bottom.points
+        let minWidth = min(proposal.width, size.min.width + padding.leading.points + padding.trailing.points)
+        let minHeight = min(proposal.height, size.min.height + padding.top.points + padding.bottom.points)
         let minSize = CGSize(width: minWidth, height: minHeight)
         // 2. Determine max
         let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width :
