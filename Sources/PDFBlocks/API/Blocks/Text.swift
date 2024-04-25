@@ -23,10 +23,10 @@ public struct Text<F>: Block where F: FormatStyle, F.FormatInput: Equatable, F.F
     }
 }
 
-public struct CTText: Block {
-    let input: String
-
-    public init(_ input: String) {
-        self.input = input
-    }
-}
+//public struct CTText: Block {
+//    let input: String
+//
+//    public init(_ input: String) {
+//        self.input = input
+//    }
+//}
