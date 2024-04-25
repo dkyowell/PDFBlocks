@@ -33,14 +33,13 @@ import Foundation
 
 // At present: .frame, .border, .background, .overlay cannot be applied upon
 
-
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
             PageNumberReader { pageNo in
                 Text("Page \(pageNo)")
-                    // TODO: This variable padding doesn't work
-                    //.padding(.bottom, .pt(CGFloat(pageNo * 12)))
+                // TODO: This variable padding doesn't work
+                // .padding(.bottom, .pt(CGFloat(pageNo * 12)))
             }
             .font(size: 36)
             .padding(.horizontal, .max)
@@ -50,7 +49,7 @@ private struct Document: Block {
                 Text("B")
                 Text("C")
                 HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: true) {
-                //VStack(allowWrap: true) {
+                    // VStack(allowWrap: true) {
                     Text("D")
                     Text("E")
                     Text("F")

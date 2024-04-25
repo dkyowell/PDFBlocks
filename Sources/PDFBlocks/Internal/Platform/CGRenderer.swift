@@ -332,9 +332,9 @@ let lhm = 0.96
                     let descriptor = font.fontDescriptor.withSymbolicTraits(.italic)
                     attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
                 #else
-                if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
-                    font = UIFont(descriptor: descriptor, size: font.pointSize)
-                }
+                    if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
+                        font = UIFont(descriptor: descriptor, size: font.pointSize)
+                    }
                 #endif
             }
             attributes[.font] = font
@@ -385,7 +385,7 @@ let lhm = 0.96
             var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, .none)
             if environment.bold {
                 font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitBold,
-                                                   CTFontSymbolicTraits.traitBold) ?? font
+                                                          CTFontSymbolicTraits.traitBold) ?? font
             }
             if environment.italic {
                 font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitItalic,
@@ -397,16 +397,15 @@ let lhm = 0.96
             }
             var paragraphSettings: [CTParagraphStyleSetting] = []
             //   ALIGNMENT
-            let alignment: CTTextAlignment
-            switch environment.multilineTextAlignment {
+            let alignment: CTTextAlignment = switch environment.multilineTextAlignment {
             case .leading:
-                alignment = .left
+                .left
             case .center:
-                alignment = .center
+                .center
             case .trailing:
-                alignment = .right
+                .right
             case .justified:
-                alignment = .justified
+                .justified
             }
             let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
                 CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
@@ -447,7 +446,6 @@ let lhm = 0.96
                 let size = CGSize(width: width, height: height)
                 print(size)
 
-                
                 return (min: size, max: size)
             } else {
                 // Fallback, but this should not be run.
@@ -470,8 +468,8 @@ let lhm = 0.96
             var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, &fontTransform)
             if environment.bold {
                 font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none,
-                                                   CTFontSymbolicTraits.traitBold,
-                                                   CTFontSymbolicTraits.traitBold) ?? font
+                                                          CTFontSymbolicTraits.traitBold,
+                                                          CTFontSymbolicTraits.traitBold) ?? font
             }
             if environment.italic {
                 font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitItalic,
@@ -484,16 +482,15 @@ let lhm = 0.96
                 CFAttributedStringSetAttribute(string, range, kCTKernAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
             }
             var paragraphSettings: [CTParagraphStyleSetting] = []
-            let alignment: CTTextAlignment
-            switch environment.multilineTextAlignment {
+            let alignment: CTTextAlignment = switch environment.multilineTextAlignment {
             case .leading:
-                alignment = .left
+                .left
             case .center:
-                alignment = .center
+                .center
             case .trailing:
-                alignment = .right
+                .right
             case .justified:
-                alignment = .justified
+                .justified
             }
             let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
                 CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
@@ -534,12 +531,11 @@ let lhm = 0.96
 
             // DRAW TEXT
             let framesetter = CTFramesetterCreateWithAttributedString(string)
-            
+
             let adjRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: max(rect.height, lineHeight)))
-            
+
             let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: adjRect, transform: .none), nil)
             if let cgContext {
-                
                 if let lines = CTFrameGetLines(frame) as? [CTLine] {
                     for (offset, line) in lines.enumerated() {
                         let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
@@ -563,7 +559,7 @@ let lhm = 0.96
                     }
                 }
             }
-            
+
             let drawnRange = CTFrameGetVisibleStringRange(frame)
             let nsRange = NSMakeRange(drawnRange.location == kCFNotFound ? NSNotFound : drawnRange.location, drawnRange.length)
             string.deleteCharacters(in: nsRange)
@@ -581,9 +577,9 @@ let lhm = 0.96
             var font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
             attributes[.font] = font
             #if os(macOS)
-            var traits: NSFontDescriptor.SymbolicTraits = []
+                var traits: NSFontDescriptor.SymbolicTraits = []
             #else
-            var traits: UIFontDescriptor.SymbolicTraits = []
+                var traits: UIFontDescriptor.SymbolicTraits = []
             #endif
             if environment.bold {
                 #if os(macOS)
@@ -602,14 +598,14 @@ let lhm = 0.96
             }
             if environment.italic {
                 #if os(macOS)
-                traits.insert(.italic)
+                    traits.insert(.italic)
                 #else
-                traits.insert(.traitItalic)
+                    traits.insert(.traitItalic)
                 #endif
             }
             #if os(macOS)
-            let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
-            attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
+                let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
+                attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
             #else
                 if let descriptor = font.fontDescriptor.withSymbolicTraits(traits) {
                     attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)

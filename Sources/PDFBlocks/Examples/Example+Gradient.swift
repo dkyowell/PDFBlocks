@@ -26,8 +26,6 @@ private struct Document: Block {
     }
 }
 
-
-
 #if os(iOS) || os(macOS)
     import PDFKit
 

@@ -21,7 +21,7 @@ private struct Document: Block {
                     .fill(.yellow)
                     .stroke(.black, lineWidth: .pt(4))
                     .padding(.max)
-                ForEach(Array(0...10)) { v in
+                ForEach(Array(0 ... 10)) { _ in
                     Circle()
                         .frame(height: 10)
                 }
@@ -49,7 +49,6 @@ struct Arc: Shape {
         return .init(width: minLength, height: minLength)
     }
 }
-
 
 #if os(iOS) || os(macOS)
     import PDFKit

@@ -8,7 +8,7 @@ import Foundation
 
 private struct Document: Block {
     var body: some Block {
-            Text("Narf")
+        Text("Narf")
             .font(size: 164)
             .textStroke(color: .blue, lineWidth: 3)
             .textFill(.orange)
@@ -17,7 +17,6 @@ private struct Document: Block {
             .bold()
     }
 }
-
 
 #if os(iOS) || os(macOS)
     import PDFKit

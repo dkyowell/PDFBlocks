@@ -43,7 +43,7 @@ extension VStack: Renderable {
             return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
         case .secondary:
             // 4/23: OK
-            let blocks = ArraySlice<any Renderable>( content.getRenderables(environment: environment))
+            let blocks = ArraySlice<any Renderable>(content.getRenderables(environment: environment))
             var height = 0.0
             var maxWidth = 0.0
             for (offset, block) in blocks.enumerated() {
@@ -145,7 +145,7 @@ extension VStack {
     }
 
     func renderPrimaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        //print("VStack.render.primary", rect)
+        // print("VStack.render.primary", rect)
         var environment = environment
         environment.layoutAxis = .vertical
         environment.renderMode = .wrapping
@@ -189,12 +189,12 @@ extension VStack {
         var environment = environment
         environment.layoutAxis = .vertical
         var blocks = content.getRenderables(environment: environment)
-        //print("VStack.renderSecondaryWrap", blocks.count, rect)
+        // print("VStack.renderSecondaryWrap", blocks.count, rect)
         var dy: CGFloat = 0
         for (offset, block) in blocks.enumerated() {
             let proposal = CGSize(width: rect.size.width, height: rect.size.height - dy)
             let size = block.contentSize(context: context, environment: environment, proposal: proposal)
-            //print("block ", offset, size.min.height, proposal.height, size.max.height)
+            // print("block ", offset, size.min.height, proposal.height, size.max.height)
             // Can this block fit?
             if size.min.height ~<= proposal.height {
                 let dx: CGFloat = switch alignment {
@@ -210,13 +210,13 @@ extension VStack {
                 let remainder = block.render(context: context, environment: environment, rect: renderRect)
                 if let remainder {
                     blocks[0] = remainder
-                    //print("VStack.returning remainder1", blocks.count)
+                    // print("VStack.returning remainder1", blocks.count)
                     return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, allowWrap: allowWrap, content: { ArrayBlock(blocks: blocks) })
                 } else {
                     dy += size.max.height + spacing.fixedPoints
                 }
             } else {
-                //print("VStack.returning remainder2", blocks.count)
+                // print("VStack.returning remainder2", blocks.count)
                 return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, allowWrap: allowWrap, content: { ArrayBlock(blocks: blocks) })
             }
             blocks = blocks.dropFirst().map { $0 }
@@ -226,7 +226,7 @@ extension VStack {
 //                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, allowWrap: allowWrap, content: { ArrayBlock(blocks: blocks) })
 //            }
         }
-        //print("VStack.returning nil")
+        // print("VStack.returning nil")
         return nil
     }
 
@@ -284,5 +284,3 @@ extension VStack {
         }
     }
 }
-
-

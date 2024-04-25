@@ -138,11 +138,11 @@ extension HGrid: Renderable {
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
         case .none:
-            //print("HGrid.render.none", rect.size)
+            // print("HGrid.render.none", rect.size)
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
         case .primary:
-            //print("HGrid.render.primary", rect.size)
+            // print("HGrid.render.primary", rect.size)
             context.renderer.setLayer(2)
             context.setPageWrapRect(rect)
             if context.multiPagePass == nil {
@@ -153,7 +153,7 @@ extension HGrid: Renderable {
             }
             return nil
         case .secondary:
-            //print("HGrid.render.secondary", rect.size)
+            // print("HGrid.render.secondary", rect.size)
             return renderSecondaryWrap(context: context, environment: environment, rect: rect)
         }
 

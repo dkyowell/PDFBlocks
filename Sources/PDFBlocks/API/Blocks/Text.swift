@@ -6,7 +6,6 @@
 
 import Foundation
 
-// TODO: In SwiftUI, Text is not generic over Format. Investigate implementation.
 /// A block for displaying text.
 public struct Text: Block {
     let value: String
