@@ -45,12 +45,12 @@ private struct Document: Block {
             .font(size: 36)
             .padding(.horizontal, .max)
             // .padding(.bottom, .pt(12))
-            VStack(alignment: .center, allowWrap: false) {
+            VStack(alignment: .center, allowWrap: true) {
                 Text("A")
-//                Text("B")
-//                Text("C")
-                //HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: true) {
-                VStack(allowWrap: true) {
+                Text("B")
+                Text("C")
+                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: true) {
+                //VStack(allowWrap: true) {
                     Text("D")
                     Text("E")
                     Text("F")
@@ -66,16 +66,17 @@ private struct Document: Block {
                     Text("P")
                     Text("Q")
                     Text("R")
-//                    Text("S")
-//                    Text("T")
-//                    Text("U")
-//                    Text("V")
-//                    Text("W")
+                    Text("S")
+                    Text("T")
+                    Text("U")
+                    Text("V")
+                    Text("W")
                 }
                 .foregroundColor(.red)
+                .padding(4)
                 .tag("Inner")
-//                Text("X")
-//                Text("Y")
+                Text("X")
+                Text("Y")
                 Text("Z")
             }
             .tag("Outer")

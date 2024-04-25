@@ -21,7 +21,7 @@ private struct Document: Block {
                 Text("Dog")
             }
             .border(.cyan)
-            .font(size: 22)
+            .font(size: 12)
         }
     }
 }
