@@ -158,7 +158,7 @@ public struct TableColumn<Row, Format>: TableColumnContent where Format: FormatS
     }
 
     public func cellContent(record: Row) -> any Block {
-        Text(record[keyPath: value], format: format)
+        Text(format.format(record[keyPath: value]))
     }
 }
 
