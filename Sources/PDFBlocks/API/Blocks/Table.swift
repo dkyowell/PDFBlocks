@@ -118,47 +118,46 @@ public protocol TableColumnContent<Row> {
 }
 
 /// A column definition for a Table.
-public struct TableColumn<Row, Format>: TableColumnContent where Format: FormatStyle, Format.FormatInput: Equatable, Format.FormatOutput == String {
-    public typealias TableRowValue = Row
-
+public struct TableColumn<Row>: TableColumnContent {
     public var title: String
-    public var value: KeyPath<TableRowValue, Format.FormatInput>
-    public var format: Format
+    public var text: (Row) -> String
     public var width: CGFloat
     public var alignment: HorizontalAlignment
     public var visible: Bool
 
-    public init(_ title: String,
+    public init<Format>(_ title: String,
                 value: KeyPath<Row, Format.FormatInput>,
                 format: Format,
                 width: CGFloat,
                 alignment: HorizontalAlignment = .leading,
-                visible: Bool = true)
+                visible: Bool = true) where Format: FormatStyle, Format.FormatInput: Equatable, Format.FormatOutput == String
     {
         self.title = title
-        self.value = value
-        self.format = format
+        self.text = { record in
+            format.format(record[keyPath: value])
+        }
         self.width = width
         self.alignment = alignment
         self.visible = visible
     }
 
     public init(_ title: String,
-                value: KeyPath<Row, Format.FormatInput>,
+                value: KeyPath<Row, String>,
                 width: CGFloat,
                 alignment: HorizontalAlignment = .leading,
-                visible: Bool = true) where Format == StringFormatStyle
+                visible: Bool = true)
     {
         self.title = title
-        self.value = value
-        format = StringFormatStyle()
+        self.text = { record in
+            record[keyPath: value]
+        }
         self.width = width
         self.alignment = alignment
         self.visible = visible
     }
 
     public func cellContent(record: Row) -> any Block {
-        Text(format.format(record[keyPath: value]))
+        Text(text(record))
     }
 }
 
@@ -166,8 +165,6 @@ public struct TableColumn<Row, Format>: TableColumnContent where Format: FormatS
 /// need to be mapped to a table data property.
 /// It can display arbitrary content besides text.
 public struct CustomTableColumn<Row>: TableColumnContent {
-    public typealias TableRowValue = Row
-
     public var title: String
     public var width: CGFloat
     public var alignment: HorizontalAlignment
