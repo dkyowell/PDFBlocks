@@ -377,26 +377,24 @@ let lhm = 0.96
             return (min: rect.size, max: rect.size)
         }
 
+        // TODO: sizeForCTText
         func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
             let rect = CGRect(origin: .zero, size: proposedSize)
-            let attrString = NSMutableAttributedString(string: text)
-            let stringRange = CFRangeMake(0, attrString.length)
+            let string = NSMutableAttributedString(string: text)
+            let range = CFRangeMake(0, string.length)
             var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, .none)
             if environment.bold {
-                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none,
-                                                   CTFontSymbolicTraits.traitBold,
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitBold,
                                                    CTFontSymbolicTraits.traitBold) ?? font
             }
             if environment.italic {
                 font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitItalic,
                                                           CTFontSymbolicTraits.traitItalic) ?? font
             }
-            CFAttributedStringSetAttribute(attrString, stringRange, kCTFontAttributeName, font)
+            CFAttributedStringSetAttribute(string, range, kCTFontAttributeName, font)
             if environment.multilineTextAlignment == .justified {
-                //CFAttributedStringSetAttribute(attrString, stringRange, kCTTrackingAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
+                CFAttributedStringSetAttribute(string, range, kCTTrackingAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
             }
-
-            
             var paragraphSettings: [CTParagraphStyleSetting] = []
             //   ALIGNMENT
             let alignment: CTTextAlignment
@@ -423,8 +421,9 @@ let lhm = 0.96
             paragraphSettings.append(lineBreakSetting)
 
             var lineHeight = 0.0
-            if let uiFont = UIFont(name: environment.fontName.value, size: environment.fontSize) {
-                lineHeight = uiFont.lineHeight
+            if let platformFont = NSUIFont(name: environment.fontName.value, size: environment.fontSize) {
+                // NOTE: This is not the same as CTFontGetAscent, CTFontGetDescent, CTFontGetLeading for all typefaces
+                lineHeight = platformFont.ascender + abs(platformFont.descender) + platformFont.leading
                 let paragraphSetting = withUnsafeMutableBytes(of: &lineHeight) {
                     CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
                 }
@@ -432,35 +431,37 @@ let lhm = 0.96
             }
 
             let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
-            CFAttributedStringSetAttribute(attrString, stringRange, kCTParagraphStyleAttributeName as CFString, paragraphStyle)
+            CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName as CFString, paragraphStyle)
 
             // Get size
+            // Adjust rect to be at least one line high
             let adjRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: max(rect.height, lineHeight)))
-
-            let framesetter = CTFramesetterCreateWithAttributedString(attrString)
-            let frame = CTFramesetterCreateFrame(framesetter, stringRange, CGPath(rect: adjRect, transform: .none), nil)
+            let framesetter = CTFramesetterCreateWithAttributedString(string)
+            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: adjRect, transform: .none), nil)
             if let lines = CTFrameGetLines(frame) as? [CTLine] {
-                print(lines.count)
                 let bounds: [CGRect] = lines.map { line in
-                    CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
+                    CTLineGetBoundsWithOptions(line, [])
                 }
                 let height = lineHeight * CGFloat(lines.count)
                 let width = bounds.map((\.width)).reduce(0, max)
                 let size = CGSize(width: width, height: height)
+                print(size)
+
+                
+                return (min: size, max: size)
+            } else {
+                // Fallback, but this should not be run.
+                // This seems to give almost identical results to above, but with the height rounded (up?) to the nearest point.
+                let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
                 return (min: size, max: size)
             }
-
-            //print("rect", rect.size)
-            let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
-            //print("rect", rect.size, size)
-            return (min: size, max: size)
         }
 
+        // TODO: renderCTText
         func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String {
             guard layer == layerFilter else {
                 return ""
             }
-            cgContext?.saveGState()
             let string = NSMutableAttributedString(string: text)
             let range = CFRangeMake(0, string.length)
             // SET FONT
@@ -482,7 +483,6 @@ let lhm = 0.96
             if environment.multilineTextAlignment == .justified {
                 CFAttributedStringSetAttribute(string, range, kCTKernAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
             }
-            //kCTKernAttributeName
             var paragraphSettings: [CTParagraphStyleSetting] = []
             let alignment: CTTextAlignment
             switch environment.multilineTextAlignment {
@@ -506,11 +506,11 @@ let lhm = 0.96
             }
             paragraphSettings.append(lineBreakSetting)
             //   LINE HEIGHT
-            var lineHeight: CGFloat = 0
-            if let uiFont = UIFont(name: environment.fontName.value, size: environment.fontSize) {
-                var value: CGFloat = uiFont.lineHeight
-                lineHeight = value
-                let lineHeightSetting = withUnsafeMutableBytes(of: &value) {
+            var lineHeight = 0.0
+            if let platformFont = NSUIFont(name: environment.fontName.value, size: environment.fontSize) {
+                // NOTE: This is not the same as CTFontGetAscent, CTFontGetDescent, CTFontGetLeading for all typefaces
+                lineHeight = platformFont.ascender + abs(platformFont.descender) + platformFont.leading
+                let lineHeightSetting = withUnsafeMutableBytes(of: &lineHeight) {
                     CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
                 }
                 paragraphSettings.append(lineHeightSetting)
@@ -543,7 +543,6 @@ let lhm = 0.96
                 if let lines = CTFrameGetLines(frame) as? [CTLine] {
                     for (offset, line) in lines.enumerated() {
                         let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
-                        print(bounds)
                         switch environment.multilineTextAlignment {
                         case .leading:
                             cgContext.textPosition = rect.origin
