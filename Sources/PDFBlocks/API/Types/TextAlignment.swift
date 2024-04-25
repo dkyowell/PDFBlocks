@@ -11,5 +11,4 @@ public enum TextAlignment {
     case leading
     case center
     case trailing
-    case justified
 }
