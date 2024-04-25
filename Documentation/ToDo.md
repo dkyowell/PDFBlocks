@@ -1,5 +1,18 @@
 #  To Do List
 
+Text Truncate
+Text Wrap
+Padding for tables
+Padding for shapes
+
+
+
+
+
+
+
+
+
 ## Version 1.0 Roadmap
 
 ### VGrid

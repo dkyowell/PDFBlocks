@@ -16,8 +16,6 @@ extension Optional: Renderable where Wrapped: Block {
         }
     }
 
-    // TODO: ContentSize?
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         if let self {
             let block = self.getRenderable(environment: environment)

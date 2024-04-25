@@ -47,11 +47,9 @@ extension Frame: Renderable {
         return BlockSize(min: .init(width: w, height: h), max: .init(width: w, height: h))
     }
 
-    // TODO: ContentSize?
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let renderable = content.getRenderable(environment: environment)
-        let size = renderable.contentSize(context: context, environment: environment, proposal: rect.size)
+        let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
         let dx: CGFloat = switch alignment.horizontalAlignment {
         case .leading:
             0

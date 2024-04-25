@@ -18,8 +18,6 @@ extension ProporionalFrame: Renderable {
             .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    // TODO: ContentSize?
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let renderable = content.getRenderable(environment: environment)
         if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {

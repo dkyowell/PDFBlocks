@@ -29,12 +29,6 @@ extension AspectRatio: Renderable {
         }
     }
 
-    // TODO: Not sure about contentSize
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        content.getRenderable(environment: environment)
-            .contentSize(context: context, environment: environment, proposal: proposal)
-    }
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let remainder = content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)

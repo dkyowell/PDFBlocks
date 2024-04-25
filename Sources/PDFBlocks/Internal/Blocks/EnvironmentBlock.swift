@@ -20,13 +20,6 @@ extension EnvironmentBlock: Renderable {
         return block.sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        var environment = environment
-        environment[keyPath: keyPath] = value
-        let block = content.getRenderable(environment: environment)
-        return block.contentSize(context: context, environment: environment, proposal: proposal)
-    }
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
         environment[keyPath: keyPath] = value

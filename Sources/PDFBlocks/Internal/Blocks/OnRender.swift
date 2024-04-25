@@ -17,11 +17,6 @@ extension OnRender: Renderable {
         return block.sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        content.getRenderable(environment: environment)
-            .contentSize(context: context, environment: environment, proposal: proposal)
-    }
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let block = content.getRenderable(environment: environment)
         let remainder = block.render(context: context, environment: environment, rect: rect)

@@ -20,7 +20,6 @@ import Foundation
 
 protocol Renderable: Block {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize
     @discardableResult func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)?
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
 }
@@ -40,10 +39,6 @@ extension Renderable {
 extension Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait()[keyPath: keypath]
-    }
-
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        sizeFor(context: context, environment: environment, proposal: proposal)
     }
 }
 

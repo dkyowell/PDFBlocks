@@ -21,12 +21,7 @@ extension ClipRegion: Renderable {
             .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        content.getRenderable(environment: environment)
-            .contentSize(context: context, environment: environment, proposal: proposal)
-    }
-
-    // TODO: Should a ClippedRegion return a remainder? What about contentSize?
+    // TODO: Should a ClippedRegion return a remainder?
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         context.renderer.starClipRegion(rect: rect)
         content.getRenderable(environment: environment)

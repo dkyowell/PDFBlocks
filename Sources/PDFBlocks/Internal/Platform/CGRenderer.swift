@@ -444,8 +444,6 @@ let lhm = 0.96
                 let height = lineHeight * CGFloat(lines.count)
                 let width = bounds.map((\.width)).reduce(0, max)
                 let size = CGSize(width: width, height: height)
-                print(size)
-
                 return (min: size, max: size)
             } else {
                 // Fallback, but this should not be run.

@@ -126,14 +126,14 @@ public struct TableColumn<Row>: TableColumnContent {
     public var visible: Bool
 
     public init<Format>(_ title: String,
-                value: KeyPath<Row, Format.FormatInput>,
-                format: Format,
-                width: CGFloat,
-                alignment: HorizontalAlignment = .leading,
-                visible: Bool = true) where Format: FormatStyle, Format.FormatInput: Equatable, Format.FormatOutput == String
+                        value: KeyPath<Row, Format.FormatInput>,
+                        format: Format,
+                        width: CGFloat,
+                        alignment: HorizontalAlignment = .leading,
+                        visible: Bool = true) where Format: FormatStyle, Format.FormatInput: Equatable, Format.FormatOutput == String
     {
         self.title = title
-        self.text = { record in
+        text = { record in
             format.format(record[keyPath: value])
         }
         self.width = width
@@ -148,7 +148,7 @@ public struct TableColumn<Row>: TableColumnContent {
                 visible: Bool = true)
     {
         self.title = title
-        self.text = { record in
+        text = { record in
             record[keyPath: value]
         }
         self.width = width
