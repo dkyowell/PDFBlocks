@@ -7,7 +7,7 @@
 import Foundation
 
 public extension Block {
-    func textStroke(color: Color = Color.black, lineWidth: Dimension = .pt(1)) -> some Block {
+    func textStroke(color: Color = Color.black, lineWidth: CGFloat = 3.0) -> some Block {
         environment(\.textStroke, TextStroke(color: color, lineWidth: lineWidth))
     }
 }
