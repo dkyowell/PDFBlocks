@@ -8,10 +8,10 @@ import Foundation
 
 /// A horizontal line.
 public struct Line: Block {
-    let thickness: Size
+    let thickness: Dimension
     let dash: [CGFloat]
 
-    public init(thickness: Size = .pt(1), dash: [CGFloat] = []) {
+    public init(thickness: Dimension = .pt(1), dash: [CGFloat] = []) {
         self.thickness = thickness
         self.dash = dash
     }

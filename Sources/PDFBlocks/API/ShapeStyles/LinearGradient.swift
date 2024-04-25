@@ -9,11 +9,11 @@ import Foundation
 public struct RadialGradient: ShapeStyle {
     let gradient: Gradient
     let center: UnitPoint
-    let startRadius: Size
-    let endRadius: Size
+    let startRadius: Dimension
+    let endRadius: Dimension
 
     /// Creates a radial gradient from a base gradient.
-    public init(gradient: Gradient, center: UnitPoint, startRadius: Size, endRadius: Size) {
+    public init(gradient: Gradient, center: UnitPoint, startRadius: Dimension, endRadius: Dimension) {
         self.gradient = gradient
         self.center = center
         self.startRadius = startRadius
@@ -21,7 +21,7 @@ public struct RadialGradient: ShapeStyle {
     }
 
     /// Creates a radial gradient from a collection of colors.
-    public init(colors: [Color], center: UnitPoint, startRadius: Size, endRadius: Size) {
+    public init(colors: [Color], center: UnitPoint, startRadius: Dimension, endRadius: Dimension) {
         gradient = Gradient(colors: colors)
         self.center = center
         self.startRadius = startRadius
@@ -29,7 +29,7 @@ public struct RadialGradient: ShapeStyle {
     }
 
     /// Creates a radial gradient from a collection of color stops.
-    public init(stops: [Gradient.Stop], center: UnitPoint, startRadius: Size, endRadius: Size) {
+    public init(stops: [Gradient.Stop], center: UnitPoint, startRadius: Dimension, endRadius: Dimension) {
         gradient = Gradient(stops: stops)
         self.center = center
         self.startRadius = startRadius

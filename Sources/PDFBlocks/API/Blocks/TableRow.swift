@@ -16,7 +16,7 @@ public struct TableRow<Value>: Block {
     }
 
     public var body: some Block {
-        HStack(spacing: .pt(2)) {
+        HStack(alignment: .top, spacing: .pt(2)) {
             ForEach(columns.filter(\.visible).compactMap { $0 as? any TableColumnContent<Value> }) { column in
                 AnyBlock(column.cellContent(record: record))
                     .proportionalFrame(width: column.width, alignment: column.alignment)

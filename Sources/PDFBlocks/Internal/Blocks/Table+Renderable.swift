@@ -7,11 +7,11 @@
 import Foundation
 
 extension Table: Renderable {
-    func sizeFor(context _: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context _: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         if environment.renderMode == .wrapping {
-            BlockSize(width: proposedSize.width, height: 0)
+            BlockSize(width: proposal.width, height: 0)
         } else {
-            BlockSize(proposedSize)
+            BlockSize(proposal)
         }
     }
 
@@ -29,8 +29,9 @@ extension Table: Renderable {
         context.renderMultipageContent(block: footer, environment: environment)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
+
         environment.layoutAxis = .vertical
         environment.tableColumns = columns
         if environment.renderMode == .wrapping {
@@ -42,19 +43,19 @@ extension Table: Renderable {
             let frame = pageFrame(context.pageNo).getRenderable(environment: environment)
             frame.render(context: context, environment: environment, rect: rect)
             context.renderer.setLayer(2)
-            context.setPageWrapRect(rect)
             guard context.multiPagePass == nil else {
-                return
+                return nil
             }
             context.multiPagePass = {
                 environment.renderMode = .wrapping
                 wrappingModeRender(context: context, environment: environment, rect: rect)
             }
         }
+        return nil
     }
 
     func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowPageWrap: true)[keyPath: keypath]
+        Trait(allowWrap: true)[keyPath: keypath]
     }
 }
 

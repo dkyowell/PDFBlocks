@@ -14,15 +14,15 @@ PDFBlocks uses a declarative language for describing document layout and appeara
 draw(), or newPage(). Here is the "code" used to generate the PDFBlocks logo used at the top of this document:
 
 ```swift
-struct Document: Block {
+private struct Document: Block {
     var body: some Block {
-        VStack(spacing: .pt(2)) {
-            HStack(spacing: .pt(2)) {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 2) {
                 ForEach(["P", "D", "F"]) { item in
                     LetterBlock(letter: item, color: .red)
                 }
             }
-            HStack(spacing: .pt(2)) {
+            HStack(spacing: 2) {
                 ForEach(["B", "L", "O", "C", "K", "S"]) { item in
                     LetterBlock(letter: item, color: .cyan)
                 }
@@ -31,13 +31,13 @@ struct Document: Block {
     }
 }
 
-struct LetterBlock: Block {
+private struct LetterBlock: Block {
     let letter: String
     let color: Color
     var body: some Block {
         Text(letter)
             .foregroundColor(.white)
-            .frame(width: .pt(48), height: .pt(48), alignment: .center)
+            .frame(width: 48, height: 48, alignment: .center)
             .background { color }
             .font(name: "American Typewriter", size: 36)
             .bold()
@@ -88,16 +88,16 @@ PDFBlocks is inspired by SwiftUI and follows its syntax closely, however, there 
 ### Blocks
 Everything in SwiftUI that is a View is a Block in PDFBlocks.
 
-* Components such as Text, Image, Color, Divider, VStack, HStack, ZStack, Page, and Table are all blocks. 
-* Modifiers like .font, .foregroundColor, .opacity, .padding, ,border, .frame, .background, and .overlay are blocks as well.
-* Documents you write are blocks.
-* Re-usable components you compose are blocks.
-
 ### Units
-Sizes must be specified in points (.pt), inches (.in), or milimeters (.mm). 
+Dimensions can be specified in points (.pt), inches (.in), or milimeters (.mm). 
 ```swift
     Color.blue
         .frame(width: .in(1), height: .pt(72))
+```
+Dimensions can also be expressed integer or float literals, in which case the unit is points.
+```swift
+    Color.blue
+        .frame(width: 36, height: 36)
 ```
 ### Frames
 There is no minWidth, maxWidth, minHeight, maxHeight for frames. Instead, a width or height can be set as .max.
@@ -128,9 +128,6 @@ HStack(spacing: .flex) {
     Text("Blue Fish")
 }
 ```
-### Alignment
-Default alignment in SwiftUI is centered. In PDFBlocks it is top leading.
-
 ### Pages
 A document with multiple pages can be defined like this:
 ```swift
@@ -177,6 +174,8 @@ Then import PDFBlocks wherever you’d like to use it:
 import PDFBlocks
 ```
 ## For a Quick "Preview"
+The best way to explore this package to see what it can do is with XCode Previews.
+
 1. Download the PDFBlocks project.
 2. Open Package.swift in XCode.
 3. Navigate to Sources/PDFBlocks/Examples

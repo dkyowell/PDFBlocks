@@ -201,7 +201,7 @@ public protocol TableGroupContent<Row> where Value: Equatable, Value: Comparable
     var value: KeyPath<Row, Value> { get }
     var header: ([Row], Value) -> any Block { get }
     var footer: ([Row], Value) -> any Block { get }
-    var spacing: Size { get }
+    var spacing: Dimension { get }
     var nextGroup: (any TableGroupContent<Row>)? { get set }
 }
 
@@ -213,7 +213,7 @@ public struct TableGroup<Row, Value>: TableGroupContent where Value: Equatable, 
     public let value: KeyPath<Row, Value>
     public let header: ([Row], Value) -> any Block
     public let footer: ([Row], Value) -> any Block
-    public let spacing: Size
+    public let spacing: Dimension
     public var nextGroup: (any TableGroupContent<Row>)?
 
     /// Creates a table group that will sort table data on a key path and start
@@ -233,7 +233,7 @@ public struct TableGroup<Row, Value>: TableGroupContent where Value: Equatable, 
     ///     a block to be rendered after the group's rows are rendered.
     public init(on value: KeyPath<Row, Value>,
                 order: @escaping (Value, Value) -> Bool = { $0 < $1 },
-                spacing: Size,
+                spacing: Dimension,
                 @BlockBuilder header: @escaping ([Row], Value) -> any Block,
                 @BlockBuilder footer: @escaping ([Row], Value) -> any Block)
     {

@@ -3,13 +3,14 @@
  *  Copyright (c) David Yowell 2024
  *  MIT license, see LICENSE file for details
  */
-
+let lhm = 0.96
 #if os(macOS) || os(iOS)
 
     import Foundation
 
     #if os(macOS)
         import AppKit
+        import CoreText
 
         public typealias NSUIFont = NSFont
         public typealias NSUIColor = NSColor
@@ -17,6 +18,7 @@
     #endif
 
     #if os(iOS)
+        import CoreText
         import UIKit
 
         public typealias NSUIFont = UIFont
@@ -30,23 +32,27 @@
 
         // The layer allows a page to be rendered in two passes. This is required for handling page wrapping blocks.
         var layer = 1
-        var renderLayer = 1
+        var layerFilter = 1
         func setLayer(_ value: Int) {
             layer = value
         }
 
-        func setRenderLayer(_ value: Int) {
-            renderLayer = value
+        func setLayerFilter(_ value: Int) {
+            layerFilter = value
         }
 
+        var pageSize: CGSize = .zero
+        var pageNo = 0
         func startNewPage(pageSize: CGSize) {
             var mediaBox = CGRect(origin: .zero, size: pageSize)
             cgContext?.beginPage(mediaBox: &mediaBox)
+            self.pageSize = pageSize
             cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
         }
 
         func endPage() {
             cgContext?.endPDFPage()
+            pageNo += 1
         }
 
         var cgContext: CGContext? = nil
@@ -79,8 +85,22 @@
             return pdfData as Data
         }
 
+        func starClipRegion(rect: CGRect) {
+            guard layer == layerFilter else {
+                return
+            }
+            cgContext?.clip(to: rect)
+        }
+
+        func endClipRegion() {
+            guard layer == layerFilter else {
+                return
+            }
+            cgContext?.resetClip()
+        }
+
         func startRotation(angle: CGFloat, anchor: UnitPoint, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.saveGState()
@@ -93,7 +113,7 @@
 
         var opacityStack: [CGFloat] = []
         func startOpacity(opacity: CGFloat) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             opacityStack.append(opacity)
@@ -102,7 +122,7 @@
         }
 
         func restoreOpacity() {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.restoreGState()
@@ -110,15 +130,27 @@
             cgContext?.setAlpha(opacityStack.reduce(1.0, *))
         }
 
+        func startScale(scale: CGSize, anchor: UnitPoint, rect: CGRect) {
+            guard layer == layerFilter else {
+                return
+            }
+            cgContext?.saveGState()
+            let dx = rect.minX + anchor.x * rect.width
+            let dy = rect.minY + anchor.y * rect.height
+            cgContext?.concatenate(CGAffineTransform(translationX: dx, y: dy))
+            cgContext?.concatenate(CGAffineTransform(scaleX: scale.width, y: scale.height))
+            cgContext?.concatenate(CGAffineTransform(translationX: -dx, y: -dy))
+        }
+
         func restoreState() {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.restoreGState()
         }
 
         func startOffset(x: CGFloat, y: CGFloat) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.saveGState()
@@ -160,7 +192,7 @@
         }
 
         func renderPath(environment: EnvironmentValues, path: CGPath) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             if let strokeContent = environment.strokeContent as? Color {
@@ -214,7 +246,7 @@
         }
 
         func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             let insetRect = rect.insetBy(dx: width / 2, dy: width / 2)
@@ -241,7 +273,7 @@
         }
 
         func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             cgContext?.addLines(between: [
@@ -260,7 +292,7 @@
         }
 
         func renderImage(_ image: PlatformImage, environment _: EnvironmentValues, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             guard let image = image as? NSUIImage else {
@@ -271,14 +303,12 @@
             }
         }
 
-        func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: ProposedSize) -> (min: CGSize, max: CGSize) {
+        func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
             let string = NSString(string: text)
             var attributes = [NSAttributedString.Key: Any]()
             let fontName = environment.fontName
             let fontSize = environment.fontSize
-            let font: NSUIFont
-            font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
-            attributes[.font] = font
+            var font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
             if environment.bold {
                 #if os(macOS)
                     if let boldFontName = environment.boldFontName?.value {
@@ -292,7 +322,7 @@
                         attributes[.font] = UIFont(name: boldFontName, size: font.pointSize)
                     } else {
                         if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
-                            attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)
+                            font = UIFont(descriptor: descriptor, size: font.pointSize)
                         }
                     }
                 #endif
@@ -302,11 +332,13 @@
                     let descriptor = font.fontDescriptor.withSymbolicTraits(.italic)
                     attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
                 #else
-                    if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
-                        attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)
-                    }
+                if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
+                    font = UIFont(descriptor: descriptor, size: font.pointSize)
+                }
                 #endif
             }
+            attributes[.font] = font
+
             let paragraphStyle = NSMutableParagraphStyle()
             switch environment.multilineTextAlignment {
             case .leading:
@@ -342,49 +374,248 @@
                                            attributes: attributes,
                                            context: nil)
 
-            return (min: .init(width: min(rect.width, proposedSize.width), height: min(rect.height, proposedSize.height)),
-                    max: .init(width: min(rect.width, proposedSize.width), height: min(rect.height, proposedSize.height)))
+            return (min: rect.size, max: rect.size)
+        }
+
+        func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
+            let rect = CGRect(origin: .zero, size: proposedSize)
+            let attrString = NSMutableAttributedString(string: text)
+            let stringRange = CFRangeMake(0, attrString.length)
+            var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, .none)
+            if environment.bold {
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none,
+                                                   CTFontSymbolicTraits.traitBold,
+                                                   CTFontSymbolicTraits.traitBold) ?? font
+            }
+            if environment.italic {
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitItalic,
+                                                          CTFontSymbolicTraits.traitItalic) ?? font
+            }
+            CFAttributedStringSetAttribute(attrString, stringRange, kCTFontAttributeName, font)
+            if environment.multilineTextAlignment == .justified {
+                //CFAttributedStringSetAttribute(attrString, stringRange, kCTTrackingAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
+            }
+
+            
+            var paragraphSettings: [CTParagraphStyleSetting] = []
+            //   ALIGNMENT
+            let alignment: CTTextAlignment
+            switch environment.multilineTextAlignment {
+            case .leading:
+                alignment = .left
+            case .center:
+                alignment = .center
+            case .trailing:
+                alignment = .right
+            case .justified:
+                alignment = .justified
+            }
+            let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
+                CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
+            }
+            paragraphSettings.append(allignmentSetting)
+
+            //   LINE BREAK MODE
+            let lineBreakMode = CTLineBreakMode.byWordWrapping
+            let lineBreakSetting: CTParagraphStyleSetting = withUnsafeBytes(of: lineBreakMode) {
+                CTParagraphStyleSetting(spec: .lineBreakMode, valueSize: MemoryLayout<CTLineBreakMode>.size, value: $0.baseAddress!)
+            }
+            paragraphSettings.append(lineBreakSetting)
+
+            var lineHeight = 0.0
+            if let uiFont = UIFont(name: environment.fontName.value, size: environment.fontSize) {
+                lineHeight = uiFont.lineHeight
+                let paragraphSetting = withUnsafeMutableBytes(of: &lineHeight) {
+                    CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
+                }
+                paragraphSettings.append(paragraphSetting)
+            }
+
+            let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
+            CFAttributedStringSetAttribute(attrString, stringRange, kCTParagraphStyleAttributeName as CFString, paragraphStyle)
+
+            // Get size
+            let adjRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: max(rect.height, lineHeight)))
+
+            let framesetter = CTFramesetterCreateWithAttributedString(attrString)
+            let frame = CTFramesetterCreateFrame(framesetter, stringRange, CGPath(rect: adjRect, transform: .none), nil)
+            if let lines = CTFrameGetLines(frame) as? [CTLine] {
+                print(lines.count)
+                let bounds: [CGRect] = lines.map { line in
+                    CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
+                }
+                let height = lineHeight * CGFloat(lines.count)
+                let width = bounds.map((\.width)).reduce(0, max)
+                let size = CGSize(width: width, height: height)
+                return (min: size, max: size)
+            }
+
+            //print("rect", rect.size)
+            let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
+            //print("rect", rect.size, size)
+            return (min: size, max: size)
+        }
+
+        func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String {
+            guard layer == layerFilter else {
+                return ""
+            }
+            cgContext?.saveGState()
+            let string = NSMutableAttributedString(string: text)
+            let range = CFRangeMake(0, string.length)
+            // SET FONT
+            var fontTransform = CGAffineTransformIdentity
+                .scaledBy(x: 1, y: -1)
+            var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, &fontTransform)
+            if environment.bold {
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none,
+                                                   CTFontSymbolicTraits.traitBold,
+                                                   CTFontSymbolicTraits.traitBold) ?? font
+            }
+            if environment.italic {
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitItalic,
+                                                          CTFontSymbolicTraits.traitItalic) ?? font
+            }
+            CFAttributedStringSetAttribute(string, range, kCTFontAttributeName, font)
+            // SET PARAGRAPH SETTINGS
+            //   ALIGNMENT
+            if environment.multilineTextAlignment == .justified {
+                CFAttributedStringSetAttribute(string, range, kCTKernAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
+            }
+            //kCTKernAttributeName
+            var paragraphSettings: [CTParagraphStyleSetting] = []
+            let alignment: CTTextAlignment
+            switch environment.multilineTextAlignment {
+            case .leading:
+                alignment = .left
+            case .center:
+                alignment = .center
+            case .trailing:
+                alignment = .right
+            case .justified:
+                alignment = .justified
+            }
+            let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
+                CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
+            }
+            paragraphSettings.append(allignmentSetting)
+            //   LINE BREAK MODE
+            let lineBreakMode = CTLineBreakMode.byWordWrapping
+            let lineBreakSetting: CTParagraphStyleSetting = withUnsafeBytes(of: lineBreakMode) {
+                CTParagraphStyleSetting(spec: .lineBreakMode, valueSize: MemoryLayout<CTLineBreakMode>.size, value: $0.baseAddress!)
+            }
+            paragraphSettings.append(lineBreakSetting)
+            //   LINE HEIGHT
+            var lineHeight: CGFloat = 0
+            if let uiFont = UIFont(name: environment.fontName.value, size: environment.fontSize) {
+                var value: CGFloat = uiFont.lineHeight
+                lineHeight = value
+                let lineHeightSetting = withUnsafeMutableBytes(of: &value) {
+                    CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
+                }
+                paragraphSettings.append(lineHeightSetting)
+            }
+            // APPLY PARAGRAPH SETTINS
+            let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
+            CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName, paragraphStyle)
+            // SET ATTRIBUTES
+            if let color = environment.foregroundStyle as? Color {
+                CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
+            }
+            if let stroke = environment.textStroke {
+                CFAttributedStringSetAttribute(string, range, kCTStrokeColorAttributeName, stroke.color.cgColor)
+                CFAttributedStringSetAttribute(string, range, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: stroke.lineWidth))
+            }
+            if let fill = environment.textFill, let stroke = environment.textStroke {
+                CFAttributedStringSetAttribute(string, range, kCTStrokeColorAttributeName, stroke.color.cgColor)
+                CFAttributedStringSetAttribute(string, range, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: -stroke.lineWidth))
+                CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, fill.cgColor)
+            }
+
+            // DRAW TEXT
+            let framesetter = CTFramesetterCreateWithAttributedString(string)
+            
+            let adjRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: max(rect.height, lineHeight)))
+            
+            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: adjRect, transform: .none), nil)
+            if let cgContext {
+                
+                if let lines = CTFrameGetLines(frame) as? [CTLine] {
+                    for (offset, line) in lines.enumerated() {
+                        let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
+                        print(bounds)
+                        switch environment.multilineTextAlignment {
+                        case .leading:
+                            cgContext.textPosition = rect.origin
+                                .offset(dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                        case .center:
+                            let dx = (rect.width - bounds.width) / 2
+                            cgContext.textPosition = rect.origin
+                                .offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                        case .trailing:
+                            let dx = (rect.width - bounds.width)
+                            cgContext.textPosition = rect.origin
+                                .offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                        case .justified:
+                            cgContext.textPosition = rect.origin
+                                .offset(dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                        }
+                        CTLineDraw(line, cgContext)
+                    }
+                }
+            }
+            
+            let drawnRange = CTFrameGetVisibleStringRange(frame)
+            let nsRange = NSMakeRange(drawnRange.location == kCFNotFound ? NSNotFound : drawnRange.location, drawnRange.length)
+            string.deleteCharacters(in: nsRange)
+            return string.string
         }
 
         func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
-            guard layer == renderLayer else {
+            guard layer == layerFilter else {
                 return
             }
             let string = NSString(string: text)
             var attributes = [NSAttributedString.Key: Any]()
             let fontName = environment.fontName
             let fontSize = environment.fontSize
-            let font: NSUIFont
-            font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
+            var font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
             attributes[.font] = font
+            #if os(macOS)
+            var traits: NSFontDescriptor.SymbolicTraits = []
+            #else
+            var traits: UIFontDescriptor.SymbolicTraits = []
+            #endif
             if environment.bold {
                 #if os(macOS)
                     if let boldFontName = environment.boldFontName?.value {
                         attributes[.font] = NSFont(name: boldFontName, size: font.pointSize)
                     } else {
-                        let descriptor = font.fontDescriptor.withSymbolicTraits(.bold)
-                        attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
+                        traits.insert(.bold)
                     }
                 #else
                     if let boldFontName = environment.boldFontName?.value {
                         attributes[.font] = UIFont(name: boldFontName, size: font.pointSize)
                     } else {
-                        if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
-                            attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)
-                        }
+                        traits.insert(.traitBold)
                     }
                 #endif
             }
             if environment.italic {
                 #if os(macOS)
-                    let descriptor = font.fontDescriptor.withSymbolicTraits(.italic)
-                    attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
+                traits.insert(.italic)
                 #else
-                    if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
-                        attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)
-                    }
+                traits.insert(.traitItalic)
                 #endif
             }
+            #if os(macOS)
+            let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
+            attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
+            #else
+                if let descriptor = font.fontDescriptor.withSymbolicTraits(traits) {
+                    attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)
+                }
+            #endif
             let paragraphStyle = NSMutableParagraphStyle()
             switch environment.multilineTextAlignment {
             case .leading:
@@ -421,14 +652,14 @@
             if let stroke = environment.textStroke {
                 if let color = environment.textFill {
                     cgContext?.setTextDrawingMode(.fillStroke)
-                    cgContext?.setLineWidth(stroke.lineWidth.points)
+                    cgContext?.setLineWidth(stroke.lineWidth)
                     cgContext?.setStrokeColor(stroke.color.cgColor)
                     attributes[.strokeColor] = stroke.color
                     attributes[.foregroundColor] = color.cgColor
                     string.draw(with: newRect, options: options, attributes: attributes, context: nil)
                 } else {
                     cgContext?.setTextDrawingMode(.stroke)
-                    cgContext?.setLineWidth(stroke.lineWidth.points)
+                    cgContext?.setLineWidth(stroke.lineWidth)
                     cgContext?.setStrokeColor(stroke.color.cgColor)
                     attributes[.strokeColor] = stroke.color
                     string.draw(with: newRect, options: options, attributes: attributes, context: nil)

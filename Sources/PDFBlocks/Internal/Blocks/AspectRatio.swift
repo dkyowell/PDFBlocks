@@ -12,20 +12,37 @@ struct AspectRatio<Content>: Block where Content: Block {
 }
 
 extension AspectRatio: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        let constrainedSize = if proposedSize.width < proposedSize.height {
-            CGSize(width: proposedSize.width, height: proposedSize.width / value)
-        } else {
-            CGSize(width: proposedSize.height * value, height: proposedSize.height)
-        }
+    // TODO: See Debug+AspectRatio. Behavior is not the same as SwiftUI. SwiftUI seems to apply
+    // aspect ratios in limited circumstances that I do not understand.
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let block = content.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposedSize: constrainedSize)
-        return .init(min: size.min, max: size.max)
+        let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
+        if size.min != size.max {
+            let constrainedSize = if proposal.width < proposal.height {
+                CGSize(width: proposal.width, height: proposal.width / value)
+            } else {
+                CGSize(width: proposal.height * value, height: proposal.height)
+            }
+            return BlockSize(constrainedSize)
+        } else {
+            return size
+        }
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        let block = content.getRenderable(environment: environment)
-        block.render(context: context, environment: environment, rect: rect)
+    // TODO: Not sure about contentSize
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        content.getRenderable(environment: environment)
+            .contentSize(context: context, environment: environment, proposal: proposal)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let remainder = content.getRenderable(environment: environment)
+            .render(context: context, environment: environment, rect: rect)
+        if let content = remainder as? AnyBlock {
+            return AspectRatio<AnyBlock>(value: value, content: content)
+        } else {
+            return nil
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

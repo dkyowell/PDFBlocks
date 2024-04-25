@@ -13,16 +13,21 @@ struct Overlay<Content, OverlayContent>: Block where Content: Block, OverlayCont
 }
 
 extension Overlay: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let renderable = overlay.getRenderable(environment: environment)
+        let remainder = content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        let block = overlay.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size)
+        let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
         let dx: CGFloat =
             switch alignment.horizontalAlignment {
             case .leading:
@@ -42,12 +47,12 @@ extension Overlay: Renderable {
                 rect.height - size.max.height
             }
         let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
-        block.render(context: context, environment: environment, rect: renderRect)
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content.getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
+        renderable.render(context: context, environment: environment, rect: renderRect)
+        if let content = remainder as? AnyBlock {
+            return Overlay<AnyBlock, OverlayContent>(content: content, overlay: overlay, alignment: alignment)
+        } else {
+            return nil
+        }
     }
 }
 

@@ -9,8 +9,8 @@ import Foundation
 /// A type for expressing the spacing between elements
 /// in a stack.
 public enum StackSpacing {
-    case flex(min: Size)
-    case fixed(Size)
+    case flex(min: Dimension)
+    case fixed(Dimension)
 }
 
 public extension StackSpacing {
@@ -32,5 +32,27 @@ public extension StackSpacing {
 
     static func mm(_ value: CGFloat) -> StackSpacing {
         .fixed(.mm(value))
+    }
+}
+
+extension StackSpacing {
+    var isFlexible: Bool {
+        if case .flex = self {
+            true
+        } else {
+            false
+        }
+    }
+}
+
+extension StackSpacing: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: IntegerLiteralType) {
+        self = .fixed(.pt(CGFloat(value)))
+    }
+}
+
+extension StackSpacing: ExpressibleByFloatLiteral {
+    public init(floatLiteral value: FloatLiteralType) {
+        self = .fixed(.pt(value))
     }
 }

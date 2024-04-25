@@ -7,12 +7,13 @@
 import Foundation
 
 extension Line: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        .init(min: .init(width: proposedSize.width, height: thickness.points),
-              max: .init(width: proposedSize.width, height: thickness.points))
+    func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        .init(min: .init(width: proposal.width, height: thickness.points),
+              max: .init(width: proposal.width, height: thickness.points))
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         context.renderer.renderLine(dash: dash, environment: environment, rect: rect)
+        return nil
     }
 }

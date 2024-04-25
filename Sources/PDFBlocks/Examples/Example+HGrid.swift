@@ -33,21 +33,24 @@ import Foundation
 
 // At present: .frame, .border, .background, .overlay cannot be applied upon
 
+
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
             PageNumberReader { pageNo in
                 Text("Page \(pageNo)")
-                    .padding(.bottom, .pt(CGFloat(pageNo * 12)))
+                    // TODO: This variable padding doesn't work
+                    //.padding(.bottom, .pt(CGFloat(pageNo * 12)))
             }
             .font(size: 36)
             .padding(.horizontal, .max)
             // .padding(.bottom, .pt(12))
-            VStack(alignment: .center, allowPageWrap: true) {
+            VStack(alignment: .center, allowWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
-                HGrid(columnCount: 3, columnSpacing: .pt(0), rowSpacing: .pt(0), allowPageWrap: true) {
+                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: true) {
+                //VStack(allowWrap: true) {
                     Text("D")
                     Text("E")
                     Text("F")
@@ -60,12 +63,6 @@ private struct Document: Block {
                     Text("M")
                     Text("N")
                     Text("O")
-                    Text("N")
-                    Text("O")
-                    Text("N")
-                    Text("O")
-                    Text("N")
-                    Text("O")
                     Text("P")
                     Text("Q")
                     Text("R")
@@ -75,40 +72,29 @@ private struct Document: Block {
                     Text("V")
                     Text("W")
                 }
+                .foregroundColor(.red)
+                .padding(4)
+                .tag("Inner")
                 Text("X")
                 Text("Y")
                 Text("Z")
             }
-            .padding(.horizontal, .max)
+            .tag("Outer")
+            .padding(12)
             .overlay {
                 Color.clear
-                    .border(.blue, width: .pt(12))
-                    .opacity(0.75)
+                    .border(.blue, width: 12)
             }
-            .font(size: 24)
-            .padding(.pt(12))
+            .font(size: 32)
+            .padding(12)
             .rotationEffect(.degrees(10))
-            Text("Footer")
+            .clipped()
         }
         .background {
             Color.orange
+                .border(Color.black, width: 12)
         }
-        .offset(x: .pt(-36), y: .pt(36))
-        .border(Color.black, width: .pt(12))
         .font(name: "American Typewriter")
-    }
-}
-
-private struct LetterBlock: Block {
-    let letter: String
-    let color: Color
-    var body: some Block {
-        Text(letter)
-            .foregroundColor(.white)
-            .frame(width: .pt(48), height: .pt(48), alignment: .center)
-            .background { color }
-            .font(name: "American Typewriter", size: 36)
-            .bold()
     }
 }
 

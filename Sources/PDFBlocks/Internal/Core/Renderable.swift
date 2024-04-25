@@ -19,8 +19,9 @@ import Foundation
 //  if necessary.
 
 protocol Renderable: Block {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect)
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize
+    @discardableResult func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)?
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
 }
 
@@ -39,6 +40,10 @@ extension Renderable {
 extension Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait()[keyPath: keypath]
+    }
+
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        sizeFor(context: context, environment: environment, proposal: proposal)
     }
 }
 
@@ -82,8 +87,9 @@ extension Renderable {
         getTrait(context: context, environment: environment, keypath: \.proprtionalWidth)
     }
 
-    func allowPageWrap(context: Context, environment: EnvironmentValues) -> Bool {
-        getTrait(context: context, environment: environment, keypath: \.allowPageWrap)
+    // Only used in isSecondaryPageWrapBlock
+    func allowWrap(context: Context, environment: EnvironmentValues) -> Bool {
+        getTrait(context: context, environment: environment, keypath: \.allowWrap)
     }
 
     func layoutPriority(context: Context, environment: EnvironmentValues) -> Int {
@@ -92,5 +98,12 @@ extension Renderable {
 
     func pageInfo(context: Context, environment: EnvironmentValues) -> PageInfo? {
         getTrait(context: context, environment: environment, keypath: \.pageInfo)
+    }
+}
+
+extension Renderable {
+    // Only used in one place: ProportionalFrame
+    func isSecondaryPageWrapBlock(context: Context, environment: EnvironmentValues) -> Bool {
+        (environment.renderMode == .wrapping) && allowWrap(context: context, environment: environment)
     }
 }

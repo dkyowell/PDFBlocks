@@ -7,12 +7,33 @@
 import Foundation
 
 extension Text: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
-        let result = context.renderer.sizeForText(format.format(input), environment: environment, proposedSize: proposedSize)
-        return .init(min: result.min, max: result.max)
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        let result = context.renderer.sizeForCTText(format.format(input), environment: environment, proposedSize: proposal)
+        return BlockSize(min: result.min, max: result.max)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.renderer.renderText(format.format(input), environment: environment, rect: rect)
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let remainder = context.renderer.renderCTText(format.format(input), environment: environment, rect: rect)
+        if remainder.count > 0 {
+            return Text<StringFormatStyle>.init(remainder)
+        } else {
+            return nil
+        }
     }
 }
+
+//extension CTText: Renderable {
+//    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+//        let result = context.renderer.sizeForCTText(input, environment: environment, proposedSize: proposal)
+//        return BlockSize(min: result.min, max: result.max)
+//    }
+//
+//    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+//        let remainder = context.renderer.renderCTText(input, environment: environment, rect: rect)
+//        if remainder.count > 0 {
+//            return CTText(remainder)
+//        } else {
+//            return nil
+//        }
+//    }
+//}

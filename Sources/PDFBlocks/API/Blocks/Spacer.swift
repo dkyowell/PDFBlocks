@@ -13,9 +13,9 @@ import Foundation
 /// LAYOUTPRIORITY OF LESS THAN 0. LAYOUT PRIORITY
 /// SUPPORT HAS NOT BEEN ADDED.
 public struct Spacer: Block {
-    let minLength: Size
+    let minLength: Dimension
 
-    public init(minLength: Size = .pt(0)) {
+    public init(minLength: Dimension = .pt(0)) {
         self.minLength = minLength
     }
 }

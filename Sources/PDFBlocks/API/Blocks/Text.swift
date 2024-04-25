@@ -6,6 +6,7 @@
 
 import Foundation
 
+// TODO: In SwiftUI, Text is not generic over Format. Investigate implementation.
 /// A block for displaying text.
 public struct Text<F>: Block where F: FormatStyle, F.FormatInput: Equatable, F.FormatOutput == String {
     let input: F.FormatInput
@@ -21,3 +22,11 @@ public struct Text<F>: Block where F: FormatStyle, F.FormatInput: Equatable, F.F
         format = StringFormatStyle()
     }
 }
+
+//public struct CTText: Block {
+//    let input: String
+//
+//    public init(_ input: String) {
+//        self.input = input
+//    }
+//}

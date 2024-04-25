@@ -23,6 +23,7 @@ private struct Document: Block {
                 Text(stateName(abberviation: value))
                     .font(size: 12)
                     .bold()
+                    .padding(.trailing, .max)
                 TableColumnTitles()
             } footer: { rows, value in
                 Divider(thickness: .pt(0.75), padding: .pt(2))

@@ -13,14 +13,19 @@ struct Background<Content, BackgroundContent>: Block where Content: Block, Backg
 }
 
 extension Background: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        let block = background.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size)
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        content.getRenderable(environment: environment)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let renderable = background.getRenderable(environment: environment)
+        let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
         let dx: CGFloat =
             switch alignment.horizontalAlignment {
             case .leading:
@@ -40,14 +45,14 @@ extension Background: Renderable {
                 rect.height - size.max.height
             }
         let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
-        block.render(context: context, environment: environment, rect: renderRect)
-        content.getRenderable(environment: environment)
+        renderable.render(context: context, environment: environment, rect: renderRect)
+        let remainder = content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content.getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
+        if let content = remainder as? AnyBlock {
+            return Background<AnyBlock, BackgroundContent>.init(content: content, background: background, alignment: alignment)
+        } else {
+            return nil
+        }
     }
 }
 

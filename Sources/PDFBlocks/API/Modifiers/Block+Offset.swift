@@ -6,8 +6,12 @@
 
 import Foundation
 
-extension Block {
-    func offset(x: Size, y: Size) -> some Block {
+public extension Block {
+    func offset(x: Dimension, y: Dimension) -> some Block {
         modifier(OffsetModifier(x: x, y: y))
+    }
+
+    func offset(_ offset: Size) -> some Block {
+        modifier(OffsetModifier(x: offset.width, y: offset.height))
     }
 }

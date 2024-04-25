@@ -12,16 +12,26 @@ struct Opacity<Content>: Block where Content: Block {
 }
 
 extension Opacity: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.renderer.startOpacity(opacity: opacity)
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: rect)
+            .contentSize(context: context, environment: environment, proposal: proposal)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let block = content.getRenderable(environment: environment)
+        context.renderer.startOpacity(opacity: opacity)
+        let remainder = block.render(context: context, environment: environment, rect: rect)
         context.renderer.restoreOpacity()
+        if let remainder = remainder as? AnyBlock {
+            return Opacity<AnyBlock>(opacity: opacity, content: remainder)
+        } else {
+            return nil
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

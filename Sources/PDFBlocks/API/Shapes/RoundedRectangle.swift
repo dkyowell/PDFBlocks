@@ -7,9 +7,9 @@
 import Foundation
 
 public struct RoundedRectangle: Shape {
-    let cornerRadius: Size
+    let cornerRadius: Dimension
 
-    public init(cornerRadius: Size) {
+    public init(cornerRadius: Dimension) {
         self.cornerRadius = cornerRadius
     }
 

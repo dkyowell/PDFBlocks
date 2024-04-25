@@ -7,9 +7,11 @@
 import Foundation
 
 extension EmptyBlock: Renderable {
-    func sizeFor(context _: Context, environment _: EnvironmentValues, proposedSize _: ProposedSize) -> BlockSize {
+    func sizeFor(context _: Context, environment _: EnvironmentValues, proposal _: Proposal) -> BlockSize {
         .init(min: .zero, max: .zero)
     }
 
-    func render(context _: Context, environment _: EnvironmentValues, rect _: CGRect) {}
+    func render(context _: Context, environment _: EnvironmentValues, rect _: CGRect) -> (any Renderable)? {
+        nil
+    }
 }

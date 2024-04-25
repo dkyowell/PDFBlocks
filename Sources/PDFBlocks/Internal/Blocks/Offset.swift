@@ -7,22 +7,32 @@
 import Foundation
 
 struct Offset<Content>: Block where Content: Block {
-    let x: Size
-    let y: Size
+    let x: Dimension
+    let y: Dimension
     let content: Content
 }
 
 extension Offset: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        context.renderer.startOffset(x: x.points, y: y.points)
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
-            .render(context: context, environment: environment, rect: rect)
+            .contentSize(context: context, environment: environment, proposal: proposal)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let block = content.getRenderable(environment: environment)
+        context.renderer.startOffset(x: x.points, y: y.points)
+        let remainder = block.render(context: context, environment: environment, rect: rect)
         context.renderer.restoreState()
+        if let content = remainder as? AnyBlock {
+            return Offset<AnyBlock>(x: x, y: y, content: content)
+        } else {
+            return nil
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
@@ -32,8 +42,8 @@ extension Offset: Renderable {
 }
 
 struct OffsetModifier: BlockModifier {
-    let x: Size
-    let y: Size
+    let x: Dimension
+    let y: Dimension
 
     func body(content: Content) -> some Block {
         Offset(x: x, y: y, content: content)

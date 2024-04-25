@@ -7,18 +7,18 @@
 import Foundation
 
 extension ZStack: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let blocks = content.getRenderables(environment: environment)
-        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposedSize: proposedSize) }
+        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
         let maxWidth = sizes.map(\.max.width).reduce(0.0, max)
         let maxHeight = sizes.map(\.max.height).reduce(0.0, max)
         return .init(min: .init(width: maxWidth, height: maxHeight),
                      max: .init(width: maxWidth, height: maxHeight))
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         for block in content.getRenderables(environment: environment) {
-            let size = block.sizeFor(context: context, environment: environment, proposedSize: rect.size)
+            let size = block.sizeFor(context: context, environment: environment, proposal: rect.size)
             let dx: CGFloat =
                 switch alignment.horizontalAlignment {
                 case .leading:
@@ -40,5 +40,6 @@ extension ZStack: Renderable {
             let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
             block.render(context: context, environment: environment, rect: renderRect)
         }
+        return nil
     }
 }

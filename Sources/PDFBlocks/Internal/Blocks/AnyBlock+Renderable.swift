@@ -7,14 +7,23 @@
 import Foundation
 
 extension AnyBlock: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let block = content.getRenderable(environment: environment)
-        return block.sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+        return block.sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        content.getRenderable(environment: environment)
+            .contentSize(context: context, environment: environment, proposal: proposal)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let block = content.getRenderable(environment: environment)
-        block.render(context: context, environment: environment, rect: rect)
+        if let remainder = block.render(context: context, environment: environment, rect: rect) {
+            return AnyBlock(remainder)
+        } else {
+            return nil
+        }
     }
 
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {

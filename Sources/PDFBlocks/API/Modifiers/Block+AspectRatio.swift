@@ -24,7 +24,7 @@ public extension Block {
     ///
     /// - Parameter value: The aspect ratio (width/height) to apply.
     /// - Returns: A block with the applied aspect ratio.
-    func aspectRatio(_ value: CGFloat) -> some Block {
+    func aspectRatio(_ value: CGFloat, contentMode _: ContentMode = .fit) -> some Block {
         modifier(AspectRatioModifier(value: value))
     }
 }

@@ -7,15 +7,29 @@
 import Foundation
 
 extension PageNumberReader: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposedSize: ProposedSize) -> BlockSize {
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content(context.pageNo)
             .getRenderable(environment: environment)
-            .sizeFor(context: context, environment: environment, proposedSize: proposedSize)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content(context.pageNo)
             .getRenderable(environment: environment)
+            .contentSize(context: context, environment: environment, proposal: proposal)
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let remainder = content(context.pageNo)
+            .getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
+        if let content = remainder as? Content {
+            let function: (Int) -> Content = { _ in
+                content
+            }
+            return PageNumberReader(content: function)
+        } else {
+            return nil
+        }
     }
 }

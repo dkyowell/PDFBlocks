@@ -34,34 +34,3 @@ type which is shared by the entire tree. EnvironmentValues is a value type. Chil
 EnvironmentValues, but can ammend them. So, it is possible for every node in the block tree to have a different
 EnvironmentValues value.
 
-...
- 
- 
- 
- ## Future
- 
- Offset
- Clip
- PageWrap Text
- Stroked Text
- StrokeStyle
- Rotation
- Text along Path?
- https://medium.com/swlh/add-curved-text-in-your-app-3d41d4463c24
-
-
-
-Elliptical Gradient: Easy 
- 
-
-## Issues
-
-* Text Gradient Fill: I had this working with a couple of caveats.  Multiline text would not render. This seems to be a
-limitation of CoreGraphics.
-
-
-
-# SO, INSTEAD OF THAT...
-
-Run a page...when a 
-
