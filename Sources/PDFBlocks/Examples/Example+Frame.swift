@@ -7,11 +7,36 @@
 import Foundation
 
 private struct Document: Block {
-    let text = "The quick brown fox jumped over the lazy dog."
     var body: some Block {
-        Text(text)
-            .font(name: "American Typewriter")
-            .font(size: 14)
+//        VStack(spacing: 10) {
+//            Circle()
+//                .foregroundStyle(.cyan)
+//                .padding(40)
+//                .border(.orange, width: 10)
+//            Square()
+//                .foregroundStyle(.pink)
+//                .padding(40)
+//                .border(.orange, width: 10)
+//            Circle()
+//                .foregroundStyle(.green)
+//                .padding(40)
+//                .border(.orange, width: 10)
+//        }
+
+        VStack(spacing: 10) {
+            Group {
+                Text("The quick brown fox jumped over the lazy dog.")
+                Text("The quick brown fox jumped over the lazy dog.")
+                Text("The quick brown fox jumped over the lazy dog.")
+                Text("The quick brown fox jumped over the lazy dog.")
+                Text("The quick brown fox jumped over the lazy dog.")
+            }
+            .bold()
+            .padding(2)
+            .border(.orange, width: 2)
+            // .frame(height: 120)
+            .font(name: "Courier", size: 48)
+        }
     }
 }
 
@@ -24,7 +49,7 @@ private struct Document: Block {
         view.autoScales = true
         Task {
             if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(0.5)))
+                .renderPDF(size: .letter, margins: .init(.in(1)))
             {
                 view.document = PDFDocument(data: data)
             }

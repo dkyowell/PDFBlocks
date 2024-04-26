@@ -7,6 +7,11 @@
 import Foundation
 
 extension PageNumberReader: Renderable {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        content(context.pageNo).getRenderable(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content(context.pageNo)
             .getRenderable(environment: environment)

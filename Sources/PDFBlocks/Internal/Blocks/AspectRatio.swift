@@ -12,8 +12,11 @@ struct AspectRatio<Content>: Block where Content: Block {
 }
 
 extension AspectRatio: Renderable {
-    // TODO: See Debug+AspectRatio. Behavior is not the same as SwiftUI. SwiftUI seems to apply
-    // aspect ratios in limited circumstances that I do not understand.
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        content.getRenderable(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let block = content.getRenderable(environment: environment)
         let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
@@ -37,11 +40,6 @@ extension AspectRatio: Renderable {
         } else {
             return nil
         }
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content.getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 }
 

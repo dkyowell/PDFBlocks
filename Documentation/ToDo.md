@@ -1,15 +1,18 @@
 #  To Do List
 
-Text Truncate
-Text Wrap
+.truncationMode
+
 Padding for tables
 Padding for shapes
 
+// Text Gradients are REversed
 
 
 
+## Columns
+Self-Size for equal length columns.
 
-
+## Spacer
 
 
 

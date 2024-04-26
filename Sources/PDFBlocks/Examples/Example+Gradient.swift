@@ -8,14 +8,19 @@ import Foundation
 
 private struct Document: Block {
     let linearGradient = LinearGradient(colors: [.cyan, .purple, .blue],
-                                        startPoint: .leading,
-                                        endPoint: .trailing)
+                                        startPoint: .top,
+                                        endPoint: .bottom)
     let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
                                         center: .center,
                                         startRadius: .in(0),
                                         endRadius: .in(3))
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
+            Text("Gradient\nText\nMore\nLines")
+                .font(size: 96)
+                .bold()
+                .foregroundStyle(linearGradient)
+                .multilineTextAlignment(.center)
             HStack(spacing: .pt(16)) {
                 Circle()
                     .fill(linearGradient)

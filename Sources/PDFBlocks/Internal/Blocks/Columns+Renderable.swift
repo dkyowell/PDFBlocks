@@ -7,8 +7,11 @@
 import Foundation
 
 extension Columns: Renderable {
+    func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        Trait(allowWrap: allowWrap)[keyPath: keypath]
+    }
+
     func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        // TODO: Evaluate flex sized Columns
         BlockSize(proposal)
     }
 
@@ -16,6 +19,7 @@ extension Columns: Renderable {
         var environment = environment
         environment.layoutAxis = .vertical
         if allowWrap {
+            // TODO: Can Columns really act as a secondary wrapping block?
             if environment.renderMode == .wrapping {
                 // This is a secondary page wrapping block
                 renderColumns(context: context, environment: environment, rect: rect)
@@ -37,7 +41,9 @@ extension Columns: Renderable {
             return nil
         }
     }
+}
 
+extension Columns {
     func renderColumns(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
         environment.textContinuationMode = true

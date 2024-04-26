@@ -7,8 +7,6 @@
 import AVFoundation
 import Foundation
 
-// TODO: Implement AVMakeRect without AVFoundation.
-
 extension Image: Renderable {
     func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let rect = AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: proposal))
