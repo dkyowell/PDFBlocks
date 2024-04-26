@@ -35,10 +35,8 @@ extension Padding: Renderable {
         let minHeight = min(proposal.height, size.min.height + verticalPadding)
         let minSize = CGSize(width: minWidth, height: minHeight)
         // 2. Determine max
-        let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width :
-            min(proposal.width, horizontalPadding + size.max.width)
-        let maxHeight = (padding.top.max || padding.bottom.max) ? proposal.height :
-            min(proposal.height, verticalPadding + size.max.height)
+        let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width : (horizontalPadding + size.max.width)
+        let maxHeight = (padding.top.max || padding.bottom.max) ? proposal.height : (verticalPadding + size.max.height)
         let maxSize = CGSize(width: maxWidth, height: maxHeight)
         return .init(min: minSize, max: maxSize)
     }

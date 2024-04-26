@@ -20,6 +20,7 @@ extension VStack: Renderable {
             let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
             let maxHeight = sizes.map(\.max.height).reduce(0, +) + fixedSpacing
+            let minHeight = sizes.map(\.min.height).reduce(0, +) + fixedSpacing
             if spacing.isFlexible, blocks.count > 1 {
                 // 4/23: OK
                 let minWidth = sizes.map(\.min.width).reduce(0, min)
@@ -27,7 +28,7 @@ extension VStack: Renderable {
                 let maxWidth = sizes.map(\.max.width).reduce(0, max)
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),
                                  max: CGSize(width: maxWidth, height: proposal.height))
-            } else if maxHeight >= proposal.height {
+            } else if minHeight >= proposal.height {
                 let minWidth = sizes.map(\.min.width).reduce(0, min)
                 let minHeight = min(proposal.height, sizes.map(\.min.height).reduce(0, +) + fixedSpacing)
                 let maxWidth = sizes.map(\.max.width).reduce(0, max)

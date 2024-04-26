@@ -22,7 +22,7 @@ public enum TextTruncationMode: Sendable {
     /// Use this kind of truncation to omit characters from the beginning of
     /// the string. For example, you could truncate the English alphabet as
     /// "...wxyz".
-    //case head
+    // case head
 
     /// Truncate at the end of the line.
     ///
@@ -36,6 +36,5 @@ public enum TextTruncationMode: Sendable {
     /// Use this kind of truncation to omit characters from the middle of
     /// the string. For example, you could truncate the English alphabet as
     /// "ab...yz".
-    //case middle
-
+    // case middle
 }
