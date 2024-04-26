@@ -355,8 +355,8 @@ let lhm = 0.96
                 paragraphStyle.lineBreakMode = .byTruncatingMiddle
             case .tail:
                 paragraphStyle.lineBreakMode = .byTruncatingTail
-            case .wrap:
-                paragraphStyle.lineBreakMode = .byWordWrapping
+//            case .wrap:
+//                paragraphStyle.lineBreakMode = .byWordWrapping
             }
             attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
             #if os(macOS)
@@ -364,9 +364,9 @@ let lhm = 0.96
             #else
                 var options: NSStringDrawingOptions = [.usesLineFragmentOrigin]
             #endif
-            if environment.truncationMode == .wrap {
-                options.insert(.truncatesLastVisibleLine)
-            }
+//            if environment.truncationMode == .wrap {
+//                options.insert(.truncatesLastVisibleLine)
+//            }
             let rect = string.boundingRect(with: .init(width: proposedSize.width, height: 0),
                                            options: options,
                                            attributes: attributes,
@@ -379,57 +379,41 @@ let lhm = 0.96
         func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
             let string = NSMutableAttributedString(string: text)
             let range = CFRangeMake(0, string.length)
-            var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, .none)
-            if environment.bold {
-                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitBold,
-                                                          CTFontSymbolicTraits.traitBold) ?? font
+            var fontName = environment.fontName.value
+            if environment.bold, let boldFontName = environment.boldFontName {
+                fontName = boldFontName.value
+            }
+            var font = CTFontCreateWithName(fontName as CFString, environment.fontSize, .none)
+            if environment.bold && (environment.boldFontName == nil) {
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, .traitBold, .traitBold) ?? font
             }
             if environment.italic {
-                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitItalic,
-                                                          CTFontSymbolicTraits.traitItalic) ?? font
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, .traitItalic, .traitItalic) ?? font
             }
             CFAttributedStringSetAttribute(string, range, kCTFontAttributeName, font)
             var paragraphSettings: [CTParagraphStyleSetting] = []
-            //   ALIGNMENT
-            let alignment: CTTextAlignment = switch environment.multilineTextAlignment {
-            case .leading:
-                .left
-            case .center:
-                .center
-            case .trailing:
-                .right
-            }
-            let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
-                CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
-            }
-            paragraphSettings.append(allignmentSetting)
-
             //   LINE BREAK MODE
             let lineBreakMode = CTLineBreakMode.byWordWrapping
             let lineBreakSetting: CTParagraphStyleSetting = withUnsafeBytes(of: lineBreakMode) {
                 CTParagraphStyleSetting(spec: .lineBreakMode, valueSize: MemoryLayout<CTLineBreakMode>.size, value: $0.baseAddress!)
             }
             paragraphSettings.append(lineBreakSetting)
-
             var lineHeight = 0.0
-            if let platformFont = NSUIFont(name: environment.fontName.value, size: environment.fontSize) {
-                // NOTE: This is not the same as CTFontGetAscent, CTFontGetDescent, CTFontGetLeading for all typefaces
-                lineHeight = platformFont.ascender + abs(platformFont.descender) + platformFont.leading
-                let paragraphSetting = withUnsafeMutableBytes(of: &lineHeight) {
-                    CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
-                }
-                paragraphSettings.append(paragraphSetting)
+            let defaultFont = NSUIFont.systemFont(ofSize: environment.fontSize)
+            let platformFont = NSUIFont(name: environment.fontName.value, size: environment.fontSize) ?? defaultFont
+            // NOTE: This is not the same as CTFontGetAscent, CTFontGetDescent, CTFontGetLeading for all typefaces
+            lineHeight = platformFont.ascender + abs(platformFont.descender) + platformFont.leading
+            let lineHeightSetting = withUnsafeMutableBytes(of: &lineHeight) {
+                CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
             }
-
+            paragraphSettings.append(lineHeightSetting)
             let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
             CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName as CFString, paragraphStyle)
-
-            let rect = CGRect(origin: .zero, size: proposedSize)
+            let rect = CGRect(origin: .zero, size: CGSize(width: proposedSize.width, height: max(proposedSize.height, lineHeight)))
             let framesetter = CTFramesetterCreateWithAttributedString(string)
+            let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
+            /* Line x Line height alternative; using CTFramesetterSuggestFrameSizeWithConstraints instead
             let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
-
-            let fsize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
-
             guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
                 return (min: .zero, max: .zero)
             }
@@ -444,10 +428,9 @@ let lhm = 0.96
                     break
                 }
             }
-            let size = CGSize(width: width, height: height)
-            print(fsize, size)
-            // print(size, fsize)
-            return (min: fsize, max: fsize)
+             let size = CGSize(width: width, height: height)
+            */
+            return (min: size, max: size)
         }
 
         // TODO: renderCTText
@@ -455,42 +438,28 @@ let lhm = 0.96
             guard layer == layerFilter else {
                 return ""
             }
-            print("render", rect.height)
             let string = NSMutableAttributedString(string: text)
+            let range = CFRangeMake(0, string.length)
             let ellipsis = NSMutableAttributedString(string: "…")
             let ellipsisRange = CFRangeMake(0, ellipsis.length)
-
-            let range = CFRangeMake(0, string.length)
             // SET FONT
             var fontTransform = CGAffineTransformIdentity
                 .scaledBy(x: 1, y: -1)
-            var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, &fontTransform)
-            if environment.bold {
-                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none,
-                                                          CTFontSymbolicTraits.traitBold,
-                                                          CTFontSymbolicTraits.traitBold) ?? font
+            var fontName = environment.fontName.value
+            if environment.bold, let boldFontName = environment.boldFontName {
+                fontName = boldFontName.value
+            }
+            var font = CTFontCreateWithName(fontName as CFString, environment.fontSize, &fontTransform)
+            if environment.bold && (environment.boldFontName == nil) {
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, .traitBold, .traitBold) ?? font
             }
             if environment.italic {
-                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, CTFontSymbolicTraits.traitItalic,
-                                                          CTFontSymbolicTraits.traitItalic) ?? font
+                font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, .traitItalic, .traitItalic) ?? font
             }
             CFAttributedStringSetAttribute(string, range, kCTFontAttributeName, font)
             CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTFontAttributeName, font)
             // SET PARAGRAPH SETTINGS
-            //   ALIGNMENT
             var paragraphSettings: [CTParagraphStyleSetting] = []
-            let alignment: CTTextAlignment = switch environment.multilineTextAlignment {
-            case .leading:
-                .left
-            case .center:
-                .center
-            case .trailing:
-                .right
-            }
-            let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
-                CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
-            }
-            paragraphSettings.append(allignmentSetting)
             //   LINE BREAK MODE
             let lineBreakMode = CTLineBreakMode.byWordWrapping
             let lineBreakSetting: CTParagraphStyleSetting = withUnsafeBytes(of: lineBreakMode) {
@@ -499,19 +468,23 @@ let lhm = 0.96
             paragraphSettings.append(lineBreakSetting)
             //   LINE HEIGHT
             var lineHeight = 0.0
-            if let platformFont = NSUIFont(name: environment.fontName.value, size: environment.fontSize) {
-                // NOTE: This is not the same as CTFontGetAscent, CTFontGetDescent, CTFontGetLeading for all typefaces
-                lineHeight = platformFont.ascender + abs(platformFont.descender) + platformFont.leading
-                let lineHeightSetting = withUnsafeMutableBytes(of: &lineHeight) {
-                    CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
-                }
-                paragraphSettings.append(lineHeightSetting)
+            let defaultFont = NSUIFont.systemFont(ofSize: environment.fontSize)
+            let platformFont = NSUIFont(name: environment.fontName.value, size: environment.fontSize) ?? defaultFont
+            // NOTE: This is not the same as CTFontGetAscent, CTFontGetDescent, CTFontGetLeading for all typefaces
+            lineHeight = platformFont.ascender + abs(platformFont.descender) + platformFont.leading
+            let lineHeightSetting = withUnsafeMutableBytes(of: &lineHeight) {
+                CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
             }
+            paragraphSettings.append(lineHeightSetting)
             // APPLY PARAGRAPH SETTINS
             let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
             CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName, paragraphStyle)
             // SET ATTRIBUTES
+            
+            
+            
             if let color = environment.foregroundStyle as? Color {
+            
                 CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
                 CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
             }
@@ -529,13 +502,10 @@ let lhm = 0.96
                 CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: -stroke.lineWidth))
                 CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, fill.cgColor)
             }
-
             // DRAW TEXT
             let framesetter = CTFramesetterCreateWithAttributedString(string)
             let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
             let drawnRange = CTFrameGetVisibleStringRange(frame)
-            print(range, drawnRange)
-
             let truncate = (drawnRange.length < string.length) && !environment.textContinuationMode
             guard let cgContext else {
                 fatalError()
@@ -545,7 +515,7 @@ let lhm = 0.96
             }
             for (offset, line) in lines.enumerated() {
                 let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
-                var dx: CGFloat = switch environment.multilineTextAlignment {
+                let dx: CGFloat = switch environment.multilineTextAlignment {
                 case .leading:
                     0
                 case .center:
@@ -553,12 +523,20 @@ let lhm = 0.96
                 case .trailing:
                     rect.width - bounds.width
                 }
-                cgContext.textPosition = rect.origin
-                    .offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                cgContext.textPosition = rect.origin.offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                let truncationType: CTLineTruncationType
+                switch environment.truncationMode {
+                case .head:
+                    truncationType = .start
+                case .tail:
+                    truncationType = .end
+                case .middle:
+                    truncationType = .middle
+                }
                 if truncate, offset == lines.count - 1 {
                     let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
                     let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
-                    let tLine = CTLineCreateTruncatedLine(line, bounds.width - ellipsisBounds.width, .end, ellipsisLine) ?? line
+                    let tLine = CTLineCreateTruncatedLine(line, bounds.width - ellipsisBounds.width, truncationType, ellipsisLine) ?? line
                     CTLineDraw(tLine, cgContext)
                 } else {
                     CTLineDraw(line, cgContext)
@@ -634,8 +612,8 @@ let lhm = 0.96
                 paragraphStyle.lineBreakMode = .byTruncatingMiddle
             case .tail:
                 paragraphStyle.lineBreakMode = .byTruncatingTail
-            case .wrap:
-                paragraphStyle.lineBreakMode = .byWordWrapping
+//            case .wrap:
+//                paragraphStyle.lineBreakMode = .byWordWrapping
             }
             attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
             #if os(macOS)
@@ -643,9 +621,9 @@ let lhm = 0.96
             #else
                 var options: NSStringDrawingOptions = [.usesLineFragmentOrigin]
             #endif
-            if environment.truncationMode == .wrap {
-                options.insert(.truncatesLastVisibleLine)
-            }
+//            if environment.truncationMode == .wrap {
+//                options.insert(.truncatesLastVisibleLine)
+//            }
             //  It seems that some rounding errors are causing the last line to truncate, so give it just a hair
             //  more room.
             let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))

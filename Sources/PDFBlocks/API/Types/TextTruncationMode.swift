@@ -36,5 +36,4 @@ public enum TextTruncationMode: Sendable {
     /// "ab...yz".
     case middle
 
-    case wrap
 }

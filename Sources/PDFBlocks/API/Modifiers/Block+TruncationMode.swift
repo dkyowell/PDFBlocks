@@ -35,7 +35,7 @@ public extension Block {
 }
 
 struct TruncationModeKey: EnvironmentKey {
-    static let defaultValue: TextTruncationMode = .wrap
+    static let defaultValue: TextTruncationMode = .tail
 }
 
 extension EnvironmentValues {
