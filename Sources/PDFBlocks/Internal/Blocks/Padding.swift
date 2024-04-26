@@ -24,22 +24,24 @@ extension Padding: Renderable {
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        let horizontalPadding = padding.leading.points + padding.trailing.points
+        let verticalPadding = padding.top.points + padding.bottom.points
+        let insetProposal = CGSize(width: proposal.width - horizontalPadding, height: proposal.height - verticalPadding)
         let block = content.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
+        let size = block.sizeFor(context: context, environment: environment, proposal: insetProposal)
+        
         // 1. Determine min
-        let minWidth = min(proposal.width, size.min.width + padding.leading.points + padding.trailing.points)
-        let minHeight = min(proposal.height, size.min.height + padding.top.points + padding.bottom.points)
+        let minWidth = min(proposal.width, size.min.width + horizontalPadding)
+        let minHeight = min(proposal.height, size.min.height + verticalPadding)
         let minSize = CGSize(width: minWidth, height: minHeight)
         // 2. Determine max
         let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width :
-            min(proposal.width, padding.leading.points + padding.trailing.points + size.max.width)
+            min(proposal.width, horizontalPadding + size.max.width)
         let maxHeight = (padding.top.max || padding.bottom.max) ? proposal.height :
-            min(proposal.height, padding.top.points + padding.bottom.points + size.max.height)
+            min(proposal.height, verticalPadding + size.max.height)
         let maxSize = CGSize(width: maxWidth, height: maxHeight)
         return .init(min: minSize, max: maxSize)
     }
-
-    // TODO: ContentSize?
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let block = content.getRenderable(environment: environment)
