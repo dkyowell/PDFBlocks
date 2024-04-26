@@ -7,23 +7,11 @@
 import Foundation
 
 private struct Document: Block {
-    let text = "The quick brown fox jumped over the lazy cow."
+    let text = "The quick brown fox jumped over the lazy dog."
     var body: some Block {
-        VStack {
-            Text("Quick")
-                .font(size: 48)
-            Text("Quick")
-                .font(size: 48)
-            Text("Quick")
-                .font(size: 48)
-            Text("Quick")
-                .font(size: 48)
-        }
-        .border(.orange, width: 2)
-//        .font(name: "Courier")
-//        .bold()
-        .frame(height: 0, alignment: .center)
-        // .border(.black, width: 2)
+        Text(text)
+            .font(name: "American Typewriter")
+            .font(size: 14)
     }
 }
 
@@ -31,6 +19,7 @@ private struct Document: Block {
     import PDFKit
 
     #Preview {
+        print("\n\n>>>")
         let view = PDFView()
         view.autoScales = true
         Task {

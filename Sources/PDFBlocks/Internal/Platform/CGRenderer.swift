@@ -424,13 +424,12 @@ let lhm = 0.96
             let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
             CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName as CFString, paragraphStyle)
 
-            
             let rect = CGRect(origin: .zero, size: proposedSize)
             let framesetter = CTFramesetterCreateWithAttributedString(string)
             let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
-            
+
             let fsize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
-            
+
             guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
                 return (min: .zero, max: .zero)
             }
@@ -447,7 +446,7 @@ let lhm = 0.96
             }
             let size = CGSize(width: width, height: height)
             print(fsize, size)
-            //print(size, fsize)
+            // print(size, fsize)
             return (min: fsize, max: fsize)
         }
 
@@ -536,7 +535,7 @@ let lhm = 0.96
             let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
             let drawnRange = CTFrameGetVisibleStringRange(frame)
             print(range, drawnRange)
-            
+
             let truncate = (drawnRange.length < string.length) && !environment.textContinuationMode
             guard let cgContext else {
                 fatalError()
@@ -546,18 +545,17 @@ let lhm = 0.96
             }
             for (offset, line) in lines.enumerated() {
                 let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
-                var dx: CGFloat
-                switch environment.multilineTextAlignment {
+                var dx: CGFloat = switch environment.multilineTextAlignment {
                 case .leading:
-                    dx = 0
+                    0
                 case .center:
-                    dx = (rect.width - bounds.width) / 2
+                    (rect.width - bounds.width) / 2
                 case .trailing:
-                    dx = (rect.width - bounds.width)
+                    rect.width - bounds.width
                 }
                 cgContext.textPosition = rect.origin
                     .offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
-                if truncate && (offset == lines.count - 1) {
+                if truncate, offset == lines.count - 1 {
                     let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
                     let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
                     let tLine = CTLineCreateTruncatedLine(line, bounds.width - ellipsisBounds.width, .end, ellipsisLine) ?? line
@@ -628,7 +626,7 @@ let lhm = 0.96
                 paragraphStyle.alignment = .center
             case .trailing:
                 paragraphStyle.alignment = .right
-                }
+            }
             switch environment.truncationMode {
             case .head:
                 paragraphStyle.lineBreakMode = .byTruncatingHead

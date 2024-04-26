@@ -29,7 +29,7 @@ extension Padding: Renderable {
         let insetProposal = CGSize(width: proposal.width - horizontalPadding, height: proposal.height - verticalPadding)
         let block = content.getRenderable(environment: environment)
         let size = block.sizeFor(context: context, environment: environment, proposal: insetProposal)
-        
+
         // 1. Determine min
         let minWidth = min(proposal.width, size.min.width + horizontalPadding)
         let minHeight = min(proposal.height, size.min.height + verticalPadding)
