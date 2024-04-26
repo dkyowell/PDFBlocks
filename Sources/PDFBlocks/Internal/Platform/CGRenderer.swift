@@ -347,8 +347,6 @@ let lhm = 0.96
                 paragraphStyle.alignment = .center
             case .trailing:
                 paragraphStyle.alignment = .right
-            case .justified:
-                paragraphStyle.alignment = .justified
             }
             switch environment.truncationMode {
             case .head:
@@ -379,7 +377,6 @@ let lhm = 0.96
 
         // TODO: sizeForCTText
         func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
-            let rect = CGRect(origin: .zero, size: proposedSize)
             let string = NSMutableAttributedString(string: text)
             let range = CFRangeMake(0, string.length)
             var font = CTFontCreateWithName(environment.fontName.value as CFString, environment.fontSize, .none)
@@ -392,9 +389,6 @@ let lhm = 0.96
                                                           CTFontSymbolicTraits.traitItalic) ?? font
             }
             CFAttributedStringSetAttribute(string, range, kCTFontAttributeName, font)
-            if environment.multilineTextAlignment == .justified {
-                CFAttributedStringSetAttribute(string, range, kCTTrackingAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
-            }
             var paragraphSettings: [CTParagraphStyleSetting] = []
             //   ALIGNMENT
             let alignment: CTTextAlignment = switch environment.multilineTextAlignment {
@@ -404,8 +398,6 @@ let lhm = 0.96
                 .center
             case .trailing:
                 .right
-            case .justified:
-                .justified
             }
             let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
                 CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
@@ -432,25 +424,31 @@ let lhm = 0.96
             let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
             CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName as CFString, paragraphStyle)
 
-            // Get size
-            // Adjust rect to be at least one line high
-            let adjRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: max(rect.height, lineHeight)))
+            
+            let rect = CGRect(origin: .zero, size: proposedSize)
             let framesetter = CTFramesetterCreateWithAttributedString(string)
-            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: adjRect, transform: .none), nil)
-            if let lines = CTFrameGetLines(frame) as? [CTLine] {
-                let bounds: [CGRect] = lines.map { line in
-                    CTLineGetBoundsWithOptions(line, [])
-                }
-                let height = lineHeight * CGFloat(lines.count)
-                let width = bounds.map((\.width)).reduce(0, max)
-                let size = CGSize(width: width, height: height)
-                return (min: size, max: size)
-            } else {
-                // Fallback, but this should not be run.
-                // This seems to give almost identical results to above, but with the height rounded (up?) to the nearest point.
-                let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
-                return (min: size, max: size)
+            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
+            
+            let fsize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
+            
+            guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
+                return (min: .zero, max: .zero)
             }
+            var width: CGFloat = 0
+            var height: CGFloat = 0
+            for (offset, line) in lines.enumerated() {
+                let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
+                if (offset == 0) || (height + lineHeight ~<= proposedSize.height) {
+                    height += lineHeight
+                    width = max(width, bounds.size.width)
+                } else {
+                    break
+                }
+            }
+            let size = CGSize(width: width, height: height)
+            print(fsize, size)
+            //print(size, fsize)
+            return (min: fsize, max: fsize)
         }
 
         // TODO: renderCTText
@@ -458,7 +456,11 @@ let lhm = 0.96
             guard layer == layerFilter else {
                 return ""
             }
+            print("render", rect.height)
             let string = NSMutableAttributedString(string: text)
+            let ellipsis = NSMutableAttributedString(string: "…")
+            let ellipsisRange = CFRangeMake(0, ellipsis.length)
+
             let range = CFRangeMake(0, string.length)
             // SET FONT
             var fontTransform = CGAffineTransformIdentity
@@ -474,11 +476,9 @@ let lhm = 0.96
                                                           CTFontSymbolicTraits.traitItalic) ?? font
             }
             CFAttributedStringSetAttribute(string, range, kCTFontAttributeName, font)
+            CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTFontAttributeName, font)
             // SET PARAGRAPH SETTINGS
             //   ALIGNMENT
-            if environment.multilineTextAlignment == .justified {
-                CFAttributedStringSetAttribute(string, range, kCTKernAttributeName, NSNumber(floatLiteral: -1) as CFNumber)
-            }
             var paragraphSettings: [CTParagraphStyleSetting] = []
             let alignment: CTTextAlignment = switch environment.multilineTextAlignment {
             case .leading:
@@ -487,8 +487,6 @@ let lhm = 0.96
                 .center
             case .trailing:
                 .right
-            case .justified:
-                .justified
             }
             let allignmentSetting: CTParagraphStyleSetting = withUnsafeBytes(of: alignment) {
                 CTParagraphStyleSetting(spec: .alignment, valueSize: MemoryLayout<CTTextAlignment>.size, value: $0.baseAddress!)
@@ -516,52 +514,65 @@ let lhm = 0.96
             // SET ATTRIBUTES
             if let color = environment.foregroundStyle as? Color {
                 CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
             }
             if let stroke = environment.textStroke {
                 CFAttributedStringSetAttribute(string, range, kCTStrokeColorAttributeName, stroke.color.cgColor)
                 CFAttributedStringSetAttribute(string, range, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: stroke.lineWidth))
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTStrokeColorAttributeName, stroke.color.cgColor)
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: stroke.lineWidth))
             }
             if let fill = environment.textFill, let stroke = environment.textStroke {
                 CFAttributedStringSetAttribute(string, range, kCTStrokeColorAttributeName, stroke.color.cgColor)
                 CFAttributedStringSetAttribute(string, range, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: -stroke.lineWidth))
                 CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, fill.cgColor)
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTStrokeColorAttributeName, stroke.color.cgColor)
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: -stroke.lineWidth))
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, fill.cgColor)
             }
 
             // DRAW TEXT
             let framesetter = CTFramesetterCreateWithAttributedString(string)
-
-            let adjRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: max(rect.height, lineHeight)))
-
-            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: adjRect, transform: .none), nil)
-            if let cgContext {
-                if let lines = CTFrameGetLines(frame) as? [CTLine] {
-                    for (offset, line) in lines.enumerated() {
-                        let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
-                        switch environment.multilineTextAlignment {
-                        case .leading:
-                            cgContext.textPosition = rect.origin
-                                .offset(dy: bounds.minY + lineHeight * CGFloat(offset + 1))
-                        case .center:
-                            let dx = (rect.width - bounds.width) / 2
-                            cgContext.textPosition = rect.origin
-                                .offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
-                        case .trailing:
-                            let dx = (rect.width - bounds.width)
-                            cgContext.textPosition = rect.origin
-                                .offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
-                        case .justified:
-                            cgContext.textPosition = rect.origin
-                                .offset(dy: bounds.minY + lineHeight * CGFloat(offset + 1))
-                        }
-                        CTLineDraw(line, cgContext)
-                    }
+            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
+            let drawnRange = CTFrameGetVisibleStringRange(frame)
+            print(range, drawnRange)
+            
+            let truncate = (drawnRange.length < string.length) && !environment.textContinuationMode
+            guard let cgContext else {
+                fatalError()
+            }
+            guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
+                fatalError()
+            }
+            for (offset, line) in lines.enumerated() {
+                let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
+                var dx: CGFloat
+                switch environment.multilineTextAlignment {
+                case .leading:
+                    dx = 0
+                case .center:
+                    dx = (rect.width - bounds.width) / 2
+                case .trailing:
+                    dx = (rect.width - bounds.width)
+                }
+                cgContext.textPosition = rect.origin
+                    .offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                if truncate && (offset == lines.count - 1) {
+                    let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
+                    let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
+                    let tLine = CTLineCreateTruncatedLine(line, bounds.width - ellipsisBounds.width, .end, ellipsisLine) ?? line
+                    CTLineDraw(tLine, cgContext)
+                } else {
+                    CTLineDraw(line, cgContext)
                 }
             }
-
-            let drawnRange = CTFrameGetVisibleStringRange(frame)
-            let nsRange = NSMakeRange(drawnRange.location == kCFNotFound ? NSNotFound : drawnRange.location, drawnRange.length)
-            string.deleteCharacters(in: nsRange)
-            return string.string
+            if environment.textContinuationMode {
+                let nsRange = NSMakeRange(drawnRange.location == kCFNotFound ? NSNotFound : drawnRange.location, drawnRange.length)
+                string.deleteCharacters(in: nsRange)
+                return string.string
+            } else {
+                return ""
+            }
         }
 
         func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
@@ -617,9 +628,7 @@ let lhm = 0.96
                 paragraphStyle.alignment = .center
             case .trailing:
                 paragraphStyle.alignment = .right
-            case .justified:
-                paragraphStyle.alignment = .justified
-            }
+                }
             switch environment.truncationMode {
             case .head:
                 paragraphStyle.lineBreakMode = .byTruncatingHead

@@ -39,6 +39,8 @@ extension Columns: Renderable {
     }
 
     func renderColumns(context: Context, environment: EnvironmentValues, rect: CGRect) {
+        var environment = environment
+        environment.textContinuationMode = true
         let columnWidth = (rect.width - CGFloat(count - 1) * spacing.points) / CGFloat(count)
         var blocks = content.getRenderables(environment: environment)
         while blocks.count > 0 {
