@@ -9,6 +9,8 @@ import Foundation
 /// The type of truncation to apply to a line of text when it's too long to
 /// fit in the available width.
 ///
+/// NOTE: AT PRESENT, ONLY TAIL TRUNCATION IS SUPPORTED.
+///
 /// When a text block contains more text than it's able to display, the block
 /// might truncate the text and place an ellipsis (...) at the truncation
 /// point. Use the ``Block/truncationMode(_:)`` modifier with one of the
@@ -20,7 +22,7 @@ public enum TextTruncationMode: Sendable {
     /// Use this kind of truncation to omit characters from the beginning of
     /// the string. For example, you could truncate the English alphabet as
     /// "...wxyz".
-    case head
+    //case head
 
     /// Truncate at the end of the line.
     ///
@@ -34,6 +36,6 @@ public enum TextTruncationMode: Sendable {
     /// Use this kind of truncation to omit characters from the middle of
     /// the string. For example, you could truncate the English alphabet as
     /// "ab...yz".
-    case middle
+    //case middle
 
 }

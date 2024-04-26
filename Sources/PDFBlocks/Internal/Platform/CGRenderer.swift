@@ -303,78 +303,6 @@ let lhm = 0.96
             }
         }
 
-        func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
-            let string = NSString(string: text)
-            var attributes = [NSAttributedString.Key: Any]()
-            let fontName = environment.fontName
-            let fontSize = environment.fontSize
-            var font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
-            if environment.bold {
-                #if os(macOS)
-                    if let boldFontName = environment.boldFontName?.value {
-                        attributes[.font] = NSFont(name: boldFontName, size: font.pointSize)
-                    } else {
-                        let descriptor = font.fontDescriptor.withSymbolicTraits(.bold)
-                        attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
-                    }
-                #else
-                    if let boldFontName = environment.boldFontName?.value {
-                        attributes[.font] = UIFont(name: boldFontName, size: font.pointSize)
-                    } else {
-                        if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
-                            font = UIFont(descriptor: descriptor, size: font.pointSize)
-                        }
-                    }
-                #endif
-            }
-            if environment.italic {
-                #if os(macOS)
-                    let descriptor = font.fontDescriptor.withSymbolicTraits(.italic)
-                    attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
-                #else
-                    if let descriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
-                        font = UIFont(descriptor: descriptor, size: font.pointSize)
-                    }
-                #endif
-            }
-            attributes[.font] = font
-
-            let paragraphStyle = NSMutableParagraphStyle()
-            switch environment.multilineTextAlignment {
-            case .leading:
-                paragraphStyle.alignment = .left
-            case .center:
-                paragraphStyle.alignment = .center
-            case .trailing:
-                paragraphStyle.alignment = .right
-            }
-            switch environment.truncationMode {
-            case .head:
-                paragraphStyle.lineBreakMode = .byTruncatingHead
-            case .middle:
-                paragraphStyle.lineBreakMode = .byTruncatingMiddle
-            case .tail:
-                paragraphStyle.lineBreakMode = .byTruncatingTail
-//            case .wrap:
-//                paragraphStyle.lineBreakMode = .byWordWrapping
-            }
-            attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
-            #if os(macOS)
-                var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
-            #else
-                var options: NSStringDrawingOptions = [.usesLineFragmentOrigin]
-            #endif
-//            if environment.truncationMode == .wrap {
-//                options.insert(.truncatesLastVisibleLine)
-//            }
-            let rect = string.boundingRect(with: .init(width: proposedSize.width, height: 0),
-                                           options: options,
-                                           attributes: attributes,
-                                           context: nil)
-
-            return (min: rect.size, max: rect.size)
-        }
-
         // TODO: sizeForCTText
         func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
             let string = NSMutableAttributedString(string: text)
@@ -480,11 +408,18 @@ let lhm = 0.96
             let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
             CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName, paragraphStyle)
             // SET ATTRIBUTES
-            
-            
-            
-            if let color = environment.foregroundStyle as? Color {
-            
+            if let gradient = environment.foregroundStyle as? LinearGradient {
+                print(rect)
+                let image = gradient.image(rect: rect)
+                let color = UIColor(patternImage: image)
+                CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
+            } else if let gradient = environment.foregroundStyle as? RadialGradient {
+                    let image = gradient.image(size: rect.size)
+                    let color = UIColor(patternImage: image)
+                    CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
+                    CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
+            } else if let color = environment.foregroundStyle as? Color {
                 CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
                 CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
             }
@@ -526,12 +461,12 @@ let lhm = 0.96
                 cgContext.textPosition = rect.origin.offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
                 let truncationType: CTLineTruncationType
                 switch environment.truncationMode {
-                case .head:
-                    truncationType = .start
+                //case .head:
+                //    truncationType = .start
                 case .tail:
                     truncationType = .end
-                case .middle:
-                    truncationType = .middle
+                //case .middle:
+                //    truncationType = .middle
                 }
                 if truncate, offset == lines.count - 1 {
                     let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
@@ -551,120 +486,6 @@ let lhm = 0.96
             }
         }
 
-        func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect) {
-            guard layer == layerFilter else {
-                return
-            }
-            let string = NSString(string: text)
-            var attributes = [NSAttributedString.Key: Any]()
-            let fontName = environment.fontName
-            let fontSize = environment.fontSize
-            var font = NSUIFont(name: fontName.value, size: fontSize) ?? .systemFont(ofSize: fontSize)
-            attributes[.font] = font
-            #if os(macOS)
-                var traits: NSFontDescriptor.SymbolicTraits = []
-            #else
-                var traits: UIFontDescriptor.SymbolicTraits = []
-            #endif
-            if environment.bold {
-                #if os(macOS)
-                    if let boldFontName = environment.boldFontName?.value {
-                        attributes[.font] = NSFont(name: boldFontName, size: font.pointSize)
-                    } else {
-                        traits.insert(.bold)
-                    }
-                #else
-                    if let boldFontName = environment.boldFontName?.value {
-                        attributes[.font] = UIFont(name: boldFontName, size: font.pointSize)
-                    } else {
-                        traits.insert(.traitBold)
-                    }
-                #endif
-            }
-            if environment.italic {
-                #if os(macOS)
-                    traits.insert(.italic)
-                #else
-                    traits.insert(.traitItalic)
-                #endif
-            }
-            #if os(macOS)
-                let descriptor = font.fontDescriptor.withSymbolicTraits(traits)
-                attributes[.font] = NSFont(descriptor: descriptor, size: font.pointSize)
-            #else
-                if let descriptor = font.fontDescriptor.withSymbolicTraits(traits) {
-                    attributes[.font] = UIFont(descriptor: descriptor, size: font.pointSize)
-                }
-            #endif
-            let paragraphStyle = NSMutableParagraphStyle()
-            switch environment.multilineTextAlignment {
-            case .leading:
-                paragraphStyle.alignment = .left
-            case .center:
-                paragraphStyle.alignment = .center
-            case .trailing:
-                paragraphStyle.alignment = .right
-            }
-            switch environment.truncationMode {
-            case .head:
-                paragraphStyle.lineBreakMode = .byTruncatingHead
-            case .middle:
-                paragraphStyle.lineBreakMode = .byTruncatingMiddle
-            case .tail:
-                paragraphStyle.lineBreakMode = .byTruncatingTail
-//            case .wrap:
-//                paragraphStyle.lineBreakMode = .byWordWrapping
-            }
-            attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
-            #if os(macOS)
-                var options: NSString.DrawingOptions = [.usesLineFragmentOrigin]
-            #else
-                var options: NSStringDrawingOptions = [.usesLineFragmentOrigin]
-            #endif
-//            if environment.truncationMode == .wrap {
-//                options.insert(.truncatesLastVisibleLine)
-//            }
-            //  It seems that some rounding errors are causing the last line to truncate, so give it just a hair
-            //  more room.
-            let newRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: rect.height + 0.000001))
-            if let stroke = environment.textStroke {
-                if let color = environment.textFill {
-                    cgContext?.setTextDrawingMode(.fillStroke)
-                    cgContext?.setLineWidth(stroke.lineWidth)
-                    cgContext?.setStrokeColor(stroke.color.cgColor)
-                    attributes[.strokeColor] = stroke.color
-                    attributes[.foregroundColor] = color.cgColor
-                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                } else {
-                    cgContext?.setTextDrawingMode(.stroke)
-                    cgContext?.setLineWidth(stroke.lineWidth)
-                    cgContext?.setStrokeColor(stroke.color.cgColor)
-                    attributes[.strokeColor] = stroke.color
-                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                }
-            } else {
-                if let color = environment.foregroundStyle as? Color {
-                    attributes[.foregroundColor] = color.nsuiColor
-                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                } else if let _ = environment.foregroundStyle as? LinearGradient {
-                    attributes[.foregroundColor] = Color.black.nsuiColor
-                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                    // DISABLED BECAUSE THE GRADIENT WOULD SOMETIMES WORK BUT RANDOMLY FILL THE SCREEN WHEN RENDERED
-                    // IN COMBINATION WITH OTHER ELEMENTS IN A STACK.
-                    // cgContext?.setTextDrawingMode(.clip)
-                    // string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                    // drawLinearGradient(gradient: gradient, rect: newRect)
-                } else if let _ = environment.foregroundStyle as? RadialGradient {
-                    attributes[.foregroundColor] = Color.black.nsuiColor
-                    string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                    // DISABLED BECAUSE THE GRADIENT WOULD SOMETIMES WORK BUT RANDOMLY FILL THE SCREEN WHEN RENDERED
-                    // IN COMBINATION WITH OTHER ELEMENTS IN A STACK.
-                    // cgContext?.setTextDrawingMode(.clip)
-                    // string.draw(with: newRect, options: options, attributes: attributes, context: nil)
-                    // drawRadialGradient(gradient: gradient, rect: newRect)
-                }
-            }
-        }
     }
 #endif
 
