@@ -21,15 +21,3 @@ extension Text: Renderable {
         }
     }
 }
-
-extension CGText: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let result = context.renderer.sizeForText(value, environment: environment, proposedSize: proposal)
-        return BlockSize(min: result.min, max: result.max)
-    }
-
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        context.renderer.renderText(value, environment: environment, rect: rect)
-        return nil
-    }
-}

@@ -18,15 +18,3 @@ public struct Text: Block {
         value = format.format(input)
     }
 }
-
-public struct CGText: Block {
-    let value: String
-
-    public init(_ value: String) {
-        self.value = value
-    }
-
-    public init<F>(_ input: F.FormatInput, format: F) where F: FormatStyle, F.FormatInput: Equatable, F.FormatOutput == String {
-        value = format.format(input)
-    }
-}

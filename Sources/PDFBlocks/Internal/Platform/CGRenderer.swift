@@ -3,9 +3,8 @@
  *  Copyright (c) David Yowell 2024
  *  MIT license, see LICENSE file for details
  */
-let lhm = 0.96
-#if os(macOS) || os(iOS)
 
+#if os(macOS) || os(iOS)
     import Foundation
 
     #if os(macOS)
@@ -312,7 +311,7 @@ let lhm = 0.96
                 fontName = boldFontName.value
             }
             var font = CTFontCreateWithName(fontName as CFString, environment.fontSize, .none)
-            if environment.bold && (environment.boldFontName == nil) {
+            if environment.bold, environment.boldFontName == nil {
                 font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, .traitBold, .traitBold) ?? font
             }
             if environment.italic {
@@ -341,23 +340,23 @@ let lhm = 0.96
             let framesetter = CTFramesetterCreateWithAttributedString(string)
             let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, nil)
             /* Line x Line height alternative; using CTFramesetterSuggestFrameSizeWithConstraints instead
-            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
-            guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
-                return (min: .zero, max: .zero)
-            }
-            var width: CGFloat = 0
-            var height: CGFloat = 0
-            for (offset, line) in lines.enumerated() {
-                let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
-                if (offset == 0) || (height + lineHeight ~<= proposedSize.height) {
-                    height += lineHeight
-                    width = max(width, bounds.size.width)
-                } else {
-                    break
-                }
-            }
-             let size = CGSize(width: width, height: height)
-            */
+             let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
+             guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
+                 return (min: .zero, max: .zero)
+             }
+             var width: CGFloat = 0
+             var height: CGFloat = 0
+             for (offset, line) in lines.enumerated() {
+                 let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
+                 if (offset == 0) || (height + lineHeight ~<= proposedSize.height) {
+                     height += lineHeight
+                     width = max(width, bounds.size.width)
+                 } else {
+                     break
+                 }
+             }
+              let size = CGSize(width: width, height: height)
+             */
             return (min: size, max: size)
         }
 
@@ -378,7 +377,7 @@ let lhm = 0.96
                 fontName = boldFontName.value
             }
             var font = CTFontCreateWithName(fontName as CFString, environment.fontSize, &fontTransform)
-            if environment.bold && (environment.boldFontName == nil) {
+            if environment.bold, environment.boldFontName == nil {
                 font = CTFontCreateCopyWithSymbolicTraits(font, 0, .none, .traitBold, .traitBold) ?? font
             }
             if environment.italic {
@@ -415,10 +414,10 @@ let lhm = 0.96
                 CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
                 CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
             } else if let gradient = environment.foregroundStyle as? RadialGradient {
-                    let image = gradient.image(size: rect.size)
-                    let color = UIColor(patternImage: image)
-                    CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
-                    CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
+                let image = gradient.image(size: rect.size)
+                let color = UIColor(patternImage: image)
+                CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
+                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
             } else if let color = environment.foregroundStyle as? Color {
                 CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
                 CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
@@ -459,14 +458,13 @@ let lhm = 0.96
                     rect.width - bounds.width
                 }
                 cgContext.textPosition = rect.origin.offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
-                let truncationType: CTLineTruncationType
-                switch environment.truncationMode {
-                //case .head:
+                let truncationType: CTLineTruncationType = switch environment.truncationMode {
+                // case .head:
                 //    truncationType = .start
                 case .tail:
-                    truncationType = .end
-                //case .middle:
-                //    truncationType = .middle
+                    .end
+                    // case .middle:
+                    //    truncationType = .middle
                 }
                 if truncate, offset == lines.count - 1 {
                     let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
@@ -485,7 +483,6 @@ let lhm = 0.96
                 return ""
             }
         }
-
     }
 #endif
 
