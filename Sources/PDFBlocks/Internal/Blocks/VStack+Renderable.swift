@@ -8,7 +8,7 @@ import Foundation
 
 extension VStack: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowWrap: allowWrap)[keyPath: keypath]
+        Trait(allowWrap: pageWrap)[keyPath: keypath]
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
@@ -176,13 +176,13 @@ extension VStack {
                 if let remainder {
                     blocks[0] = remainder
                     // print("VStack.returning remainder1", blocks.count)
-                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, allowWrap: allowWrap, content: { ArrayBlock(blocks: blocks) })
+                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
                 } else {
                     dy += size.max.height + spacing.fixedPoints
                 }
             } else {
                 // print("VStack.returning remainder2", blocks.count)
-                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, allowWrap: allowWrap, content: { ArrayBlock(blocks: blocks) })
+                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
             }
             blocks = blocks.dropFirst().map { $0 }
             // Catches condition when size can be 0
@@ -237,7 +237,7 @@ extension VStack {
     }
 
     func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if allowWrap {
+        if pageWrap {
             if environment.renderMode == .wrapping {
                 .secondary
             } else {

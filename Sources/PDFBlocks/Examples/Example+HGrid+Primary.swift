@@ -36,7 +36,7 @@ import Foundation
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: false) {
+            HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: false) {
                 Text("A")
                 Text("B")
                 Text("C")

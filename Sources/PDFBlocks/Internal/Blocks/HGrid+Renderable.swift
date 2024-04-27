@@ -10,7 +10,7 @@ import Foundation
 // The layout of HGrid is not necessarily final. An HGrid takes up its entire width. It is not re-sizable.
 extension HGrid: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowWrap: allowWrap)[keyPath: keypath]
+        Trait(allowWrap: pageWrap)[keyPath: keypath]
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
@@ -104,7 +104,7 @@ extension HGrid: Renderable {
                 return HGrid<ArrayBlock>(columnCount: columnCount,
                                          columnSpacing: columnSpacing,
                                          rowSpacing: rowSpacing,
-                                         allowWrap: allowWrap,
+                                         pageWrap: pageWrap,
                                          content: { ArrayBlock(blocks: blocks) })
             }
         }
@@ -176,7 +176,7 @@ extension HGrid: Renderable {
 
 extension HGrid {
     func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if allowWrap {
+        if pageWrap {
             if environment.renderMode == .wrapping {
                 .secondary
             } else {

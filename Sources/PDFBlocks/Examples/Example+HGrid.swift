@@ -44,11 +44,11 @@ private struct Document: Block {
             .font(size: 36)
             .padding(.horizontal, .max)
             // .padding(.bottom, .pt(12))
-            VStack(alignment: .center, allowWrap: true) {
+            VStack(alignment: .center, pageWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
-                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: true) {
+                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: true) {
                     // VStack(allowWrap: true) {
                     Text("D")
                     Text("E")

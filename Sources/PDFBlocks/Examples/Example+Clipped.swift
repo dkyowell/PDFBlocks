@@ -13,7 +13,7 @@ private struct Document: Block {
                 .fill(.red)
                 .rotationEffect(.degrees(45))
                 .overlay {
-                    VStack(allowWrap: false) {
+                    VStack(pageWrap: false) {
                         Text("STOP")
                     }
                     .foregroundColor(.white)

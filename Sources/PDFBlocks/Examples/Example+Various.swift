@@ -15,8 +15,8 @@ private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(8), height: .in(8)), margins: .in(1)) {
             // Columns(count: 2, spacing: 12, atomic: false) {
-            HGrid(columnCount: 3, columnSpacing: 12, rowSpacing: 12, allowWrap: true) {
-                HGrid(columnCount: 3, columnSpacing: 4, rowSpacing: 4, allowWrap: true) {
+            HGrid(columnCount: 3, columnSpacing: 12, rowSpacing: 12, pageWrap: true) {
+                HGrid(columnCount: 3, columnSpacing: 4, rowSpacing: 4, pageWrap: true) {
                     Group {
                         Color.red
                         Color.blue

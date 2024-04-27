@@ -26,11 +26,11 @@ private struct Document: Block {
                     .padding(.trailing, .max)
                 TableColumnTitles()
             } footer: { _, _ in
-                VStack(allowWrap: true) {
+                VStack(pageWrap: true) {
                     Color.clear.frame(height: 24)
                     Text("A")
                     Text("B")
-                    HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(0.1), allowWrap: true) {
+                    HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(0.1), pageWrap: true) {
                         Text("A")
                         Text("B")
                         Text("C")
