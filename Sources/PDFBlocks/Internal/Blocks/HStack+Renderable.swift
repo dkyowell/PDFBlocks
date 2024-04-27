@@ -63,7 +63,9 @@ extension HStack: Renderable {
                 return item.sizeFor(context: context, environment: environment, proposal: blockSize)
             }
             let maxHeight = sizes.map(\.max.height).reduce(0, max)
-            return .init(width: proposal.width, height: maxHeight)
+            let minHeight = sizes.map(\.min.height).reduce(0, max)
+            return .init(min: CGSize(width: proposal.width, height: minHeight),
+                         max: CGSize(width: proposal.width, height: maxHeight))
         } else {
             // STANDARD LAYOUT
             let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
