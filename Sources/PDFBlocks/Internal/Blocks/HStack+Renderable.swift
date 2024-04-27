@@ -71,7 +71,9 @@ extension HStack: Renderable {
             let minHeight = sizes.map(\.min.height).reduce(0, max)
             let minWidth = sizes.map(\.min.width).reduce(0, +) + fixedSpacing
             if minWidth >= proposal.width {
-                return BlockSize(CGSize(width: minWidth, height: minHeight))
+                let maxHeight = sizes.map(\.max.height).reduce(0, max)
+                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
+                                 max: CGSize(width: minWidth, height: maxHeight))
             } else if spacing.isFlexible, blocks.count > 1 {
                 let maxHeight = sizes.map((\.max.height)).reduce(0, max)
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),

@@ -22,7 +22,10 @@ extension VStack: Renderable {
             let minWidth = sizes.map(\.min.width).reduce(0, max)
             let minHeight = sizes.map(\.min.height).reduce(0, +) + fixedSpacing
             if minHeight >= proposal.height {
-                return BlockSize(CGSize(width: minWidth, height: minHeight))
+                // TODO: How to reason about minWidth?
+                let maxWidth = sizes.map(\.max.width).reduce(0, max)
+                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
+                                 max: CGSize(width: maxWidth, height: minHeight))
             } else if spacing.isFlexible, blocks.count > 1 {
                 let maxWidth = sizes.map(\.max.width).reduce(0, max)
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),
