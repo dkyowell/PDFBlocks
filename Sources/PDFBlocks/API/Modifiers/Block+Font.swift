@@ -22,6 +22,11 @@ public extension Block {
         environment(\.fontName, name)
             .environment(\.fontSize, size)
     }
+
+    func font(_ font: Font) -> some Block {
+        environment(\.fontName, FontName(stringLiteral: font.name))
+            .environment(\.fontSize, font.size)
+    }
 }
 
 struct FontNameKey: EnvironmentKey {
