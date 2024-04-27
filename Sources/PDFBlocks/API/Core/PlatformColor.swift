@@ -7,4 +7,6 @@
 import Foundation
 
 /// A protocol that allows for platform specific color types.
-public protocol PlatformColor {}
+public protocol PlatformColor {
+    func opacity(value: CGFloat) -> PlatformColor
+}
