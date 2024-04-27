@@ -409,15 +409,19 @@
             // SET ATTRIBUTES
             if let gradient = environment.foregroundStyle as? LinearGradient {
                 print(rect)
-                let image = gradient.image(rect: rect)
-                let color = UIColor(patternImage: image)
-                CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
-                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
+                #if os(iOS)
+                    let image = gradient.image(rect: rect)
+                    let color = UIColor(patternImage: image)
+                    CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
+                    CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
+                #endif
             } else if let gradient = environment.foregroundStyle as? RadialGradient {
-                let image = gradient.image(size: rect.size)
-                let color = UIColor(patternImage: image)
-                CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
-                CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
+                #if os(iOS)
+                    let image = gradient.image(size: rect.size)
+                    let color = UIColor(patternImage: image)
+                    CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
+                    CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)
+                #endif
             } else if let color = environment.foregroundStyle as? Color {
                 CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
                 CFAttributedStringSetAttribute(ellipsis, ellipsisRange, kCTForegroundColorAttributeName, color.cgColor)

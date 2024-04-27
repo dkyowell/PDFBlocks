@@ -19,37 +19,24 @@ extension VStack: Renderable {
             let blocks = content.getRenderables(environment: environment)
             let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-            let maxHeight = sizes.map(\.max.height).reduce(0, +) + fixedSpacing
+            let minWidth = sizes.map(\.min.width).reduce(0, max)
             let minHeight = sizes.map(\.min.height).reduce(0, +) + fixedSpacing
-            if spacing.isFlexible, blocks.count > 1 {
-                // 4/23: OK
-                let minWidth = sizes.map(\.min.width).reduce(0, min)
-                let minHeight = min(proposal.height, sizes.map(\.min.height).reduce(0, +) + fixedSpacing)
+            if minHeight >= proposal.height {
+                return BlockSize(CGSize(width: minWidth, height: minHeight))
+            } else if spacing.isFlexible, blocks.count > 1 {
                 let maxWidth = sizes.map(\.max.width).reduce(0, max)
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),
                                  max: CGSize(width: maxWidth, height: proposal.height))
-            } else if minHeight >= proposal.height {
-                let minWidth = sizes.map(\.min.width).reduce(0, min)
-                let minHeight = min(proposal.height, sizes.map(\.min.height).reduce(0, +) + fixedSpacing)
-                let maxWidth = sizes.map(\.max.width).reduce(0, max)
-                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
-                                 max: CGSize(width: maxWidth, height: maxHeight))
             } else {
-                // TODO: Review minWidth
                 let sizes = layoutBlocks(blocks, context: context, environment: environment, proposal: proposal)
                 let maxWidth = sizes.map(\.width).reduce(0.0, max)
-                let sumMaxHeight = sizes.map(\.height).reduce(0, +)
-                let sumMinHeight = sizes.map(\.height).reduce(0, +)
-                let minHeight = min(sumMinHeight + fixedSpacing, proposal.height)
-                let maxHeight = min(sumMaxHeight + fixedSpacing, proposal.height)
-                return BlockSize(min: .init(width: maxWidth, height: minHeight),
-                                 max: .init(width: maxWidth, height: maxHeight))
+                let maxHeight = sizes.map(\.height).reduce(0, +) + fixedSpacing
+                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
+                                 max: CGSize(width: maxWidth, height: maxHeight))
             }
         case .primary:
-            // 4/23: OK
             return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
         case .secondary:
-            // 4/23: OK
             let blocks = ArraySlice<any Renderable>(content.getRenderables(environment: environment))
             var height = 0.0
             var maxWidth = 0.0
@@ -208,20 +195,21 @@ extension VStack {
     func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposal: Proposal) -> ([CGSize]) {
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
         let layoutSize = CGSize(width: proposal.width, height: proposal.height - fixedSpacing)
+
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: layoutSize) }
         var unsizedDict = sizes.enumerated().reduce(into: [:]) { $0[$1.offset] = $1.element }
         var sizedDict = [Int: BlockSize]()
-        // Iterate to find blocks narrower than the average width, changing the average as it goes.
-        var layoutComplete = false
-        while layoutComplete == false {
-            layoutComplete = true
+        // Iterate to find blocks less than the average height, changing the average as it goes.
+        var stepComplete = false
+        while stepComplete == false {
+            stepComplete = true
             let sumSizedHeight = sizedDict.map(\.value.max.height).reduce(0, +)
-            let averageHeight = (proposal.height - fixedSpacing - sumSizedHeight) / CGFloat(unsizedDict.count)
+            let averageHeight = (layoutSize.height - sumSizedHeight) / CGFloat(unsizedDict.count)
             for (key, size) in unsizedDict.sorted(by: { $0.key < $1.key }) {
                 if size.max.height <= averageHeight {
                     sizedDict[key] = size
                     unsizedDict[key] = nil
-                    layoutComplete = false
+                    stepComplete = false
                 }
             }
         }
@@ -244,9 +232,7 @@ extension VStack {
         //  Return results. I don't like to use !, but here if it crashes, it should crash.
         return blocks.indices.map { sizedDict[$0]!.max }
     }
-}
 
-extension VStack {
     func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
         if allowWrap {
             if environment.renderMode == .wrapping {

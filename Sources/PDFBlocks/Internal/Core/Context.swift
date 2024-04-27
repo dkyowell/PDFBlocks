@@ -93,7 +93,7 @@ class Context {
         var block: (any Renderable)? = block.getRenderable(environment: environment)
         while block != nil {
             if let unwrapped = block {
-                let proposal = CGSize(width: pageWrapRect.width, height: pageWrapRect.size.height - pageWrapCursorY)
+                let proposal = CGSize(width: pageWrapRect.width, height: max(pageWrapRect.size.height - pageWrapCursorY, 0))
                 let size = unwrapped.sizeFor(context: self, environment: environment, proposal: proposal)
                 if (pageWrapRect.minY + pageWrapCursorY + size.min.height) > pageWrapRect.maxY {
                     endPage()
