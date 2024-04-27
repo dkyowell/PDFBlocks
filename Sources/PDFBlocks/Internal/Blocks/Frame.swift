@@ -26,25 +26,20 @@ extension Frame: Renderable {
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let renderable = content.getRenderable(environment: environment)
-        var adjustedSize = proposal
-        if let width, width.max == false {
-            adjustedSize.width = width.points
-        }
-        if let height, height.max == false {
-            adjustedSize.height = height.points
-        }
-        let size = renderable.sizeFor(context: context, environment: environment, proposal: adjustedSize)
-        let w: CGFloat = if let width {
+        let frameSize = CGSize(width: width?.points ?? proposal.width, height: height?.points ?? proposal.height)
+        let size = renderable.sizeFor(context: context, environment: environment, proposal: frameSize)
+        let minSize = size.min
+        let maxWidth: CGFloat = if let width {
             width.max ? proposal.width : width.points
         } else {
             size.max.width
         }
-        let h: CGFloat = if let height {
+        let maxHeight: CGFloat = if let height {
             height.max ? proposal.height : height.points
         } else {
             size.max.height
         }
-        return BlockSize(min: .init(width: w, height: h), max: .init(width: w, height: h))
+        return BlockSize(min: minSize, max: CGSize(width: maxWidth, height: maxHeight))
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
