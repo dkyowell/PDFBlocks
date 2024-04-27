@@ -7,7 +7,7 @@
 import Foundation
 
 public extension Block {
-    func stroke(_ content: ShapeStyle, lineWidth: Dimension = .pt(1)) -> some Block {
+    func stroke(_ content: some ShapeStyle, lineWidth: Dimension = .pt(1)) -> some Block {
         environment(\.strokeContent, content)
             .environment(\.strokeLineWidth, lineWidth)
     }
