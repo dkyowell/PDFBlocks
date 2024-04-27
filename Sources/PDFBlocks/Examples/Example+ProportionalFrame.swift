@@ -8,62 +8,67 @@ import Foundation
 
 private struct Document: Block {
     var body: some Block {
-        VStack(spacing: .pt(12)) {
-            HStack(alignment: .top, spacing: .pt(4)) {
-                Text("Leading")
-                    // .frame(height: .in(0.5), alignment: .bottomLeading)
-                    .background { Color.purple.opacity(0.5) }
-                    .proportionalFrame(width: 1, alignment: .leading)
-                    .background { Color.red.opacity(0.5) }
-                Text("Center")
-                    .frame(height: .in(1))
-                    .proportionalFrame(width: 2, alignment: .center)
-                    .background { Color.green.opacity(0.5) }
-                Text("Trailing")
-                    .proportionalFrame(width: 1, alignment: .trailing)
-                    .background { Color.blue.opacity(0.5) }
-            }
-            HStack(spacing: .pt(4)) {
-                Text("Leading")
-                    .proportionalFrame(width: 3, alignment: .leading)
-                    .background { Color.red.opacity(0.5) }
-                Text("Center")
-                    .proportionalFrame(width: 2, alignment: .center)
-                    .background { Color.green.opacity(0.5) }
-                Text("Trailing")
-                    .proportionalFrame(width: 1, alignment: .trailing)
-                    .background { Color.blue.opacity(0.5) }
-            }
-            HStack(alignment: .center, spacing: .pt(4)) {
-                Text("Leading")
-                    .background { Color.red.opacity(0.5) }
-                Text("Center")
-                    .frame(height: .in(1), alignment: .bottom)
-                    .background { Color.green.opacity(0.5) }
-                Text("Trailing")
-                    .background { Color.blue.opacity(0.5) }
-            }
-            HStack(spacing: .pt(2)) {
-                Text("Leading")
-                    .proportionalFrame(width: 30, alignment: .leading)
-                Text("Leading")
-                    .proportionalFrame(width: 10, alignment: .leading)
-                Text("Leading")
-                    .proportionalFrame(width: 10, alignment: .leading)
-                Text("Leading")
-                    .proportionalFrame(width: 10, alignment: .leading)
-                Text("Leading")
-                    .proportionalFrame(width: 10, alignment: .leading)
-                Text("Leading")
-                    .proportionalFrame(width: 10, alignment: .leading)
-                Text("Leading")
-                    .proportionalFrame(width: 10, alignment: .leading)
-                Text("Leading")
-                    .proportionalFrame(width: 10, alignment: .leading)
-            }
-            .font(size: 12)
+        VStack(spacing: 12) {
+//            Text("Equal Proportions")
+//            HStack(spacing: 4) {
+//                Text("x 1")
+//                    .proportionalFrame(width: 1, alignment: .center)
+//                    .background { Color.red.opacity(0.5) }
+//                Text("x 1")
+//                    .proportionalFrame(width: 1, alignment: .center)
+//                    .background { Color.green.opacity(0.5) }
+//                Text("x 1")
+//                    .proportionalFrame(width: 1, alignment: .center)
+//                    .background { Color.blue.opacity(0.5) }
+//            }
+//            .padding(.bottom, 12)
+//            Text("Center Twice as Wide as Ends")
+//            HStack(spacing: 4) {
+//                Text("x 1")
+//                    .proportionalFrame(width: 1, alignment: .center)
+//                    .background { Color.red.opacity(0.5) }
+//                Text("x 2")
+//                    .proportionalFrame(width: 2, alignment: .center)
+//                    .background { Color.green.opacity(0.5) }
+//                Text("x 1")
+//                    .proportionalFrame(width: 1, alignment: .center)
+//                    .background { Color.blue.opacity(0.5) }
+//            }
+//            .padding(.bottom, 12)
+//            Text("Block 1 Width + Block 2 Width = Block 3 Width")
+//            HStack(spacing: 4) {
+//                Text("x 1")
+//                    .proportionalFrame(width: 1, alignment: .center)
+//                    .background { Color.red.opacity(0.5) }
+//                Text("x 2")
+//                    .proportionalFrame(width: 2, alignment: .center)
+//                    .background { Color.green.opacity(0.5) }
+//                Text("x 3")
+//                    .proportionalFrame(width: 3, alignment: .center)
+//                    .background { Color.blue.opacity(0.5) }
+//            }
+//            .padding(.bottom, 12)
+//            Text("Block 1 = 35%, Block 2 = 20%, Block 3 = 55%")
+//            HStack(spacing: 4) {
+//                Text("35%")
+//                    .proportionalFrame(width: 35, alignment: .center)
+//                    .background { Color.red.opacity(0.5) }
+//                Text("20%")
+//                    .proportionalFrame(width: 20, alignment: .center)
+//                    .background { Color.green.opacity(0.5) }
+//                Text("55%")
+//                    .proportionalFrame(width: 55, alignment: .center)
+//                    .background { Color.blue.opacity(0.5) }
+//            }
+//
+            Text("Hello")
+            Color.orange
+                .frame(height: .max)
+                .border(.black, width: 20)
+            // .frame(height: 40)
+            Text("World")
         }
-        .font(size: 14)
+        .font(size: 18)
     }
 }
 

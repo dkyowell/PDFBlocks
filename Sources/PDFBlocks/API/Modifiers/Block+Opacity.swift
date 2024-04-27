@@ -7,10 +7,14 @@
 import Foundation
 
 public extension Block {
-    /// Sets the opacity of elements within this block.
+    /// Sets the transparency of this block.
     ///
-    /// - Parameter opacity: The opacity value to apply.
-    /// - Returns: A block for which the given opacity has been set.
+    /// When applying the `opacity(_:)` modifier to a block that has already had
+    /// its opacity transformed, the modifier multiplies the effect of the
+    /// underlying opacity transformation.
+    ///
+    /// - Parameter opacity: A value between 0 (fully transparent) and 1 (fully  opaque).
+    /// - Returns: A block that sets the transparency of this block.
     func opacity(_ opacity: CGFloat) -> some Block {
         modifier(OpacityModifier(opacity: opacity))
     }
