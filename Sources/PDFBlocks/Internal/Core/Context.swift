@@ -93,9 +93,14 @@ class Context {
         var block: (any Renderable)? = block.getRenderable(environment: environment)
         while block != nil {
             if let unwrapped = block {
-                let proposal = CGSize(width: pageWrapRect.width, height: max(pageWrapRect.size.height - pageWrapCursorY, 0))
+                if pageWrapCursorY ~>= pageWrapRect.size.height {
+                    endPage()
+                    beginPage()
+                    pageWrapCursorY = 0
+                }
+                let proposal = CGSize(width: pageWrapRect.width, height: pageWrapRect.size.height - pageWrapCursorY)
                 let size = unwrapped.sizeFor(context: self, environment: environment, proposal: proposal)
-                if (pageWrapRect.minY + pageWrapCursorY + size.min.height) > pageWrapRect.maxY {
+                if (pageWrapCursorY > 0), ((pageWrapCursorY + size.max.height) ~> pageWrapRect.size.height) {
                     endPage()
                     beginPage()
                     pageWrapCursorY = 0
@@ -103,13 +108,25 @@ class Context {
                 let rect = CGRect(x: pageWrapRect.minX, y: pageWrapRect.minY + pageWrapCursorY,
                                   width: pageWrapRect.width, height: size.max.height)
                 block = unwrapped.render(context: self, environment: environment, rect: rect)
-                if block != nil {
+                
+                // size.max.height could be 0 because it is an EmptyBlock(); it could be 0 because
+                // there is not enough room for any of it to print. If the later is the case, it
+                // will return a remainder
+                if let _ = block, size.max.height == 0 {
                     endPage()
                     beginPage()
                     pageWrapCursorY = 0
-                } else {
-                    pageWrapCursorY += size.max.height
                 }
+                pageWrapCursorY += size.max.height
+//                if block != nil {
+//                    endPage()
+//                    beginPage()
+//                    pageWrapCursorY = 0
+//                } else {
+//                    pageWrapCursorY += size.max.height
+//                }
+                
+                
             }
         }
     }

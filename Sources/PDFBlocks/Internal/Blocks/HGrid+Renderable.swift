@@ -24,7 +24,7 @@ extension HGrid: Renderable {
             let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: cellSize) }
             let rowsHeight = sizes.map(\.max.height).chunks(ofCount: columnCount)
             let height = rowsHeight.map { $0.reduce(0, max) }.reduce(0, +) + Double(rowsHeight.count - 1) * rowSpacing.points
-            let maxSize = CGSize(width: proposal.width, height: min(height, proposal.height))
+            let maxSize = CGSize(width: proposal.width, height: height)
             return BlockSize(maxSize)
         case .primary:
             return BlockSize(min: .init(width: proposal.width, height: 0), max: proposal)
@@ -108,6 +108,9 @@ extension HGrid {
         var dy = 0.0
         for (offset, row) in rows.enumerated() {
             var dx = 0.0
+            if offset > 0 {
+                dy += rowSpacing.points
+            }
             let rowHeight = row.map(\.1.max.height).reduce(0, max)
             if rect.height < rowHeight + dy {
                 context.endPage()
@@ -122,7 +125,7 @@ extension HGrid {
                     block.render(context: context, environment: environment, rect: renderRect)
                     dx += cellWidth + columnSpacing.points
                 }
-                dy += rowHeight + rowSpacing.points
+                dy += rowHeight
                 blocks = blocks.dropFirst(columnCount).map { $0 }
             } else {}
         }
