@@ -154,12 +154,13 @@ extension VStack {
         var environment = environment
         environment.layoutAxis = .vertical
         var blocks = content.getRenderables(environment: environment)
-        // print("VStack.renderSecondaryWrap", blocks.count, rect)
         var dy: CGFloat = 0
         for (offset, block) in blocks.enumerated() {
+            if offset > 0 {
+                dy += spacing.fixedPoints
+            }
             let proposal = CGSize(width: rect.size.width, height: rect.size.height - dy)
             let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
-            // print("block ", offset, size.min.height, proposal.height, size.max.height)
             // Can this block fit?
             if size.min.height ~<= proposal.height {
                 let dx: CGFloat = switch alignment {
@@ -174,24 +175,21 @@ extension VStack {
                 let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
                 let remainder = block.render(context: context, environment: environment, rect: renderRect)
                 if let remainder {
+                    // Put remainder back
                     blocks[0] = remainder
-                    // print("VStack.returning remainder1", blocks.count)
                     return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
                 } else {
-                    dy += size.max.height + spacing.fixedPoints
+                    dy += size.max.height
                 }
             } else {
-                // print("VStack.returning remainder2", blocks.count)
+                // Don't render a spacer as the first block on a new page.
+                if let _ = blocks.first as? Spacer {
+                    blocks = blocks.dropFirst().map { $0 }
+                }
                 return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
             }
             blocks = blocks.dropFirst().map { $0 }
-            // Catches condition when size can be 0
-//            if dy + spacing.fixedPoints >= rect.height, blocks.count > 0 {
-//                print("VStack.returning remainder 3")
-//                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, allowWrap: allowWrap, content: { ArrayBlock(blocks: blocks) })
-//            }
         }
-        // print("VStack.returning nil")
         return nil
     }
 

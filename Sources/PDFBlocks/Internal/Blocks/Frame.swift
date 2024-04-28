@@ -28,7 +28,8 @@ extension Frame: Renderable {
         let renderable = content.getRenderable(environment: environment)
         let frameSize = CGSize(width: width?.points ?? proposal.width, height: height?.points ?? proposal.height)
         let size = renderable.sizeFor(context: context, environment: environment, proposal: frameSize)
-        let minSize = size.min
+        let minWidth: CGFloat = width?.points ?? size.min.width
+        let minHeight: CGFloat = height?.points ?? size.min.height
         let maxWidth: CGFloat = if let width {
             width.max ? proposal.width : width.points
         } else {
@@ -39,7 +40,8 @@ extension Frame: Renderable {
         } else {
             size.max.height
         }
-        return BlockSize(min: minSize, max: CGSize(width: maxWidth, height: maxHeight))
+        return BlockSize(min: CGSize(width: minWidth, height: minHeight),
+                         max: CGSize(width: maxWidth, height: maxHeight))
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
