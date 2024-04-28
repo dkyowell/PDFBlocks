@@ -6,13 +6,15 @@
 
 import Foundation
 
-/// A horizontal line.
+/// A block that draws a line.
+///
+/// Like a `Shape`, a `Line` will take all of the space that it is offered,
 public struct Line: Block {
-    let thickness: Dimension
-    let dash: [CGFloat]
+    let start: UnitPoint
+    let end: UnitPoint
 
-    public init(thickness: Dimension = .pt(1), dash: [CGFloat] = []) {
-        self.thickness = thickness
-        self.dash = dash
+    public init(start: UnitPoint, end: UnitPoint) {
+        self.start = start
+        self.end = end
     }
 }
