@@ -9,7 +9,12 @@ import Foundation
 public extension Block {
     func stroke(_ content: some ShapeStyle, lineWidth: Dimension = .pt(1)) -> some Block {
         environment(\.strokeContent, content)
-            .environment(\.strokeLineWidth, lineWidth)
+            .environment(\.strokeStyle, StrokeStyle(lineWidth: lineWidth))
+    }
+
+    func stroke(_ content: some ShapeStyle, style: StrokeStyle) -> some Block {
+        environment(\.strokeContent, content)
+            .environment(\.strokeStyle, style)
     }
 }
 
@@ -24,13 +29,13 @@ extension EnvironmentValues {
     }
 }
 
-struct StrokeLineWidthKey: EnvironmentKey {
-    static let defaultValue = Dimension.pt(1)
+struct StrokeStyleKey: EnvironmentKey {
+    static let defaultValue = StrokeStyle()
 }
 
 extension EnvironmentValues {
-    var strokeLineWidth: Dimension {
-        get { self[StrokeLineWidthKey.self] }
-        set { self[StrokeLineWidthKey.self] = newValue }
+    var strokeStyle: StrokeStyle {
+        get { self[StrokeStyleKey.self] }
+        set { self[StrokeStyleKey.self] = newValue }
     }
 }
