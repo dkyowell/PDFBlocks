@@ -33,10 +33,12 @@ import Foundation
 
 // At present: .frame, .border, .background, .overlay cannot be applied upon
 
+// TODO: dY adjust ment
+
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: false) {
+            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: false) {
                 Text("A")
                 Text("B")
                 Text("C")
@@ -65,11 +67,8 @@ private struct Document: Block {
                 Text("Z")
             }
             .padding(12)
-            .overlay {
-                Color.clear
-                    .border(.blue, width: 12)
-            }
-            .font(size: 32)
+            .border(.yellow, width: 12)
+            .font(size: 42)
             .padding(12)
             .rotationEffect(.degrees(10))
         }

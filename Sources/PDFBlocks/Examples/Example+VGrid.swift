@@ -9,7 +9,7 @@ import Foundation
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: true) {
+            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
@@ -38,7 +38,7 @@ private struct Document: Block {
                 Text("Z")
             }
             .padding(12)
-            .border(.blue, width: 12)
+            .border(.blue.opacity(0.25), width: 12)
             .font(size: 32)
             .padding(12)
             .rotationEffect(.degrees(10))

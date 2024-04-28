@@ -7,8 +7,7 @@
 import Algorithms
 import Foundation
 
-// The layout of HGrid is not necessarily final. An HGrid takes up its entire width. It is not re-sizable.
-extension HGrid: Renderable {
+extension VGrid: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait(allowWrap: pageWrap)[keyPath: keypath]
     }
@@ -64,7 +63,7 @@ extension HGrid: Renderable {
     }
 }
 
-extension HGrid {
+extension VGrid {
     func renderSecondaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var blocks = content.getRenderables(environment: environment)
         let cellWidth = (rect.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
@@ -89,7 +88,7 @@ extension HGrid {
                 dy += rowHeight
                 blocks = blocks.dropFirst(columnCount).map { $0 }
             } else {
-                return HGrid<ArrayBlock>(columnCount: columnCount,
+                return VGrid<ArrayBlock>(columnCount: columnCount,
                                          columnSpacing: columnSpacing,
                                          rowSpacing: rowSpacing,
                                          pageWrap: pageWrap,
