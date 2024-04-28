@@ -6,7 +6,7 @@
 
 import Foundation
 
-/// A block that arranges its contents in a vertical line.
+/// A container block that arranges its contents in a vertical line.
 ///
 /// This example shows a simple vertical stack of three text blocks:
 ///
@@ -28,6 +28,7 @@ public struct VStack<Content>: Block where Content: Block {
     /// - Parameters:
     ///   - alignment: The horizontal alignment for the contents of the stack.
     ///   - spacing: The distance between  elements of the stack.
+    ///   - pageWrap: Start a new page when the content overflows its space.
     ///   - content: A block builder that creates the content of this stack.
     public init(alignment: HorizontalAlignment = .center,
                 spacing: StackSpacing = .none,

@@ -6,7 +6,7 @@
 
 import Foundation
 
-/// A block that arranges its contents in a horizontal line.
+/// A container block that arranges its contents in a horizontal line.
 ///
 /// This example shows a simple horizontal stack of three text blocks:
 ///

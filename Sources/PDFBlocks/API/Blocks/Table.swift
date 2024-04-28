@@ -6,8 +6,7 @@
 
 import Foundation
 
-/// A block that can generate entire multipage data-driven
-/// reports.
+/// A container block that can generate an entire report.
 public struct Table<Row>: Block {
     let data: [Row]
     let columns: [any TableColumnContent<Row>]

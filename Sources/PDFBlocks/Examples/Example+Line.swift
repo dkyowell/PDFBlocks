@@ -11,6 +11,10 @@ private struct Document: Block {
 
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
+            Line(start: .init(x: 0.25, y: 0.25), end: .init(x: 0.75, y: 0.75))
+                .stroke(.black, style: StrokeStyle(lineWidth: 2))
+        }
+        Page(size: .letter, margins: .in(1)) {
             ZStack {
                 Line(start: .topLeading, end: .bottomTrailing)
                 Line(start: .bottomLeading, end: .topTrailing)

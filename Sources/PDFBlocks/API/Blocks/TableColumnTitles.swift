@@ -6,7 +6,8 @@
 
 import Foundation
 
-/// A block for displaying the table column titles.
+// TODO: DOCS
+/// A block that prints the table column titles.
 ///
 /// This block is used to render the column titles of a table. It will usually
 /// be used within a table header, a group header, or a page header:
@@ -25,6 +26,7 @@ import Foundation
 public struct TableColumnTitles: Block {
     @Environment(\.tableColumns) private var columns
 
+    /// Creates an instance.
     public init() {}
 
     public var body: some Block {

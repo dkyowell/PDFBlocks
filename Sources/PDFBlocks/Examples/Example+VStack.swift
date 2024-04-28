@@ -24,9 +24,9 @@ private struct Document: Block {
             .foregroundStyle(.purple)
             .padding(8)
             .border(.cyan, width: 4)
-            //.frame(height: 144)
+            // .frame(height: 144)
             .padding(8)
-            //.border(.orange, width: 4)
+            // .border(.orange, width: 4)
             .font(.init(NSUIFont(name: "American Typewriter", size: 20)!))
             .background(.gray.opacity(0.25))
         }

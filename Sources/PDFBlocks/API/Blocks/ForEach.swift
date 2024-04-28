@@ -6,7 +6,8 @@
 
 import Foundation
 
-/// A block that computes blocks on demand from an underlying array of data.
+/// A block that computes a group of blocks on demand from an underlying
+/// array of data.
 ///
 /// Example:
 ///

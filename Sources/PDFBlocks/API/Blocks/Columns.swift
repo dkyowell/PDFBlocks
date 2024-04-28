@@ -21,7 +21,7 @@ public struct Columns<Content>: Block where Content: Block {
     /// - Parameters:
     ///   - count: The number of columns.
     ///   - spacing: The horizontal spacing between columns.
-    ///   - allowWrap: Start a new page when content overflows space.
+    ///   - pageWrap: Start a new page when the content overflows its space.
     ///   - content: A block builder that creates the Columns content.
     public init(count: Int, spacing: Dimension, pageWrap: Bool = false, @BlockBuilder content: () -> Content) {
         self.count = max(1, count)

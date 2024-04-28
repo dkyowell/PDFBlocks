@@ -41,11 +41,13 @@ import Foundation
 ///         }
 ///     }
 ///
-/// - Parameter content: The block to be erased.
-/// - Returns: A block that erases the type of its content.
 public struct AnyBlock: Block {
     let content: any Block
 
+    /// Creates an instance with the given parameters..
+    ///
+    /// - Parameters:
+    ///   - content: The block to be erased.
     public init(_ content: some Block) {
         self.content = content
     }

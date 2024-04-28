@@ -1,17 +1,16 @@
 # Need to Implement
 
-## StrokeStyle
-
-## TruncateMode
+## TextTruncateMode
+Target: v0.4
 
 ## LayoutPriority
-
-## PageWrap Padding
-
-## VGrid
+Target: v0.4
 
 
 # Enhancements
+
+## Text
+wrap in a VStack
 
 ## Image
 ?
@@ -20,7 +19,7 @@
 Self-Size for equal length columns.
 
 ## Grids
-There should be more layout options.
+There should be more layout options and a VGrid
 
 ## Shape
 There are many intersection, union, etc functions that I have not yet implemented. Path is just a very thin layer

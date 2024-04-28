@@ -100,7 +100,7 @@ class Context {
                 }
                 let proposal = CGSize(width: pageWrapRect.width, height: pageWrapRect.size.height - pageWrapCursorY)
                 let size = unwrapped.sizeFor(context: self, environment: environment, proposal: proposal)
-                if (pageWrapCursorY > 0), ((pageWrapCursorY + size.max.height) ~> pageWrapRect.size.height) {
+                if pageWrapCursorY > 0, (pageWrapCursorY + size.max.height) ~> pageWrapRect.size.height {
                     endPage()
                     beginPage()
                     pageWrapCursorY = 0
@@ -108,7 +108,7 @@ class Context {
                 let rect = CGRect(x: pageWrapRect.minX, y: pageWrapRect.minY + pageWrapCursorY,
                                   width: pageWrapRect.width, height: size.max.height)
                 block = unwrapped.render(context: self, environment: environment, rect: rect)
-                
+
                 // size.max.height could be 0 because it is an EmptyBlock(); it could be 0 because
                 // there is not enough room for any of it to print. If the later is the case, it
                 // will return a remainder
@@ -125,8 +125,6 @@ class Context {
 //                } else {
 //                    pageWrapCursorY += size.max.height
 //                }
-                
-                
             }
         }
     }
