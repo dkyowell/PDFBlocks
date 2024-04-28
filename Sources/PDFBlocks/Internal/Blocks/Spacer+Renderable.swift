@@ -11,11 +11,23 @@ extension Spacer: Renderable {
     func sizeFor(context _: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         switch environment.layoutAxis {
         case .vertical:
-            BlockSize(min: .init(width: 0, height: minLength.points),
-                      max: .init(width: 0, height: proposal.height))
+            switch value {
+            case let .fixed(length):
+                BlockSize(min: .init(width: 0, height: length.points),
+                          max: .init(width: 0, height: length.points))
+            case let .min(length):
+                BlockSize(min: .init(width: 0, height: length.points),
+                          max: .init(width: 0, height: proposal.height))
+            }
         case .horizontal:
-            BlockSize(min: .init(width: minLength.points, height: 0),
-                      max: .init(width: proposal.width, height: 0))
+            switch value {
+            case let .fixed(length):
+                BlockSize(min: .init(width: length.points, height: 0),
+                          max: .init(width: length.points, height: 0))
+            case let .min(length):
+                BlockSize(min: .init(width: length.points, height: 0),
+                          max: .init(width: proposal.width, height: 0))
+            }
         case .undefined:
             BlockSize(width: 0, height: 0)
         }
