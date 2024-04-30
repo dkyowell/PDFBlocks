@@ -38,11 +38,12 @@ extension Font {
     func resolvedFont(environment: EnvironmentValues) -> KitFont {
         // Apply Font.Width
         var descriptor: KitFontDescriptor = if kitFont.isSystemFont {
-            // widthFont = KitFont.italicSystemFont(ofSize: kitFont.pointSize)
             KitFont.systemFont(ofSize: kitFont.pointSize, weight: .regular, width: width ?? .standard)
                 .fontDescriptor
         } else {
-            kitFont.fontDescriptor
+            KitFontDescriptor()
+                .withSize(kitFont.pointSize)
+                .withFamily(kitFont.familyName)
         }
         // Apply Font.Design
         descriptor = descriptor.withDesign(design ?? .default) ?? descriptor
