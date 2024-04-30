@@ -10,7 +10,8 @@ private struct Document: Block {
     var body: some Block {
         Columns(count: 3, spacing: 18, pageWrap: true) {
             Text(speach)
-                .font(name: "American Typewriter")
+                .fontDesign(.serif)
+                .kerning(-0.2)
                 .font(size: 12)
         }
     }

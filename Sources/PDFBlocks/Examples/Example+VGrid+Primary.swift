@@ -68,7 +68,6 @@ private struct Document: Block {
             }
             .padding(12)
             .border(.yellow, width: 12)
-            .font(size: 42)
             .padding(12)
             .rotationEffect(.degrees(10))
         }
@@ -76,7 +75,7 @@ private struct Document: Block {
             Color.orange
         }
         .border(Color.black, width: 12)
-        .font(name: "American Typewriter")
+        .font(.system(size: 42, design: .serif))
     }
 }
 

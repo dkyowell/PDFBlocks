@@ -7,10 +7,26 @@
 import Foundation
 
 /// A block for printing text.
+///
+/// Text can render a string as in this example.
+///
+///     Text("What's taters, precious?")
+///
+/// It can also render other types when passed a FormatStyle.
+///
+///     Text(Date(), format: .dateTime)
+///
+/// A `Text` will expand to fill all of its availible
+/// space, printing a trailing ellipsis if there is more
+/// of a string that cannot be rendered. When the
+/// pageWrap behavior of its container allows, a
+/// text block will continue printing on a new column
+/// or a new page if necessary.
+///
 public struct Text: Block {
     let value: String
 
-    /// Creates a text view that displays a string value.
+    /// Creates a text block that displays a string value.
     ///
     /// - Parameters:
     ///   - value: A string value to print.

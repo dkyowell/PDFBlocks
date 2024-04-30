@@ -12,7 +12,7 @@ private struct Document: Block {
             .font(size: 164)
             .textStroke(color: .blue, lineWidth: 3)
             .textFill(.orange)
-            .font(name: "Courier")
+            .font(.init(.init(name: "Courier", size: 164)))
             .italic()
             .bold()
     }

@@ -8,21 +8,6 @@ import Foundation
 
 private struct Document: Block {
     var body: some Block {
-//        VStack(spacing: 10) {
-//            Circle()
-//                .foregroundStyle(.cyan)
-//                .padding(40)
-//                .border(.orange, width: 10)
-//            Square()
-//                .foregroundStyle(.pink)
-//                .padding(40)
-//                .border(.orange, width: 10)
-//            Circle()
-//                .foregroundStyle(.green)
-//                .padding(40)
-//                .border(.orange, width: 10)
-//        }
-
         VStack(spacing: 10) {
             Group {
                 Text("The quick brown fox jumped over the lazy dog.")
@@ -34,8 +19,7 @@ private struct Document: Block {
             .bold()
             .padding(2)
             .border(.orange, width: 2)
-            // .frame(height: 120)
-            .font(name: "Courier", size: 48)
+            .font(.init(.init(name: "Courier", size: 48)))
         }
     }
 }

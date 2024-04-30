@@ -87,7 +87,7 @@ private struct Document: Block {
             Color.orange
                 .border(Color.black, width: 12)
         }
-        .font(name: "American Typewriter")
+        // .font(name: "American Typewriter")
     }
 }
 

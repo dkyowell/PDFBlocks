@@ -6,7 +6,7 @@
 
 import Foundation
 
-/// An invisible spacer block for use within a layout block.
+/// An invisible spacer for use within a layout block.
 ///
 /// Spacer will adapt its orientation according to the layout axis
 /// of the layout block within which it is contained.

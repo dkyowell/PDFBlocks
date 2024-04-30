@@ -56,7 +56,7 @@ public protocol Block {
 }
 
 public extension Block {
-    func renderPDF(size: PageSize, margins: EdgeInsets) async throws -> Data? {
+    func renderPDF(size: PageSize = .letter, margins: EdgeInsets = .in(1)) async throws -> Data? {
         try await Context().render(size: size, margins: margins, content: self)
     }
 }

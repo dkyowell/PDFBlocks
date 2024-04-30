@@ -38,7 +38,7 @@ private struct Document: Block {
                 Text("Z")
             }
             .padding(12)
-            .border(.blue.opacity(0.25), width: 12)
+            .border(.blue, width: 12)
             .font(size: 32)
             .padding(12)
             .rotationEffect(.degrees(10))
@@ -47,7 +47,7 @@ private struct Document: Block {
             Color.orange
         }
         .border(Color.black, width: 12)
-        .font(name: "American Typewriter")
+        .font(.init(.init(name: "American Typewriter", size: 12)))
     }
 }
 
