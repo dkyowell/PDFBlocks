@@ -52,19 +52,26 @@ extension Font {
         let attributes: [KitFontDescriptor.AttributeName: Any] = [.traits: traits]
         descriptor = descriptor.addingAttributes(attributes)
         // Apply Bold and Italic
-        if environment.italic, environment.bold {
-            descriptor = descriptor.withSymbolicTraits([.traitItalic, .traitBold]) ??
-                descriptor.withSymbolicTraits([.traitItalic]) ??
-                descriptor.withSymbolicTraits([.traitBold]) ?? descriptor
-        } else if environment.italic {
-            descriptor = descriptor.withSymbolicTraits([.traitItalic]) ?? descriptor
-        } else if environment.bold {
-            descriptor = descriptor.withSymbolicTraits([.traitBold]) ?? descriptor
-        }
         #if os(iOS)
+            if environment.italic, environment.bold {
+                descriptor = descriptor.withSymbolicTraits([.traitItalic, .traitBold]) ??
+                    descriptor.withSymbolicTraits([.traitItalic]) ??
+                    descriptor.withSymbolicTraits([.traitBold]) ?? descriptor
+            } else if environment.italic {
+                descriptor = descriptor.withSymbolicTraits([.traitItalic]) ?? descriptor
+            } else if environment.bold {
+                descriptor = descriptor.withSymbolicTraits([.traitBold]) ?? descriptor
+            }
             let interim = KitFont(descriptor: descriptor, size: 0)
         #endif
         #if os(macOS)
+            if environment.italic, environment.bold {
+                descriptor = descriptor.withSymbolicTraits([.italic, .bold])
+            } else if environment.italic {
+                descriptor = descriptor.withSymbolicTraits([.italic])
+            } else if environment.bold {
+                descriptor = descriptor.withSymbolicTraits([.bold])
+            }
             let interim = KitFont(descriptor: descriptor, size: 0) ?? kitFont
         #endif
         return interim

@@ -13,8 +13,8 @@
 
         public typealias KitFont = NSFont
         public typealias KitFontDescriptor = NSFontDescriptor
-        public typealias NSUIColor = NSColor
-        public typealias NSUIImage = NSImage
+        public typealias KitColor = NSColor
+        public typealias KitImage = NSImage
     #endif
 
     #if os(iOS)
@@ -23,8 +23,8 @@
 
         public typealias KitFont = UIFont
         public typealias KitFontDescriptor = UIFontDescriptor
-        public typealias NSUIColor = UIColor
-        public typealias NSUIImage = UIImage
+        public typealias KitColor = UIColor
+        public typealias KitImage = UIImage
     #endif
 
     // A core graphics based renderer for iOS and macOS.
@@ -323,7 +323,7 @@
             guard layer == layerFilter else {
                 return
             }
-            guard let image = image as? NSUIImage else {
+            guard let image = image as? KitImage else {
                 return
             }
             if let ds = image.downscaled(maxSize: rect.size.scaled(by: 300 / 72.0)) {
@@ -363,8 +363,8 @@
         func prepareText(_ text: String, environment: EnvironmentValues) -> NSMutableAttributedString {
             let string = NSMutableAttributedString(string: text)
             let range = CFRangeMake(0, string.length)
-            var ctFont: CTFont = environment.font.resolvedFont(environment: environment)
             let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
+            var ctFont: CTFont = resolvedFont
             var lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
             var fontTransform = CGAffineTransformIdentity
                 .scaledBy(x: 1, y: -1)
@@ -492,12 +492,12 @@
 #endif
 
 extension Color {
-    var nsuiColor: NSUIColor {
-        (platformColor as? NSUIColor) ?? NSUIColor.black
+    var kitColor: KitColor {
+        (platformColor as? KitColor) ?? KitColor.black
     }
 
     var cgColor: CGColor {
-        nsuiColor.cgColor
+        kitColor.cgColor
     }
 }
 

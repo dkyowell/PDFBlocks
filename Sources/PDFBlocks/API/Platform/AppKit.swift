@@ -84,7 +84,7 @@ import Foundation
         }
 
         init(path: String) {
-            image = NSImage(contentsOfFile: path) ?? NSUIImage()
+            image = NSImage(contentsOfFile: path) ?? KitImage()
         }
     }
 
