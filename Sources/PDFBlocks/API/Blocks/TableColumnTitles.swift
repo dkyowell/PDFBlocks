@@ -34,7 +34,7 @@ public struct TableColumnTitles: Block {
             HStack(alignment: .top, spacing: .pt(2)) {
                 ForEach(columns.filter(\.visible)) { column in
                     Text(column.title)
-                        .bold()
+                        .fontWeight(.medium)
                         .proportionalFrame(width: column.width, alignment: column.alignment)
                 }
             }

@@ -6,16 +6,73 @@
 
 import Foundation
 
+#if os(iOS)
+    import UIKit
+#endif
+#if os(macOS)
+    import AppKit
+#endif
+
 public struct Font {
-    let name: String
-    let size: CGFloat
+    public typealias Weight = KitFont.Weight
+    public typealias Design = KitFontDescriptor.SystemDesign
+    public typealias Width = KitFont.Width
+
+    var kitFont: KitFont
+    var weight: Weight?
+    var design: Design?
+    var width: Width?
 }
 
-#if os(macOS) || os(iOS)
-    public extension Font {
-        init(_ font: NSUIFont) {
-            name = font.fontName
-            size = font.pointSize
-        }
+public extension Font {
+    init(_ font: KitFont?) {
+        kitFont = font ?? KitFont.systemFont(ofSize: 12)
     }
-#endif
+
+    static func system(size: CGFloat, weight: Weight? = nil, design: Design? = nil) -> Font {
+        Font(kitFont: .systemFont(ofSize: size), weight: weight, design: design)
+    }
+}
+
+extension Font {
+    func resolvedFont(environment: EnvironmentValues) -> KitFont {
+        // Apply Font.Width
+        var descriptor: KitFontDescriptor = if kitFont.isSystemFont {
+            // widthFont = KitFont.italicSystemFont(ofSize: kitFont.pointSize)
+            KitFont.systemFont(ofSize: kitFont.pointSize, weight: .regular, width: width ?? .standard)
+                .fontDescriptor
+        } else {
+            kitFont.fontDescriptor
+        }
+        // Apply Font.Design
+        descriptor = descriptor.withDesign(design ?? .default) ?? descriptor
+        // Apply Font.Weight
+        var traits = [KitFontDescriptor.TraitKey: Any]()
+        traits[KitFontDescriptor.TraitKey.weight] = weight ?? .regular
+        let attributes: [KitFontDescriptor.AttributeName: Any] = [.traits: traits]
+        descriptor = descriptor.addingAttributes(attributes)
+        // Apply Bold and Italic
+        if environment.italic, environment.bold {
+            descriptor = descriptor.withSymbolicTraits([.traitItalic, .traitBold]) ??
+                descriptor.withSymbolicTraits([.traitItalic]) ??
+                descriptor.withSymbolicTraits([.traitBold]) ?? descriptor
+        } else if environment.italic {
+            descriptor = descriptor.withSymbolicTraits([.traitItalic]) ?? descriptor
+        } else if environment.bold {
+            descriptor = descriptor.withSymbolicTraits([.traitBold]) ?? descriptor
+        }
+        #if os(iOS)
+            let interim = KitFont(descriptor: descriptor, size: 0)
+        #endif
+        #if os(macOS)
+            let interim = KitFont(descriptor: descriptor, size: 0) ?? kitFont
+        #endif
+        return interim
+    }
+}
+
+extension KitFont {
+    var isSystemFont: Bool {
+        familyName == KitFont.systemFont(ofSize: 14).familyName
+    }
+}
