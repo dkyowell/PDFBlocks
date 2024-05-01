@@ -105,7 +105,7 @@ PDFBlocks is distributed using the [Swift Package Manager](https://swift.org/pac
 let package = Package(
     ...
     dependencies: [
-        .package(url: "https://github.com/dkyowell/pdfblocks.git", from: "0.1.0-alpha")
+        .package(url: "https://github.com/dkyowell/pdfblocks.git", from: "0.2.4")
     ],
     ...
 )
