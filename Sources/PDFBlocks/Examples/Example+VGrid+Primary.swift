@@ -33,68 +33,49 @@ import Foundation
 
 // At present: .frame, .border, .background, .overlay cannot be applied upon
 
+// TODO: dY adjust ment
 
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            PageNumberReader { pageNo in
-                Text("Page \(pageNo)")
-                    // TODO: This variable padding doesn't work
-                    //.padding(.bottom, .pt(CGFloat(pageNo * 12)))
-            }
-            .font(size: 36)
-            .padding(.horizontal, .max)
-            // .padding(.bottom, .pt(12))
-            VStack(alignment: .center, allowWrap: true) {
+            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: false) {
                 Text("A")
                 Text("B")
                 Text("C")
-                HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: true) {
-                //VStack(allowWrap: true) {
-                    Text("D")
-                    Text("E")
-                    Text("F")
-                    Text("G")
-                    Text("H")
-                    Text("I")
-                    Text("J")
-                    Text("K")
-                    Text("L")
-                    Text("M")
-                    Text("N")
-                    Text("O")
-                    Text("P")
-                    Text("Q")
-                    Text("R")
-                    Text("S")
-                    Text("T")
-                    Text("U")
-                    Text("V")
-                    Text("W")
-                }
-                .foregroundColor(.red)
-                .padding(4)
-                .tag("Inner")
+                Text("D")
+                Text("E")
+                Text("F")
+                Text("G")
+                Text("H")
+                Text("I")
+                Text("J")
+                Text("K")
+                Text("L")
+                Text("M")
+                Text("N")
+                Text("O")
+                Text("P")
+                Text("Q")
+                Text("R")
+                Text("S")
+                Text("T")
+                Text("U")
+                Text("V")
+                Text("W")
                 Text("X")
                 Text("Y")
                 Text("Z")
             }
-            .tag("Outer")
             .padding(12)
-            .overlay {
-                Color.clear
-                    .border(.blue, width: 12)
-            }
-            .font(size: 32)
+            .border(.yellow, width: 12)
             .padding(12)
             .rotationEffect(.degrees(10))
-            .clipped()
         }
         .background {
             Color.orange
-                .border(Color.black, width: 12)
         }
-        .font(name: "American Typewriter")
+        .border(Color.black, width: 12)
+        .font(.system(size: 42, design: .serif))
     }
 }
 

@@ -13,30 +13,30 @@ private extension FloatingPoint {
 
 infix operator ~<=: ComparisonPrecedence
 
-public func ~<=<F>(left:F, right:F) -> Bool where F: FloatingPoint {
-    return left.kround <= right.kround
+public func ~<= <F>(left: F, right: F) -> Bool where F: FloatingPoint {
+    left.kround <= right.kround
 }
 
 infix operator ~>=: ComparisonPrecedence
 
-public func ~>=<F>(left:F, right:F) -> Bool where F: FloatingPoint {
-    return left.kround >= right.kround
+public func ~>= <F>(left: F, right: F) -> Bool where F: FloatingPoint {
+    left.kround >= right.kround
 }
 
 infix operator ~<: ComparisonPrecedence
 
-public func ~<<F>(left:F, right:F) -> Bool where F: FloatingPoint {
-    return left.kround < right.kround
+public func ~< <F>(left: F, right: F) -> Bool where F: FloatingPoint {
+    left.kround < right.kround
 }
 
 infix operator ~>: ComparisonPrecedence
 
-public func ~><F>(left:F, right:F) -> Bool where F: FloatingPoint {
-    return left.kround > right.kround
+public func ~> <F>(left: F, right: F) -> Bool where F: FloatingPoint {
+    left.kround > right.kround
 }
 
 infix operator ~==: ComparisonPrecedence
 
-public func ~==<F>(left:F, right:F) -> Bool where F: FloatingPoint {
-    return left.kround == right.kround
+public func ~== <F>(left: F, right: F) -> Bool where F: FloatingPoint {
+    left.kround == right.kround
 }

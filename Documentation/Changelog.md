@@ -1,5 +1,14 @@
 #  Changelog
 
+## v0.2.4
+* Added StrokeStyle
+* Added Line
+* Added .fontWeight, .fontWidth, and .fontDesign
+* Added .kerning
+* Added fixedLength option to Spacer
+* Added .opacity modifier to Color
+* Renamed HGrid to VGrid
+* Fixed if/then, switch functionality in @BlockBuilder
 
 ## v0.2.3
 * Added .scaleEffect modifier

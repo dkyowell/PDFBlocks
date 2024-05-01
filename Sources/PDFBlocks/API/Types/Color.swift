@@ -26,3 +26,14 @@ import Foundation
 public struct Color {
     let platformColor: any PlatformColor
 }
+
+public extension Color {
+    /// Multiplies the opacity of the color by the given amount.
+    ///
+    /// - Parameter opacity: The amount by which to multiply the opacity of the
+    ///   color.
+    /// - Returns: A color with modified opacity.
+    func opacity(_ opacity: Double) -> Color {
+        Color(platformColor: platformColor.opacity(value: opacity))
+    }
+}

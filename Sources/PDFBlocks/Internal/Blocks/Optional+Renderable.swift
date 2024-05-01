@@ -7,6 +7,15 @@
 import Foundation
 
 extension Optional: Renderable where Wrapped: Block {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if let self {
+            self.getRenderable(environment: environment)
+                .getTrait(context: context, environment: environment, keypath: keypath)
+        } else {
+            Trait()[keyPath: keypath]
+        }
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         if let self {
             let block = self.getRenderable(environment: environment)
@@ -16,23 +25,12 @@ extension Optional: Renderable where Wrapped: Block {
         }
     }
 
-    // TODO: ContentSize?
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         if let self {
             let block = self.getRenderable(environment: environment)
             return block.render(context: context, environment: environment, rect: rect)
         } else {
             return nil
-        }
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        if let self {
-            self.getRenderable(environment: environment)
-                .getTrait(context: context, environment: environment, keypath: keypath)
-        } else {
-            Trait()[keyPath: keypath]
         }
     }
 }

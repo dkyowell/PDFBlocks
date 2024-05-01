@@ -21,6 +21,10 @@ import Foundation
 public struct Group<Content>: Block where Content: Block {
     let content: Content
 
+    /// Creates an instance with the given parameters..
+    ///
+    /// - Parameters:
+    ///   - content: A block builder that creates the `Group` content.
     public init(@BlockBuilder content: () -> Content) {
         self.content = content()
     }

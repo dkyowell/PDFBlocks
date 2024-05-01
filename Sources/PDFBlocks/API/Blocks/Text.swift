@@ -6,34 +6,42 @@
 
 import Foundation
 
-// TODO: In SwiftUI, Text is not generic over Format. Investigate implementation.
-/// A block for displaying text.
-public struct Text<F>: Block where F: FormatStyle, F.FormatInput: Equatable, F.FormatOutput == String {
-    let input: F.FormatInput
-    let format: F
+/// A block for printing text.
+///
+/// Text can render a string as in this example.
+///
+///     Text("What's taters, precious?")
+///
+/// It can also render other types when passed a FormatStyle.
+///
+///     Text(Date(), format: .dateTime)
+///
+/// A `Text` will expand to fill all of its availible
+/// space, printing a trailing ellipsis if there is more
+/// of a string that cannot be rendered. When the
+/// pageWrap behavior of its container allows, a
+/// text block will continue printing on a new column
+/// or a new page if necessary.
+///
+public struct Text: Block {
+    let value: String
 
-    public init(_ input: F.FormatInput, format: F) {
-        self.input = input
-        self.format = format
+    /// Creates a text block that displays a string value.
+    ///
+    /// - Parameters:
+    ///   - value: A string value to print.
+    public init(_ value: String) {
+        self.value = value
     }
 
-    public init(_ input: String) where F == StringFormatStyle {
-        self.input = input
-        format = StringFormatStyle()
-    }
-}
-
-public struct CGText<F>: Block where F: FormatStyle, F.FormatInput: Equatable, F.FormatOutput == String {
-    let input: F.FormatInput
-    let format: F
-
-    public init(_ input: F.FormatInput, format: F) {
-        self.input = input
-        self.format = format
-    }
-
-    public init(_ input: String) where F == StringFormatStyle {
-        self.input = input
-        format = StringFormatStyle()
+    /// Creates a text view that prints the formatted representation
+    /// of a nonstring type supported by a corresponding format style.
+    ///
+    /// - Parameters:
+    ///   - input: The underlying value to print.
+    ///   - format: A format style of type `F` to convert the underlying value
+    ///     of type `F.FormatInput` to a string representation.
+    public init<F>(_ input: F.FormatInput, format: F) where F: FormatStyle, F.FormatInput: Equatable, F.FormatOutput == String {
+        value = format.format(input)
     }
 }

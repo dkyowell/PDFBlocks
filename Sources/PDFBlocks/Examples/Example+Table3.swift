@@ -26,27 +26,22 @@ private struct Document: Block {
                     .padding(.trailing, .max)
                 TableColumnTitles()
             } footer: { _, _ in
-                VStack(allowWrap: true) {
-                    Color.clear.frame(height: 24)
+                VStack(pageWrap: true) {
+                    Spacer(fixedLength: 24)
                     Text("A")
                     Text("B")
-                    HGrid(columnCount: 3, columnSpacing: .in(0.5), rowSpacing: .in(0.1), allowWrap: true) {
-                        Text("A")
-                        Text("B")
-                        Text("C")
+                    Text("C")
+                    VGrid(columnCount: 3, columnSpacing: 36, rowSpacing: 0, pageWrap: true) {
                         Text("D")
                         Text("E")
                         Text("F")
-                        Text("G")
-                        Text("H")
-                        Text("I")
-                        Text("J")
-                        Text("K")
                     }
-                    .border(.cyan)
-                    Text("D")
+//                    Text("X")
+//                    Text("Y")
+//                    Text("Z")
+                    Spacer(fixedLength: 34)
                 }
-                .font(size: 48)
+                .font(size: 32)
                 // .padding(.vertical, .in(0.25))
 //                Divider(thickness: .pt(0.75), padding: .pt(2))
 //                Text("\(rows.count) records for \(stateName(abberviation: value))")
@@ -69,6 +64,7 @@ private struct Document: Block {
                 TableColumnTitles()
             }
         }
+        .font(.system(size: 8))
     }
 }
 

@@ -6,7 +6,7 @@
 
 import Foundation
 
-public struct ArrayBlock: Block {
+struct ArrayBlock: Block {
     let blocks: [any Block]
 }
 

@@ -7,18 +7,18 @@
 import Foundation
 
 extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModifier {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
+        let modifiedContent = modifier.body(content: nmc)
+        let block = modifiedContent.getRenderable(environment: environment)
+        return block.getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let nmc = _BlockModifier_Content(modifier: modifier, block: content)
         let modifiedContent = modifier.body(content: nmc)
         let block = modifiedContent.getRenderable(environment: environment)
         return block.sizeFor(context: context, environment: environment, proposal: proposal)
-    }
-
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
-        let modifiedContent = modifier.body(content: nmc)
-        let block = modifiedContent.getRenderable(environment: environment)
-        return block.contentSize(context: context, environment: environment, proposal: proposal)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
@@ -36,13 +36,6 @@ extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModif
 //        } else {
             return nil
         }
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
-        let modifiedContent = modifier.body(content: nmc)
-        let block = modifiedContent.getRenderable(environment: environment)
-        return block.getTrait(context: context, environment: environment, keypath: keypath)
     }
 }
 

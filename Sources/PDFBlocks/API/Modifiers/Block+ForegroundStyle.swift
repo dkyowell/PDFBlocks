@@ -8,7 +8,7 @@ import Foundation
 
 public extension Block {
     /// Sets the foreground color for a block.
-    func foregroundStyle(_ value: ShapeStyle) -> some Block {
+    func foregroundStyle(_ value: some ShapeStyle) -> some Block {
         environment(\.foregroundStyle, value)
     }
 }

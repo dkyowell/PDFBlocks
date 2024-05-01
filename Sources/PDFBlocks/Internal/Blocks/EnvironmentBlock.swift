@@ -13,18 +13,18 @@ struct EnvironmentBlock<Content, V>: Block where Content: Block {
 }
 
 extension EnvironmentBlock: Renderable {
+    func getTrait<X>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, X>) -> X {
+        var environment = environment
+        environment[keyPath: keyPath] = value
+        let block = content.getRenderable(environment: environment)
+        return block.getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment[keyPath: keyPath] = value
         let block = content.getRenderable(environment: environment)
         return block.sizeFor(context: context, environment: environment, proposal: proposal)
-    }
-
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        var environment = environment
-        environment[keyPath: keyPath] = value
-        let block = content.getRenderable(environment: environment)
-        return block.contentSize(context: context, environment: environment, proposal: proposal)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
@@ -37,13 +37,6 @@ extension EnvironmentBlock: Renderable {
         } else {
             return nil
         }
-    }
-
-    func getTrait<X>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, X>) -> X {
-        var environment = environment
-        environment[keyPath: keyPath] = value
-        let block = content.getRenderable(environment: environment)
-        return block.getTrait(context: context, environment: environment, keypath: keypath)
     }
 }
 

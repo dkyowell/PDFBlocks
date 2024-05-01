@@ -7,6 +7,10 @@
 import Foundation
 
 extension Table: Renderable {
+    func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        Trait(allowWrap: true)[keyPath: keypath]
+    }
+
     func sizeFor(context _: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         if environment.renderMode == .wrapping {
             BlockSize(width: proposal.width, height: 0)
@@ -52,10 +56,6 @@ extension Table: Renderable {
             }
         }
         return nil
-    }
-
-    func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowWrap: true)[keyPath: keypath]
     }
 }
 

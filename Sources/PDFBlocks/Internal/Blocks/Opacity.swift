@@ -12,14 +12,14 @@ struct Opacity<Content>: Block where Content: Block {
 }
 
 extension Opacity: Renderable {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        content.getRenderable(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposal: proposal)
-    }
-
-    func contentSize(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        content.getRenderable(environment: environment)
-            .contentSize(context: context, environment: environment, proposal: proposal)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
@@ -32,11 +32,6 @@ extension Opacity: Renderable {
         } else {
             return nil
         }
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content.getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 }
 

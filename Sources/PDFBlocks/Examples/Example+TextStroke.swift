@@ -8,16 +8,15 @@ import Foundation
 
 private struct Document: Block {
     var body: some Block {
-            Text("Narf")
+        Text("Narf")
             .font(size: 164)
             .textStroke(color: .blue, lineWidth: 3)
             .textFill(.orange)
-            .font(name: "Courier")
+            .font(.init(.init(name: "Courier", size: 164)))
             .italic()
             .bold()
     }
 }
-
 
 #if os(iOS) || os(macOS)
     import PDFKit

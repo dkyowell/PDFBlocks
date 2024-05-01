@@ -33,13 +33,13 @@ public struct BlockBuilder {
 
     /// Produces content for a conditional statement in a multi-statement closure
     /// when the condition is true.
-    public static func buildEither<Content>(first: Content) -> Content where Content: Block {
-        first
+    public static func buildEither<T, F>(first: T) -> EitherBlock<T, F> where T: Block, F: Block {
+        EitherBlock(value: .trueContent(first))
     }
 
     /// Produces content for a conditional statement in a multi-statement closure
     /// when the condition is false.
-    public static func buildEither<Content>(second: Content) -> Content where Content: Block {
-        second
+    public static func buildEither<T, F>(second: F) -> EitherBlock<T, F> where T: Block, F: Block {
+        EitherBlock(value: .falseContent(second))
     }
 }

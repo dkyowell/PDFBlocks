@@ -6,7 +6,7 @@
 
 import Foundation
 
-extension Block {
+public extension Block {
     func tag(_ value: String) -> some Block {
         environment(\.tag, value)
     }

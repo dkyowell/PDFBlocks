@@ -13,7 +13,7 @@ private struct Document: Block {
                 .fill(.red)
                 .rotationEffect(.degrees(45))
                 .overlay {
-                    VStack(allowWrap: false) {
+                    VStack(pageWrap: false) {
                         Text("STOP")
                     }
                     .foregroundColor(.white)
@@ -33,9 +33,7 @@ private struct Document: Block {
         let view = PDFView()
         view.autoScales = true
         Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
+            if let data = try? await Document().renderPDF() {
                 view.document = PDFDocument(data: data)
             }
         }

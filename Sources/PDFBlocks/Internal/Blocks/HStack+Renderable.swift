@@ -63,23 +63,29 @@ extension HStack: Renderable {
                 return item.sizeFor(context: context, environment: environment, proposal: blockSize)
             }
             let maxHeight = sizes.map(\.max.height).reduce(0, max)
-            return .init(width: proposal.width, height: maxHeight)
+            let minHeight = sizes.map(\.min.height).reduce(0, max)
+            return .init(min: CGSize(width: proposal.width, height: minHeight),
+                         max: CGSize(width: proposal.width, height: maxHeight))
         } else {
             // STANDARD LAYOUT
-            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposal)
+            let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-            let maxHeight = sizes.map(\.height).reduce(0.0, max)
-            let sumMaxWidth = sizes.map(\.width).reduce(0, +)
-            //  TODO: I am not sure I am reasoning about th minWidth correctly. I think that I need some
-            //  TODO: flexible subviews to experiment more.
-            let sumMinWidth = sizes.map(\.width).reduce(0.0, +)
-            switch spacing {
-            case .flex:
-                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposal.width), height: maxHeight),
-                             max: .init(width: proposal.width, height: maxHeight))
-            case .fixed:
-                return .init(min: .init(width: min(sumMinWidth + fixedSpacing, proposal.width), height: maxHeight),
-                             max: .init(width: min(sumMaxWidth + fixedSpacing, proposal.width), height: maxHeight))
+            let minHeight = sizes.map(\.min.height).reduce(0, max)
+            let minWidth = sizes.map(\.min.width).reduce(0, +) + fixedSpacing
+            if minWidth >= proposal.width {
+                let maxHeight = sizes.map(\.max.height).reduce(0, max)
+                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
+                                 max: CGSize(width: minWidth, height: maxHeight))
+            } else if spacing.isFlexible, blocks.count > 1 {
+                let maxHeight = sizes.map((\.max.height)).reduce(0, max)
+                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
+                                 max: CGSize(width: proposal.width, height: maxHeight))
+            } else {
+                let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposal)
+                let maxHeight = sizes.map(\.height).reduce(0.0, max)
+                let maxWidth = sizes.map(\.width).reduce(0, +) + fixedSpacing
+                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
+                                 max: CGSize(width: maxWidth, height: maxHeight))
             }
         }
     }

@@ -23,11 +23,9 @@ protocol Renderer {
     func restoreOpacity()
     func restoreState()
     func renderBorder(environment: EnvironmentValues, rect: CGRect, shapeStyle: ShapeStyle, width: CGFloat)
-    func renderLine(dash: [CGFloat], environment: EnvironmentValues, rect: CGRect)
+    func renderLine(environment: EnvironmentValues, path: CGPath)
     func renderPath(environment: EnvironmentValues, path: CGPath)
     func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect)
-    func renderText(_ text: String, environment: EnvironmentValues, rect: CGRect)
     func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String
-    func sizeForText(_ text: String, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
     func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
 }

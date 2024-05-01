@@ -6,11 +6,14 @@
 
 import Foundation
 
-/// A block for displaying a table row within a Table.
+/// A block for printing a row within a `Table`.
 public struct TableRow<Value>: Block {
     private let record: Value
     @Environment(\.tableColumns) private var columns
 
+    /// Creates an instance.
+    /// - Parameters:
+    ///   - record: The table record to be displayed.
     public init(record: Value) {
         self.record = record
     }

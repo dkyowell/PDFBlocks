@@ -13,14 +13,22 @@ struct ProporionalFrame<Content>: Block where Content: Block {
 }
 
 extension ProporionalFrame: Renderable {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if keypath == \.proprtionalWidth {
+            Trait(proprtionalWidth: width)[keyPath: keypath]
+        } else {
+            content.getRenderable(environment: environment)
+                .getTrait(context: context, environment: environment, keypath: keypath)
+        }
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
-    // TODO: ContentSize?
-
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        // TODO: Review .isSeoncaryPageWrapBlock. Review remainder
         let renderable = content.getRenderable(environment: environment)
         if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
             renderable.render(context: context, environment: environment, rect: rect)
@@ -37,20 +45,6 @@ extension ProporionalFrame: Renderable {
             let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: size.width, height: rect.height)
             renderable.render(context: context, environment: environment, rect: renderRect)
         }
-        // TODO: ?
         return nil
-    }
-
-    func proportionalWidth(environment _: EnvironmentValues) -> Double? {
-        width
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        if keypath == \.proprtionalWidth {
-            Trait(proprtionalWidth: width)[keyPath: keypath]
-        } else {
-            content.getRenderable(environment: environment)
-                .getTrait(context: context, environment: environment, keypath: keypath)
-        }
     }
 }

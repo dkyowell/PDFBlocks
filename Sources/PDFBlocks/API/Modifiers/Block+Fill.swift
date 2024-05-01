@@ -7,7 +7,7 @@
 import Foundation
 
 public extension Block {
-    func fill(_ value: ShapeStyle) -> some Block {
+    func fill(_ value: some ShapeStyle) -> some Block {
         environment(\.fill, value)
     }
 }

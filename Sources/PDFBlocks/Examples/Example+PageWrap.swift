@@ -36,7 +36,15 @@ import Foundation
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            HGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, allowWrap: false) {
+            PageNumberReader { pageNo in
+                Text("Page \(pageNo)")
+                // TODO: This variable padding doesn't work
+                // .padding(.bottom, .pt(CGFloat(pageNo * 12)))
+            }
+            .font(size: 36)
+            .padding(.horizontal, .max)
+            // .padding(.bottom, .pt(12))
+            VStack(alignment: .center, pageWrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
@@ -64,6 +72,7 @@ private struct Document: Block {
                 Text("Y")
                 Text("Z")
             }
+            .tag("Outer")
             .padding(12)
             .overlay {
                 Color.clear
@@ -72,15 +81,16 @@ private struct Document: Block {
             .font(size: 32)
             .padding(12)
             .rotationEffect(.degrees(10))
+            .clipped()
         }
         .background {
             Color.orange
+                .border(Color.black, width: 12)
         }
-        .border(Color.black, width: 12)
-        .font(name: "American Typewriter")
+        .fontDesign(.rounded)
+        .fontWeight(.black)
     }
 }
-
 
 #if os(iOS) || os(macOS)
     import PDFKit

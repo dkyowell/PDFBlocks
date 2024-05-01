@@ -9,7 +9,16 @@ import Foundation
 #if os(macOS)
     import AppKit
 
-    extension NSColor: PlatformColor {}
+    extension NSColor: PlatformColor {
+        public func opacity(value: CGFloat) -> PlatformColor {
+            var red: CGFloat = 0
+            var green: CGFloat = 0
+            var blue: CGFloat = 0
+            var alpha: CGFloat = 0
+            getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+            return withAlphaComponent(value * alpha)
+        }
+    }
 
     public extension Color {
         init(_ color: NSColor) {
@@ -75,7 +84,7 @@ import Foundation
         }
 
         init(path: String) {
-            image = NSImage(contentsOfFile: path) ?? NSUIImage()
+            image = NSImage(contentsOfFile: path) ?? KitImage()
         }
     }
 

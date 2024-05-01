@@ -6,8 +6,10 @@
 
 import Foundation
 
-/// A  block  constructed by @BlockBuilder when a block has
+/// A  block returned by `@BlockBuilder` when a block has
 /// has multiple elements for its contents.
+///
+/// Users should not need to use `TupleBlock` explicitly.
 public struct TupleBlock<V>: Block {
     let _blocks: [any Block]
 

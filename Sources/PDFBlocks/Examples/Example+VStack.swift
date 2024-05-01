@@ -8,25 +8,26 @@ import Foundation
 
 private struct Document: Block {
     var body: some Block {
-        Page(size: .init(width: .in(8), height: .in(6)), margins: .in(0.5)) {
-            VStack {
-                Text("The")
-                Text("Quick")
-                Text("Brown")
-                Text("Fox")
-                Text("Jumped")
-                Text("Over")
-                Text("The")
-                Text("Lazy")
-                Text("Dog")
+        Page(size: .init(width: .in(4), height: .in(6)), margins: .in(1)) {
+            VStack(spacing: .flex) {
+                Text("One")
+                Text("Fish")
+                Text("Two")
+                Text("Fish")
+                Text("Red")
+                    .foregroundStyle(.red)
+                    .scaleEffect(1.25)
+                Text("Fish")
+                Text("Blue")
+                    .foregroundStyle(.blue)
+                    .scaleEffect(1.25)
+                Text("Fish")
             }
-            .border(.cyan)
-            .font(size: 12)
+            .font(.init(.init(name: "American Typewriter", size: 24)))
         }
+        .border(.black, width: 4)
     }
 }
-
-private let text = "They're Pinky and the Brain, Pinky and the Brain. One is a genious. The other's insane. They're labratory mice. They're genes have been spliced. They're Pinky, they're Pink and the Brain Brain Brain Brain."
 
 #if os(iOS) || os(macOS)
     import PDFKit

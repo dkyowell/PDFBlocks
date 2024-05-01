@@ -8,8 +8,8 @@ import Foundation
 
 private struct Document: Block {
     let linearGradient = LinearGradient(colors: [.cyan, .purple, .blue],
-                                        startPoint: .leading,
-                                        endPoint: .trailing)
+                                        startPoint: .top,
+                                        endPoint: .bottom)
     let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
                                         center: .center,
                                         startRadius: .in(0),
@@ -25,8 +25,6 @@ private struct Document: Block {
         }
     }
 }
-
-
 
 #if os(iOS) || os(macOS)
     import PDFKit
