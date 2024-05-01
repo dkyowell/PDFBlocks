@@ -43,7 +43,7 @@ extension Font {
         } else {
             KitFontDescriptor()
                 .withSize(kitFont.pointSize)
-                .withFamily(kitFont.familyName)
+                .withFamily(kitFont.familyName ?? kitFont.fontName)
         }
         // Apply Font.Design
         descriptor = descriptor.withDesign(design ?? .default) ?? descriptor
