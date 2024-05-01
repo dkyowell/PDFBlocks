@@ -30,7 +30,7 @@ private struct LetterBlock: Block {
         Text(letter)
             .foregroundColor(.white)
             .frame(width: 48, height: 48, alignment: .center)
-            .background { color }
+            .background(color)
             .font(.init(.init(name: "American Typewriter", size: 36)))
             .bold()
     }

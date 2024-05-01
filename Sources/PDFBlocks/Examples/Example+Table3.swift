@@ -64,6 +64,7 @@ private struct Document: Block {
                 TableColumnTitles()
             }
         }
+        .font(.system(size: 8))
     }
 }
 

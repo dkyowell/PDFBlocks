@@ -6,7 +6,6 @@
 
 import Foundation
 
-
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(4), height: .in(6)), margins: .in(0.5)) {

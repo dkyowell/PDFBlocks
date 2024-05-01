@@ -16,11 +16,6 @@ private struct Document: Block {
                                         endRadius: .in(3))
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
-            Text("Gradient\nText\nMore\nLines")
-                .font(size: 96)
-                .bold()
-                .foregroundStyle(linearGradient)
-                .multilineTextAlignment(.center)
             HStack(spacing: .pt(16)) {
                 Circle()
                     .fill(linearGradient)

@@ -21,6 +21,9 @@ private struct Document: Block {
         } pageHeader: { _ in
             TableColumnTitles()
         }
+        .font(.system(size: 9))
+        .padding(bottom: .max, trailing: .max)
+        .fontWidth(.condensed)
     }
 }
 

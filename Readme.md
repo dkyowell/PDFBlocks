@@ -1,17 +1,16 @@
-<p align="center">
-    <img src="Documentation/logo.png" width="400" max-width="50%" alt=“PDFBlocks” />
+<p align="left">
+    <img src="Documentation/logo.png" width="300" max-width="50%" alt=“PDFBlocks” />
 </p>
-<p align="center">
+<p align="left">
     <img src="https://img.shields.io/badge/swift-5.9-orange.svg" />
     <img src="https://img.shields.io/badge/swiftpm-compatible-brightgreen.svg?style=flat" alt="Swift Package Manager" />
     <img src="https://img.shields.io/badge/platforms-macOS+iOS-brightgreen.svg?style=flat" alt="Mac + iOS" />
 </p>
 
-A SwiftUI inspired framework for generating reports and other PDF documents.
+PDFBlocks is a powerful but easy to use PDF document and report generation library written in Swift for Apple platforms. 
 
-## Document Descriptions, not Instructions. 
-PDFBlocks uses a declarative language for describing document layout and appearance, not commands such as print(),
-draw(), or newPage(). Here is the "code" used to generate the PDFBlocks logo used at the top of this document:
+## A Declarative Approach to Documents. 
+PDFBlocks uses a declarative language inspired by SwiftUI for describing document layout and appearance. Here is the code that was used to generate the PDFBlocks logo at the top of this page.
 
 ```swift
 private struct Document: Block {
@@ -38,8 +37,8 @@ private struct LetterBlock: Block {
         Text(letter)
             .foregroundColor(.white)
             .frame(width: 48, height: 48, alignment: .center)
-            .background { color }
-            .font(name: "American Typewriter", size: 36)
+            .background(color)
+            .font(Font(.init(name: "American Typewriter", size: 36)))
             .bold()
     }
 }
@@ -83,77 +82,21 @@ let pdfData = Document().renderPDF(pageSize: .letter, margins: .in(1))
     <img src="Documentation/table-image.png" width="600" max-width="75%" alt=“Table Image” />
 </p>
 
-## SwiftUI Inspired
-PDFBlocks is inspired by SwiftUI and follows its syntax closely, however, there are some differences to be aware of.
-### Blocks
-Everything in SwiftUI that is a View is a Block in PDFBlocks.
+## Documentation
+[Documentation.md](Documentation/Documentation.md)
 
-### Units
-Dimensions can be specified in points (.pt), inches (.in), or milimeters (.mm). 
-```swift
-    Color.blue
-        .frame(width: .in(1), height: .pt(72))
-```
-Dimensions can also be expressed integer or float literals, in which case the unit is points.
-```swift
-    Color.blue
-        .frame(width: 36, height: 36)
-```
-### Frames
-There is no minWidth, maxWidth, minHeight, maxHeight for frames. Instead, a width or height can be set as .max.
-So, instead of this SwiftUI code for positioning an element in the bottom trailing corner of a view:
-```swift
-Text("Bottom Trailing Text in SwiftUI)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-```
-You would use:
-```swift
-Text("Bottom Trailing Text in PDFBlocks)
-    .frame(width: .max, height: .max, alignment: .bottomTrailing)
-```
-Or alternatively you could use:
-```swift
-Text("Bottom Trailing Text in PDFBlocks)
-    .padding([.top, .leading], .max)
-```
 
-### Spacing
-Instead of using a Spacer block, you can set stack spacing as .flex. The following will give equal spacing between
-elements:
-```swift
-HStack(spacing: .flex) {
-    Text("One Fish")
-    Text("Two Fish")
-    Text("Red Fish")
-    Text("Blue Fish")
-}
-```
-### Pages
-A document with multiple pages can be defined like this:
-```swift
-struct Document: Block {
-    Page {
-        ...
-    }
-    Page {
-        ...
-    }
-}
-let data = Document().renderPDF(pageSize: .letter, margins: .in(1))
-```
-Page size can be supplied by the .renderPDF function, but can also be defined within
-the document itself. A single document can even have pages of differing sizes:
-```swift
-struct Document: Block {
-    Page(size: .letter, margins: .in(1)) {
-        ...
-    }
-    Page(size: .a4, margins: .mm(24)) {
-        ...
-    }
-}
-let data = Document().renderPDF()
-```
+## For a Quick "Preview"
+You can get a quick start with using PDFBlocks using the example documents and XCode Previews.
+
+1. Download the PDFBlocks project.
+2. Open Package.swift in XCode.
+3. Navigate to Sources/PDFBlocks/Examples
+4. Puruse the sample documents. Modify them if you wish, and see the results right away using Xcode Previews.
+
+<p align="center">
+    <img src="Documentation/xcode-preview.png" width="400" max-width="50%" alt=“Xcode Preview” />
+</p>
 
 ## Installation
 PDFBlocks is distributed using the [Swift Package Manager](https://swift.org/package-manager). To install it into a project, add it as a dependency within your `Package.swift` manifest:
@@ -173,24 +116,6 @@ Then import PDFBlocks wherever you’d like to use it:
 ```swift
 import PDFBlocks
 ```
-## For a Quick "Preview"
-The best way to explore this package to see what it can do is with XCode Previews.
 
-1. Download the PDFBlocks project.
-2. Open Package.swift in XCode.
-3. Navigate to Sources/PDFBlocks/Examples
-4. Puruse the sample documents. Modify them if you wish, and see the results right away using Xcode Previews.
-
-<p align="center">
-    <img src="Documentation/xcode-preview.png" width="400" max-width="50%" alt=“Xcode Preview” />
-</p>
-
-## Usage Warnings
-This is an early release. It is completely usable as-is, but the API will change between releases.
-
-I advise against using San Francisco family fonts. These send the minimum PDF file size up to around 5MB. I do not know why.
-
-## Contributions and Support
-Open an issue with questions or feature requests.
-
-See [Contributions.md](Contributions.md) for information about contributions.
+## Support
+Open an issue with questions or feature requests. I am actively developing this project and will try to accomodate requests that fit within the goals of the project. 
