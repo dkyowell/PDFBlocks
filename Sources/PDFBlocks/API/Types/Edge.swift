@@ -34,4 +34,16 @@ public extension Set<Edge> {
 
     /// Trailing edge.
     static var trailing: Self { [.trailing] }
+
+    /// Bottom and trailing edges.
+    static var bottomTrailing: Self { [.bottom, .trailing] }
+
+    /// Bottom and leading edges.
+    static var bottomLeading: Self { [.bottom, .leading] }
+
+    /// Top and trailing edges.
+    static var topTrailing: Self { [.top, .trailing] }
+
+    /// Top and leading edges.
+    static var topLeading: Self { [.top, .leading] }
 }
