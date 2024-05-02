@@ -6,6 +6,10 @@
 
 import Foundation
 
+let sampleGradient = LinearGradient(colors: [.cyan, .purple, .blue],
+                                    startPoint: .top,
+                                    endPoint: .bottom)
+
 private struct Document: Block {
     let linearGradient = LinearGradient(colors: [.cyan, .purple, .blue],
                                         startPoint: .top,

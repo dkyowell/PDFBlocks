@@ -13,6 +13,11 @@ struct ProporionalFrame<Content>: Block where Content: Block {
 }
 
 extension ProporionalFrame: Renderable {
+    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
+        content.getRenderable(environment: environment)
+            .decompose(context: context, environment: environment, proposal: proposal)
+    }
+
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         if keypath == \.proprtionalWidth {
             Trait(proprtionalWidth: width)[keyPath: keypath]

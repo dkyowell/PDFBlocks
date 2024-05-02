@@ -7,6 +7,16 @@
 import Foundation
 
 extension AnyBlock: Renderable {
+    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
+        content.getRenderable(environment: environment)
+            .decompose(context: context, environment: environment, proposal: proposal)
+    }
+
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        content.getRenderable(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let block = content.getRenderable(environment: environment)
         return block.sizeFor(context: context, environment: environment, proposal: proposal)
@@ -19,10 +29,5 @@ extension AnyBlock: Renderable {
         } else {
             return nil
         }
-    }
-
-    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content.getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 }

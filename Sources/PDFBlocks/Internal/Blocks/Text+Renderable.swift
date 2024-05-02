@@ -21,3 +21,22 @@ extension Text: Renderable {
         }
     }
 }
+
+extension Text {
+    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
+        context.renderer.decomposeText(value, environment: environment, proposedSize: proposal)
+            .map { Text($0) }
+    }
+}
+
+extension VStack {
+//    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
+//        print("IS THIS CALLED")
+    ////        content.
+    ////        return [self]
+//    //func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
+    ////        print("IS THIS CALLED")
+    ////        return context.renderer.decomposeText(value, environment: environment, proposedSize: proposal)
+    ////            .map({Text($0)})
+//    }
+}

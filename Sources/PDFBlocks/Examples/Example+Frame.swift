@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
@@ -19,25 +20,19 @@ private struct Document: Block {
             .bold()
             .padding(2)
             .border(.orange, width: 2)
-            .font(.init(.init(name: "Courier", size: 48)))
+            .font(.init(.init(name: "Courier", size: 42)))
         }
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n\n>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

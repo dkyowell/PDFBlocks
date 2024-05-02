@@ -7,6 +7,13 @@
 import Foundation
 
 extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModifier {
+    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
+        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
+        let modifiedContent = modifier.body(content: nmc)
+        let block = modifiedContent.getRenderable(environment: environment)
+        return block.decompose(context: context, environment: environment, proposal: proposal)
+    }
+
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         let nmc = _BlockModifier_Content(modifier: modifier, block: content)
         let modifiedContent = modifier.body(content: nmc)

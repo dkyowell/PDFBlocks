@@ -28,4 +28,5 @@ protocol Renderer {
     func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect)
     func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String
     func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
+    func decomposeText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> [String]
 }

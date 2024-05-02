@@ -10,28 +10,10 @@ private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(4), height: .in(6)), margins: .in(0.5)) {
             Group {
-                Text("Ultralight")
-                    .fontWeight(.ultraLight)
-                Text("Thig")
-                    .fontWeight(.thin)
-                Text("Light")
-                    .fontWeight(.light)
-                Text("Regular")
-                    .fontWeight(.regular)
-                Text("Medium")
-                    .fontWeight(.medium)
-                Text("Semibold")
-                    .fontWeight(.semibold)
-                Text("Bold")
-                    .fontWeight(.bold)
-                Text("Heavy")
-                    .fontWeight(.heavy)
-                Text("Black")
-                    .fontWeight(.black)
+                Text("Testing, One, Two")
             }
-            .font(Font(.init(name: "Helvetica Neue", size: 24)))
+            .font(Font(.init(name: "Helvetica Neue", size: 48)))
         }
-        .border(.black, width: 4)
     }
 }
 
