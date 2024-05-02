@@ -109,14 +109,14 @@ extension VStack {
         }
     }
 
-    func renderPrimaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) {
-        // print("VStack.render.primary", rect)
+    func renderPrimaryWrap(context: Context, environment: EnvironmentValues, rect _: CGRect) {
         var environment = environment
         environment.layoutAxis = .vertical
         environment.renderMode = .wrapping
         var blocks = content.getRenderables(environment: environment)
         var dy: CGFloat = 0
         while blocks.count > 0 {
+            let rect = context.pageWrapRect
             let block = blocks[0]
             let remainingSize = CGSize(width: rect.width, height: rect.height - dy)
             let size = block.sizeFor(context: context, environment: environment, proposal: remainingSize)
