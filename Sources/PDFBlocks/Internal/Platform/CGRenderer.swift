@@ -14,6 +14,8 @@ import Foundation
     public typealias KitFontDescriptor = NSFontDescriptor
     public typealias KitColor = NSColor
     public typealias KitImage = NSImage
+    public typealias KitAttributes = AttributeScopes.AppKitAttributes
+    extension NSFont: @unchecked Sendable {}
 #endif
 
 #if os(iOS)
@@ -24,7 +26,10 @@ import Foundation
     public typealias KitFontDescriptor = UIFontDescriptor
     public typealias KitColor = UIColor
     public typealias KitImage = UIImage
+    public typealias KitAttributes = AttributeScopes.UIKitAttributes
 #endif
+
+extension NSParagraphStyle: @unchecked Sendable {}
 
 // A core graphics based renderer for iOS and macOS.
 class CGRenderer: Renderer {
@@ -330,11 +335,38 @@ class CGRenderer: Renderer {
         }
     }
 
+    func prepareString(_ text: AttributedString, environment: EnvironmentValues) -> NSMutableAttributedString {
+        var text = text
+        let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
+        var container = AttributeContainer()
+        if let stroke = environment.textStroke {
+            container[KitAttributes.StrokeColorAttribute.self] = stroke.color.kitColor
+            if environment.textFill == nil {
+                container[KitAttributes.StrokeWidthAttribute.self] = stroke.lineWidth
+            } else {
+                container[KitAttributes.StrokeWidthAttribute.self] = -stroke.lineWidth
+            }
+        }
+        let style = NSMutableParagraphStyle()
+        let lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
+        style.maximumLineHeight = lineHeight
+        container[KitAttributes.ParagraphStyleAttribute.self] = style
+        if let fill = environment.textFill {
+            container[KitAttributes.ForegroundColorAttribute.self] = fill.kitColor
+        } else if let color = environment.foregroundStyle as? Color {
+            container[KitAttributes.ForegroundColorAttribute.self] = color.kitColor
+        }
+        container[KitAttributes.FontAttribute.self] = resolvedFont
+        container[KitAttributes.KernAttribute.self] = environment.kerning
+        text.mergeAttributes(container, mergePolicy: .keepCurrent)
+        return NSMutableAttributedString(text)
+    }
+
     // TODO: sizeForCTText
-    func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
-        let string = prepareText(text, environment: environment)
+    func sizeForText(_ text: AttributedString, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
+        let string = prepareString(text, environment: environment)
         let range = CFRangeMake(0, string.length)
-        let ellipsis = prepareText("…", environment: environment)
+        let ellipsis = prepareString("…", environment: environment)
         let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
         let lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
         let rect = CGRect(origin: .zero, size: CGSize(width: proposedSize.width, height: max(proposedSize.height, lineHeight)))
@@ -359,8 +391,8 @@ class CGRenderer: Renderer {
         }
     }
 
-    func decomposeText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> [String] {
-        let string = prepareText(text, environment: environment)
+    func decomposeText(_ text: AttributedString, environment: EnvironmentValues, proposedSize: Proposal) -> [AttributedString] {
+        let string = prepareString(text, environment: environment)
         let range = CFRangeMake(0, string.length)
         let rect = CGRect(origin: .zero, size: CGSize(width: proposedSize.width, height: .infinity))
         let framesetter = CTFramesetterCreateWithAttributedString(string)
@@ -371,79 +403,39 @@ class CGRenderer: Renderer {
         return lines.map { line in
             let cfRange = CTLineGetStringRange(line)
             let nsRange = NSMakeRange(cfRange.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length)
-            return string.attributedSubstring(from: nsRange).string
+            return AttributedString(string.attributedSubstring(from: nsRange))
         }
     }
 
-    func prepareText(_ text: String, environment: EnvironmentValues) -> NSMutableAttributedString {
-        let string = NSMutableAttributedString(string: text)
-        let range = CFRangeMake(0, string.length)
-        let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
-        var ctFont: CTFont = resolvedFont
-        var lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
-        var fontTransform = CGAffineTransformIdentity
-            .scaledBy(x: 1, y: -1)
-        ctFont = CTFontCreateCopyWithAttributes(ctFont, 0, &fontTransform, nil)
-        CFAttributedStringSetAttribute(string, range, kCTFontAttributeName, ctFont)
-        CFAttributedStringSetAttribute(string, range, kCTKernAttributeName, NSNumber(floatLiteral: environment.kerning))
-
-        var paragraphSettings: [CTParagraphStyleSetting] = []
-        //   LINE BREAK MODE
-        let lineBreakMode = CTLineBreakMode.byWordWrapping
-        let lineBreakSetting: CTParagraphStyleSetting = withUnsafeBytes(of: lineBreakMode) {
-            CTParagraphStyleSetting(spec: .lineBreakMode, valueSize: MemoryLayout<CTLineBreakMode>.size, value: $0.baseAddress!)
-        }
-        paragraphSettings.append(lineBreakSetting)
-        let lineHeightSetting = withUnsafeMutableBytes(of: &lineHeight) {
-            CTParagraphStyleSetting(spec: .maximumLineHeight, valueSize: MemoryLayout<CGFloat>.size, value: $0.baseAddress!)
-        }
-        paragraphSettings.append(lineHeightSetting)
-        // APPLY PARAGRAPH SETTINS
-        let paragraphStyle = CTParagraphStyleCreate(paragraphSettings, paragraphSettings.count)
-        CFAttributedStringSetAttribute(string, range, kCTParagraphStyleAttributeName, paragraphStyle)
-        // SET ATTRIBUTES
-        if let color = environment.foregroundStyle as? Color {
-            CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, color.cgColor)
-        }
-        if let stroke = environment.textStroke {
-            CFAttributedStringSetAttribute(string, range, kCTStrokeColorAttributeName, stroke.color.cgColor)
-            CFAttributedStringSetAttribute(string, range, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: stroke.lineWidth))
-        }
-        if let fill = environment.textFill, let stroke = environment.textStroke {
-            CFAttributedStringSetAttribute(string, range, kCTStrokeColorAttributeName, stroke.color.cgColor)
-            CFAttributedStringSetAttribute(string, range, kCTStrokeWidthAttributeName, NSNumber(floatLiteral: -stroke.lineWidth))
-            CFAttributedStringSetAttribute(string, range, kCTForegroundColorAttributeName, fill.cgColor)
-        }
-        return string
-    }
-
-    func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String {
+    func renderText(_ text: AttributedString, environment: EnvironmentValues, rect: CGRect) -> AttributedString {
         guard layer == layerFilter else {
             return ""
         }
-        let attributedString = prepareText(text, environment: environment)
-        let range = CFRangeMake(0, attributedString.length)
-        // SET FONT
-        let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
-        let lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
-        // DRAW TEXT
-        let framesetter = CTFramesetterCreateWithAttributedString(attributedString)
-        let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
+        let nsAttrString = prepareString(text, environment: environment)
+        let framesetter = CTFramesetterCreateWithAttributedString(nsAttrString)
+        let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: 0, length: 0), CGPath(rect: rect, transform: .none), nil)
         let visibleRange = CTFrameGetVisibleStringRange(frame)
-        let truncate = (visibleRange.length < attributedString.length) && !environment.textContinuationMode
+        let truncate = (visibleRange.length < nsAttrString.length) && !environment.textContinuationMode
         guard let cgContext else {
             fatalError()
         }
+        cgContext.saveGState()
+        cgContext.scaleBy(x: 1, y: -1)
+        cgContext.translateBy(x: 0, y: -pageSize.height)
         guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
             fatalError()
         }
+        var origins = [CGPoint](repeating: .zero, count: lines.count)
+
+        CTFrameGetLineOrigins(frame, CFRange(location: 0, length: 0), &origins)
         for (offset, line) in lines.enumerated() {
             let bounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
             if truncate, offset == lines.count - 1 {
-                let ellipsis = prepareText("…", environment: environment)
+                let ellipsis = prepareString("…", environment: environment)
                 let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
                 let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
                 if bounds.width + ellipsisBounds.width ~<= rect.width {
+                    // Case 1: long line overflows
                     let dx: CGFloat = switch environment.multilineTextAlignment {
                     case .leading:
                         0
@@ -452,16 +444,18 @@ class CGRenderer: Renderer {
                     case .trailing:
                         rect.width - bounds.width - ellipsisBounds.width
                     }
-                    cgContext.textPosition = rect.origin.offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                    let dy = origins[offset].y + pageSize.height - rect.maxY
+                    cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
                     CTLineDraw(line, cgContext)
-                    cgContext.textPosition.x += bounds.width
+                    cgContext.textPosition = CGPoint(x: rect.minX + dx + bounds.width, y: dy)
                     CTLineDraw(ellipsisLine, cgContext)
                 } else {
+                    // Case 2: there are more lines
                     let cfRange = CTLineGetStringRange(line)
                     var nsRange = NSMakeRange(cfRange.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length)
                     while nsRange.length > 0 {
                         nsRange = NSRange(location: nsRange.location, length: nsRange.length - 1)
-                        let lastLineString = attributedString.attributedSubstring(from: nsRange)
+                        let lastLineString = nsAttrString.attributedSubstring(from: nsRange)
                         let lastLine = CTLineCreateWithAttributedString(lastLineString)
                         let lastLineBounds = CTLineGetBoundsWithOptions(lastLine, [.useOpticalBounds])
                         if lastLineBounds.width + ellipsisBounds.width ~<= rect.width {
@@ -473,10 +467,9 @@ class CGRenderer: Renderer {
                             case .trailing:
                                 rect.width - lastLineBounds.width - ellipsisBounds.width
                             }
-                            cgContext.textPosition = rect.origin.offset(dx: dx, dy: lastLineBounds.minY + lineHeight * CGFloat(offset + 1))
-
+                            let dy = origins[offset].y + pageSize.height - rect.maxY
+                            cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
                             CTLineDraw(lastLine, cgContext)
-                            cgContext.textPosition.x += lastLineBounds.width
                             CTLineDraw(ellipsisLine, cgContext)
                             break
                         }
@@ -491,14 +484,16 @@ class CGRenderer: Renderer {
                 case .trailing:
                     rect.width - bounds.width
                 }
-                cgContext.textPosition = rect.origin.offset(dx: dx, dy: bounds.minY + lineHeight * CGFloat(offset + 1))
+                let dy = origins[offset].y + pageSize.height - rect.maxY
+                cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
                 CTLineDraw(line, cgContext)
             }
         }
+        cgContext.restoreGState()
         if environment.textContinuationMode {
             let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
-            attributedString.deleteCharacters(in: nsRange)
-            return attributedString.string
+            nsAttrString.deleteCharacters(in: nsRange)
+            return AttributedString(nsAttrString)
         } else {
             return ""
         }
@@ -578,5 +573,4 @@ extension CFRange {
     init(range: NSRange) {
         self = CFRangeMake(range.location == NSNotFound ? kCFNotFound : range.location, range.length)
     }
-
 }

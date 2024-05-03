@@ -26,7 +26,7 @@ protocol Renderer {
     func renderLine(environment: EnvironmentValues, path: CGPath)
     func renderPath(environment: EnvironmentValues, path: CGPath)
     func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect)
-    func renderCTText(_ text: String, environment: EnvironmentValues, rect: CGRect) -> String
-    func sizeForCTText(_ text: String, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
-    func decomposeText(_ text: String, environment: EnvironmentValues, proposedSize: Proposal) -> [String]
+    func renderText(_ text: AttributedString, environment: EnvironmentValues, rect: CGRect) -> AttributedString
+    func sizeForText(_ text: AttributedString, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
+    func decomposeText(_ text: AttributedString, environment: EnvironmentValues, proposedSize: Proposal) -> [AttributedString]
 }
