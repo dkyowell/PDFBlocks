@@ -16,7 +16,7 @@ extension AspectRatio: Renderable {
         content.getRenderable(environment: environment)
             .decompose(context: context, environment: environment, proposal: proposal)
     }
-    
+
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         content.getRenderable(environment: environment)
             .getTrait(context: context, environment: environment, keypath: keypath)
