@@ -43,7 +43,11 @@ extension Font {
         } else {
             KitFontDescriptor()
                 .withSize(kitFont.pointSize)
+            #if os(macOS)
                 .withFamily(kitFont.familyName ?? kitFont.fontName)
+            #else
+                .withFamily(kitFont.familyName)
+            #endif
         }
         // Apply Font.Design
         descriptor = descriptor.withDesign(design ?? .default) ?? descriptor
