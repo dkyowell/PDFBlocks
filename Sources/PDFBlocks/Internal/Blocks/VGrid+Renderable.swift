@@ -49,7 +49,6 @@ extension VGrid: Renderable {
             return nil
         case .primary:
             context.renderer.setLayer(2)
-            print("set rect, rect", rect)
             context.setPageWrapRect(rect)
             if context.multiPagePass == nil {
                 context.multiPagePass = {
