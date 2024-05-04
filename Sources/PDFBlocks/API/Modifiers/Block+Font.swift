@@ -39,12 +39,7 @@ struct FontKey: EnvironmentKey {
 extension EnvironmentValues {
     var font: Font {
         get { self[FontKey.self] }
-        set {
-            self[FontKey.self].kitFont = newValue.kitFont
-            if let design = newValue.design {
-                self[FontKey.self].design = design
-            }
-        }
+        set { self[FontKey.self] = newValue }
     }
 }
 

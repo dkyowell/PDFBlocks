@@ -8,8 +8,7 @@ import Foundation
 
 #if os(iOS)
     import UIKit
-#endif
-#if os(macOS)
+#else
     import AppKit
 #endif
 
@@ -38,22 +37,22 @@ extension Font {
     func resolvedFont(environment: EnvironmentValues) -> KitFont {
         // Apply Font.Width
         var descriptor: KitFontDescriptor = if kitFont.isSystemFont {
-            KitFont.systemFont(ofSize: kitFont.pointSize, weight: .regular, width: width ?? .standard)
+            KitFont.systemFont(ofSize: kitFont.pointSize, weight: weight ?? .regular, width: width ?? .standard)
                 .fontDescriptor
         } else {
             KitFontDescriptor()
                 .withSize(kitFont.pointSize)
-            #if os(macOS)
-                .withFamily(kitFont.familyName ?? kitFont.fontName)
-            #else
+            #if os(iOS)
                 .withFamily(kitFont.familyName)
+            #else
+                .withFamily(kitFont.familyName ?? kitFont.fontName)
             #endif
         }
         // Apply Font.Design
         descriptor = descriptor.withDesign(design ?? .default) ?? descriptor
         // Apply Font.Weight
         var traits = [KitFontDescriptor.TraitKey: Any]()
-        traits[KitFontDescriptor.TraitKey.weight] = weight ?? .regular
+        traits[KitFontDescriptor.TraitKey.weight] = weight
         let attributes: [KitFontDescriptor.AttributeName: Any] = [.traits: traits]
         descriptor = descriptor.addingAttributes(attributes)
         // Apply Bold and Italic
@@ -68,8 +67,7 @@ extension Font {
                 descriptor = descriptor.withSymbolicTraits([.traitBold]) ?? descriptor
             }
             let interim = KitFont(descriptor: descriptor, size: 0)
-        #endif
-        #if os(macOS)
+        #else
             if environment.italic, environment.bold {
                 descriptor = descriptor.withSymbolicTraits([.italic, .bold])
             } else if environment.italic {
