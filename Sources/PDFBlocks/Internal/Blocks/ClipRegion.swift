@@ -30,7 +30,7 @@ extension ClipRegion: Renderable {
         context.renderer.starClipRegion(rect: rect)
         let remainder = content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        context.renderer.restoreOpacity()
+        context.renderer.endClipRegion()
         if let remainder = remainder as? AnyBlock {
             return ClipRegion<AnyBlock>(content: remainder)
         } else {
