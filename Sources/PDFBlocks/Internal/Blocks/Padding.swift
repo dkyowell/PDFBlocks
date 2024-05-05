@@ -17,11 +17,6 @@ struct Padding<Content>: Block where Content: Block {
 }
 
 extension Padding: Renderable {
-    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
-        content.getRenderable(environment: environment)
-            .decompose(context: context, environment: environment, proposal: proposal)
-    }
-
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         content.getRenderable(environment: environment)
             .getTrait(context: context, environment: environment, keypath: keypath)

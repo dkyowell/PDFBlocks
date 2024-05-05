@@ -22,7 +22,7 @@ protocol Renderable: Block {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize
     @discardableResult func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)?
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
-    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable]
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)?
 }
 
 extension Renderable {
@@ -44,8 +44,8 @@ extension Renderable {
 }
 
 extension Renderable {
-    func decompose(context _: Context, environment _: EnvironmentValues, proposal _: Proposal) -> [any Renderable] {
-        [self]
+    func remainder(context _: Context, environment _: EnvironmentValues, size _: CGSize) -> (any Renderable)? {
+        nil
     }
 }
 

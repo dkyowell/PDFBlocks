@@ -7,9 +7,13 @@
 import Foundation
 
 extension Text: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let result = context.renderer.sizeForText(value, environment: environment, proposedSize: proposal)
-        return BlockSize(min: result.min, max: result.max)
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        let remainder = context.renderer.textRemainder(value, environment: environment, rect: .init(origin: .zero, size: size))
+        if remainder.characters.count > 0 {
+            return Text(remainder)
+        } else {
+            return nil
+        }
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
@@ -20,11 +24,9 @@ extension Text: Renderable {
             return nil
         }
     }
-}
 
-extension Text {
-    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
-        context.renderer.decomposeText(value, environment: environment, proposedSize: proposal)
-            .map { Text($0) }
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        let result = context.renderer.sizeForText(value, environment: environment, proposedSize: proposal)
+        return BlockSize(min: result.min, max: result.max)
     }
 }

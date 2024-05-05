@@ -307,21 +307,6 @@ class CGRenderer: Renderer {
         var environment = environment
         environment.fill = shapeStyle
         renderPath(environment: environment, path: copy)
-        // OLD CODE BEFORE USING SHAPE STYLE. TO BE DELETED
-        // cgContext?.addRect(insetRect)
-        // cgContext?.setLineWidth(width)
-        // if let color = shapeStyle as? Color {
-        //     cgContext?.setStrokeColor(color.cgColor)
-        //     cgContext?.drawPath(using: .stroke)
-        // } else if let gradient = shapeStyle as? LinearGradient {
-        //     cgContext?.replacePathWithStrokedPath()
-        //     drawLinearGradient(gradient: gradient, rect: insetRect)
-        //     cgContext?.resetClip()
-        // } else if let gradient = shapeStyle as? RadialGradient {
-        //     cgContext?.replacePathWithStrokedPath()
-        //     cgContext?.clip()
-        //     drawRadialGradient(gradient: gradient, rect: rect)
-        // }
     }
 
     func renderImage(_ image: PlatformImage, environment _: EnvironmentValues, rect: CGRect) {
@@ -389,22 +374,6 @@ class CGRenderer: Renderer {
             return (min: truncatedSize, max: truncatedSize)
         } else {
             return (min: size, max: size)
-        }
-    }
-
-    func decomposeText(_ text: AttributedString, environment: EnvironmentValues, proposedSize: Proposal) -> [AttributedString] {
-        let string = prepareString(text, environment: environment)
-        let range = CFRangeMake(0, string.length)
-        let rect = CGRect(origin: .zero, size: CGSize(width: proposedSize.width, height: .infinity))
-        let framesetter = CTFramesetterCreateWithAttributedString(string)
-        let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
-        guard let lines = CTFrameGetLines(frame) as? [CTLine] else {
-            return []
-        }
-        return lines.map { line in
-            let cfRange = CTLineGetStringRange(line)
-            let nsRange = NSMakeRange(cfRange.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length)
-            return AttributedString(string.attributedSubstring(from: nsRange))
         }
     }
 
@@ -526,6 +495,16 @@ class CGRenderer: Renderer {
         } else {
             return ""
         }
+    }
+
+    func textRemainder(_ text: AttributedString, environment: EnvironmentValues, rect: CGRect) -> AttributedString {
+        let nsAttrString = prepareString(text, environment: environment)
+        let framesetter = nsAttrString.framesetter()
+        let frame = framesetter.createFrame(rect)
+        let visibleRange = frame.visibleStringRange()
+        let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
+        nsAttrString.deleteCharacters(in: nsRange)
+        return AttributedString(nsAttrString)
     }
 }
 

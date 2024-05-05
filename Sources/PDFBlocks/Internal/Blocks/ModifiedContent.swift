@@ -7,18 +7,22 @@
 import Foundation
 
 extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModifier {
-    func decompose(context: Context, environment: EnvironmentValues, proposal: Proposal) -> [any Renderable] {
-        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
-        let modifiedContent = modifier.body(content: nmc)
-        let block = modifiedContent.getRenderable(environment: environment)
-        return block.decompose(context: context, environment: environment, proposal: proposal)
-    }
-
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         let nmc = _BlockModifier_Content(modifier: modifier, block: content)
         let modifiedContent = modifier.body(content: nmc)
         let block = modifiedContent.getRenderable(environment: environment)
         return block.getTrait(context: context, environment: environment, keypath: keypath)
+    }
+
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        let nmc = _BlockModifier_Content(modifier: modifier, block: content)
+        let modifiedContent = modifier.body(content: nmc)
+        let block = modifiedContent.getRenderable(environment: environment)
+        if let remainder = block.remainder(context: context, environment: environment, size: size) {
+            return ModifiedContent<AnyBlock, Modifier>(content: AnyBlock(remainder), modifier: modifier)
+        } else {
+            return nil
+        }
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
@@ -32,17 +36,7 @@ extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModif
         let nmc = _BlockModifier_Content(modifier: modifier, block: content)
         let modifiedContent = modifier.body(content: nmc)
         let block = modifiedContent.getRenderable(environment: environment)
-        let remainder = block.render(context: context, environment: environment, rect: rect)
-        // TODO: I don't think this gets called.
-        if let remainder {
-            return remainder
-        } else {
-//        if let content = remainder as? Content {
-//
-//            return ModifiedContent(content: content, modifier: modifier)
-//        } else {
-            return nil
-        }
+        return block.render(context: context, environment: environment, rect: rect)
     }
 }
 
