@@ -7,7 +7,7 @@
 import Foundation
 
 public extension Block {
-    func font(size: CGFloat) -> some Block {
+    func fontSize(_ size: CGFloat) -> some Block {
         environment(\.fontSize, size)
     }
 
