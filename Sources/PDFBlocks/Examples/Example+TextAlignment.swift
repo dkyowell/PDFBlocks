@@ -12,7 +12,7 @@ private struct Document: Block {
         VStack {
             ForEach([TextAlignment.leading, .center, .trailing]) { alignment in
                 Text(text)
-                    .font(size: 18)
+                    .fontSize(18)
                     .multilineTextAlignment(alignment)
                 if alignment != .trailing {
                     Divider(padding: .pt(12))

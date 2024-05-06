@@ -19,7 +19,7 @@ private struct Document: Block {
             Text("Where no man has gone before")
                 .fontWidth(.expanded)
         }
-        .font(size: 24)
+        .fontSize(24)
     }
 }
 

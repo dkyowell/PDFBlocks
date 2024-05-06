@@ -21,7 +21,7 @@ private struct Document: Block {
         } groups: {
             TableGroup(on: \.state, order: <, spacing: .pt(12)) { _, value in
                 Text(stateName(abberviation: value))
-                    .font(size: 12)
+                    .fontSize(12)
                     .bold()
                     .padding(.trailing, .max)
                 TableColumnTitles()
@@ -41,7 +41,7 @@ private struct Document: Block {
 //                    Text("Z")
                     Spacer(fixedLength: 34)
                 }
-                .font(size: 32)
+                .fontSize(32)
                 // .padding(.vertical, .in(0.25))
 //                Divider(thickness: .pt(0.75), padding: .pt(2))
 //                Text("\(rows.count) records for \(stateName(abberviation: value))")
@@ -54,7 +54,7 @@ private struct Document: Block {
                     .padding(.trailing, .max)
                 Text("Donor List")
                     .padding(.horizontal, .max)
-                    .font(size: 12)
+                    .fontSize(12)
                     .bold()
                 Text(Date(), format: .mmddyy)
                     .padding(.leading, .max)

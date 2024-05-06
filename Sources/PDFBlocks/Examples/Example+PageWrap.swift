@@ -13,7 +13,7 @@ private struct Document: Block {
             PageNumberReader { pageNo in
                 Text("Page \(pageNo)")
             }
-            .font(size: 36)
+            .fontSize(36)
             .padding(.horizontal, .max)
             // .padding(.bottom, .pt(12))
             VStack(alignment: .center, pageWrap: true) {
@@ -50,7 +50,7 @@ private struct Document: Block {
                 Color.clear
                     .border(.blue, width: 12)
             }
-            .font(size: 32)
+            .fontSize(32)
             .padding(12)
             .rotationEffect(.degrees(10))
             .clipped()

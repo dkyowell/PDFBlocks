@@ -49,7 +49,7 @@ private struct Document: Block {
                 Text("Quick")
                 Text("Brown")
             }
-            .font(size: 32)
+            .fontSize(32)
         }
     }
 }

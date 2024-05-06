@@ -5,38 +5,46 @@
  */
 
 import Foundation
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            Square()
-                .fill(.red)
-                .rotationEffect(.degrees(45))
-                .overlay {
-                    VStack(pageWrap: false) {
+        VStack(spacing: 72) {
+            HStack(spacing: 72) {
+                Square()
+                    .fill(.red)
+                Square()
+                    .fill(.red)
+                    .rotationEffect(.degrees(45))
+            }
+            HStack(spacing: 72) {
+                Square()
+                    .fill(.red)
+                    .rotationEffect(.degrees(45))
+                    .clipped()
+                Square()
+                    .fill(.red)
+                    .rotationEffect(.degrees(45))
+                    .clipped()
+                    .overlay {
                         Text("STOP")
+                            .foregroundStyle(.white)
+                            .font(.system(size: 60))
+                            .fontWeight(.bold)
                     }
-                    .foregroundColor(.white)
-                    .font(size: 90)
-                    .bold()
-                }
-                .clipped()
+            }
         }
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document().renderPDF() {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

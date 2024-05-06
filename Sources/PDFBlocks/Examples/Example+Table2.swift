@@ -21,7 +21,7 @@ private struct Document: Block {
         } groups: {
             TableGroup(on: \.state, order: <, spacing: .pt(12)) { _, value in
                 Text(stateName(abberviation: value))
-                    .font(size: 12)
+                    .fontSize(12)
                     .bold()
                     .padding(.trailing, .max)
                 TableColumnTitles()

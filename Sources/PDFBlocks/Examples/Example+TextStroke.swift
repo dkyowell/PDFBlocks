@@ -5,33 +5,30 @@
  */
 
 import Foundation
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        Text("Narf")
-            .font(size: 164)
+        Text("Orange\nCrush")
+            .fontSize(144)
             .textStroke(color: .blue, lineWidth: 3)
             .textFill(.orange)
             .font(.init(.init(name: "Courier", size: 164)))
             .italic()
             .bold()
+            .kerning(-13)
+            .multilineTextAlignment(.center)
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(0)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

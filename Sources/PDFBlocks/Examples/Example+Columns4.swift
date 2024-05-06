@@ -7,21 +7,12 @@
 import Foundation
 import PDFKit
 
-// TODO: FONT SIZE 9 BLOWS THIS UP WHEN COLUMNS IS PRIMARY.
 private struct Document: Block {
     var body: some Block {
-        VStack(pageWrap: true) {
-            Text("I Have a Dream")
-                .italic()
-                .font(size: 48)
-            Text("Martin Luther King, Jr.")
-                .font(size: 18)
-                .padding(.bottom, 24)
-            Columns(count: 3, spacing: 18, pageWrap: true) {
-                Text(speach)
-                    .kerning(-0.25)
-                    .font(size: 8)
-            }
+        Columns(count: 3, spacing: 18, pageWrap: true) {
+            Text(speach)
+                .kerning(-0.25)
+                .fontSize(9)
         }
         .fontDesign(.serif)
     }
@@ -34,6 +25,7 @@ private struct Document: Block {
     Task {
         if let data = try? await Document().renderPDF(size: .letter, margins: .init(.in(0.5))) {
             view.document = PDFDocument(data: data)
+            print("done")
         }
     }
     return view

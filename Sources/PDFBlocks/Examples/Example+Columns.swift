@@ -5,35 +5,39 @@
  */
 
 import Foundation
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        Columns(count: 3, spacing: 18, pageWrap: true) {
-            Text(speach)
-                .fontDesign(.serif)
-                .kerning(-0.2)
-                .font(size: 12)
+        VStack(pageWrap: true) {
+            Text("I Have a Dream")
+                .italic()
+                .fontSize(48)
+            Text("Martin Luther King, Jr.")
+                .fontSize(18)
+                .padding(.bottom, 24)
+            Columns(count: 3, spacing: 18, pageWrap: true) {
+                Text(speach)
+                    .kerning(-0.25)
+                    .opacity(0.5)
+            }
         }
+        .fontDesign(.serif)
+        .fontSize(8)
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(0.5)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF(size: .letter, margins: .init(.in(0.5))) {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}
 
 private let speach =
     """

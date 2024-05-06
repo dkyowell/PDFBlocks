@@ -54,6 +54,11 @@ provide neither, it will fall back to a default of US Letter page size.)
 Document().renderPDF(size: .letter, margins: .init(.in(1)))
 ```
 
+### Page Wrapping
+In addition to explicitly defined pages, a VStack, VGrid, or Table can wrap their content across multiple pages.
+
+
+
 ## Platforms
 PDFBlocks can be used in AppKit, UIKit, SwiftUI, or even Mac console applications. While inspired by SwiftUI, PDFBlocks itself does not have any SwiftUI dependencies.
 
@@ -68,9 +73,9 @@ PDFBlocks constructs that are not in SwiftUI.
 * VStack
 * ZStack
 * Columns* - A container like a multi-column VStack. A Text can wrap from one column to another.
-* HGrid
 * Page* 
 * Table - A very powerful data aware container for producing columnular reports with page headers/footers and automatic data grouping.
+* VGrid
 
 ### Primitive Blocks
 * Divider
