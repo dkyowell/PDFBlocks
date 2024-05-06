@@ -86,6 +86,7 @@ extension Columns {
 
     func renderPrimary(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var blocks = content.getRenderables(environment: environment)
+        var rect = rect
         while blocks.count > 0 {
             let height = heightForEvenColumns(context: context, environment: environment, blocks: blocks, proposal: rect.size)
             let renderRect = if context.pageNo > 1 {
@@ -98,6 +99,7 @@ extension Columns {
                     blocks = columns.content.getRenderables(environment: environment)
                     context.endPage()
                     context.beginPage()
+                    rect = context.pageWrapRect
                 } else {
                     return
                 }

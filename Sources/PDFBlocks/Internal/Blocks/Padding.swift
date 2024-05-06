@@ -22,6 +22,15 @@ extension Padding: Renderable {
             .getTrait(context: context, environment: environment, keypath: keypath)
     }
 
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        let block = content.getRenderable(environment: environment)
+        if let remainder = block.remainder(context: context, environment: environment, size: size) {
+            return Padding<AnyBlock>(padding: padding, content: AnyBlock(remainder))
+        } else {
+            return nil
+        }
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let horizontalPadding = padding.leading.points + padding.trailing.points
         let verticalPadding = padding.top.points + padding.bottom.points
