@@ -24,9 +24,11 @@ extension Frame: Renderable {
         }
     }
 
+    // TODO: This does not work.
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
         let block = content.getRenderable(environment: environment)
-        if let remainder = block.remainder(context: context, environment: environment, size: size) {
+        let frameSize = CGSize(width: width?.points ?? size.width, height: height?.points ?? size.height)
+        if let remainder = block.remainder(context: context, environment: environment, size: frameSize) {
             return Frame<AnyBlock>(width: width, height: height, alignment: alignment, content: AnyBlock(remainder))
         } else {
             return nil

@@ -23,8 +23,11 @@ extension Padding: Renderable {
     }
 
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        let horizontalPadding = padding.leading.points + padding.trailing.points
+        let verticalPadding = padding.top.points + padding.bottom.points
+        let insetSize = CGSize(width: size.width - horizontalPadding, height: size.height - verticalPadding)
         let block = content.getRenderable(environment: environment)
-        if let remainder = block.remainder(context: context, environment: environment, size: size) {
+        if let remainder = block.remainder(context: context, environment: environment, size: insetSize) {
             return Padding<AnyBlock>(padding: padding, content: AnyBlock(remainder))
         } else {
             return nil
