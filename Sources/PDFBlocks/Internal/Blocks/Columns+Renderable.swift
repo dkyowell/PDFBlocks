@@ -6,6 +6,9 @@
 
 import Foundation
 
+// TODO: Some layouts can result in the first column not being the longest. This will happen when column elements are
+// of uneven sizes and subsequent columns fit withing the proposed size, but the first column does not fill up its
+// proposed size. See Example+Columns3
 extension Columns: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait(allowWrap: pageWrap)[keyPath: keypath]
@@ -67,8 +70,10 @@ extension Columns {
                 let block = blocks[0]
                 let remainingSize = CGSize(width: columnWidth, height: rect.height - dy)
                 let size = block.sizeFor(context: context, environment: environment, proposal: remainingSize)
-                if dy + size.min.height ~<= rect.height {
-                    let renderRect = CGRect(x: xPos, y: rect.minY + dy, width: columnWidth, height: size.max.height)
+                if size.maxHeight {
+                    blocks = blocks.dropFirst().map { $0 }
+                } else if dy + size.max.height ~<= rect.height {
+                    let renderRect = CGRect(x: xPos, y: rect.minY + dy, width: size.max.width, height: size.max.height)
                     let remainder = block.render(context: context, environment: environment, rect: renderRect)
                     dy += renderRect.height
                     if let remainder {
@@ -88,6 +93,7 @@ extension Columns {
         var rect = rect
         while blocks.count > 0 {
             let height = heightForEvenColumns(context: context, environment: environment, blocks: blocks, proposal: rect.size)
+
             let renderRect = if context.pageNo > 1 {
                 CGRect(origin: rect.origin, size: .init(width: rect.width, height: height))
             } else {
@@ -101,7 +107,7 @@ extension Columns {
             }
         }
     }
-    
+
     func renderPrimaryPage(context: Context, environment: EnvironmentValues, blocks: [any Renderable], rect: CGRect) -> [any Renderable] {
         var blocks = blocks
         let columnWidth = (rect.width - CGFloat(count - 1) * spacing.points) / CGFloat(count)
@@ -112,8 +118,10 @@ extension Columns {
                 let block = blocks[0]
                 let remainingSize = CGSize(width: columnWidth, height: rect.height - dy)
                 let size = block.sizeFor(context: context, environment: environment, proposal: remainingSize)
-                if dy + size.min.height ~<= rect.height {
-                    let renderRect = CGRect(x: xPos, y: rect.minY + dy, width: columnWidth, height: size.max.height)
+                if size.maxHeight {
+                    blocks = blocks.dropFirst().map { $0 }
+                } else if dy + size.max.height ~<= rect.height {
+                    let renderRect = CGRect(x: xPos, y: rect.minY + dy, width: size.max.width, height: size.max.height)
                     let remainder = block.render(context: context, environment: environment, rect: renderRect)
                     dy += renderRect.height
                     if let remainder {
@@ -130,7 +138,6 @@ extension Columns {
         return blocks
     }
 
-
     func renderSecondary(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var blocks = content.getRenderables(environment: environment)
         let columnWidth = (rect.width - CGFloat(count - 1) * spacing.points) / CGFloat(count)
@@ -144,7 +151,8 @@ extension Columns {
                 blocks = blocks.dropFirst().map { $0 }
                 let remainingSize = CGSize(width: columnWidth, height: rect.height - dy)
                 let size = block.sizeFor(context: context, environment: environment, proposal: remainingSize)
-                if dy + size.min.height ~<= rect.height {
+                if size.maxHeight {
+                } else if dy + size.max.height ~<= rect.height {
                     let renderRect = CGRect(x: xPos, y: rect.minY + dy, width: columnWidth, height: size.max.height)
                     let remainder = block.render(context: context, environment: environment, rect: renderRect)
                     dy += renderRect.height
@@ -169,9 +177,10 @@ extension Columns {
         let columnWidth = (proposal.width - CGFloat(count - 1) * spacing.points) / CGFloat(count)
         let blockProposal = CGSize(width: columnWidth, height: .infinity)
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: blockProposal) }
-        let contentHeight = sizes.map(\.min.height).reduce(0, +)
+            .filter { $0.maxHeight == false }
+        let contentHeight = sizes.map(\.max.height).reduce(0, +)
         let averageHeight = ceil(contentHeight / CGFloat(count))
-        if averageHeight > proposal.height {
+        if averageHeight ~>= proposal.height {
             return proposal.height
         } else {
             var proposedHeight = averageHeight
@@ -183,18 +192,21 @@ extension Columns {
                 while workingBlocks.count > 0 {
                     pass += 1
                     let block = workingBlocks[0]
-                    //fill up column to proposed Height
+                    // fill up column to proposed Height
                     let proposal = CGSize(width: columnWidth, height: proposedHeight - usedHeight)
-                    let size = block.sizeFor(context: context, environment: environment, proposal: proposal).min
-                    if usedHeight + size.height ~<= proposedHeight {
+                    let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
+                    print("pass", pass, "proposed", proposedHeight, "column", column)
+                    if size.maxHeight {
+                        workingBlocks = workingBlocks.dropFirst().map { $0 }
+                    } else if usedHeight + size.max.height ~<= proposedHeight {
                         let remainder = block.remainder(context: context, environment: environment, size: proposal)
-                        if let remainder, size.height > 0 {
+                        if let remainder, size.max.height > 0 {
                             workingBlocks[0] = remainder
                             column += 1
                             usedHeight = 0.0
 
                         } else {
-                            usedHeight += size.height
+                            usedHeight += size.max.height
                             workingBlocks = workingBlocks.dropFirst().map { $0 }
                         }
                     } else {
@@ -204,16 +216,20 @@ extension Columns {
                     if column == count {
                         let blockProposal = CGSize(width: columnWidth, height: .infinity)
                         let sizes = workingBlocks.map { $0.sizeFor(context: context, environment: environment, proposal: blockProposal) }
-                        let contentHeight = sizes.map(\.min.height).reduce(0, +)
+                            .filter { $0.maxHeight == false }
+                        let contentHeight = sizes.map(\.max.height).reduce(0, +)
                         // TODO: Investigate following line. The design was to take the excess height and add it
                         // back to the proposedHeight for the next column. The result was an overshoot on the
                         // necessary height when padding was used. I added the "/ 2" to compenstate for the overshoot
                         // and it worked perfectly. I would like to know why it works.
+                        print("proposedHeight", proposedHeight, "remainingHeight", contentHeight)
                         proposedHeight += ceil(contentHeight / CGFloat(count)) / 2
                         break
                     }
                 }
                 if workingBlocks.count == 0 {
+                    print("out of blocks", "proposedHeight", proposedHeight, "usedHeight", usedHeight)
+
                     break
                 }
             }

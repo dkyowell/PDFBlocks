@@ -17,7 +17,7 @@ extension Spacer: Renderable {
                           max: .init(width: 0, height: length.points))
             case let .min(length):
                 BlockSize(min: .init(width: 0, height: length.points),
-                          max: .init(width: 0, height: proposal.height))
+                          max: .init(width: 0, height: proposal.height), maxWidth: false, maxHeight: true)
             }
         case .horizontal:
             switch value {
@@ -26,7 +26,7 @@ extension Spacer: Renderable {
                           max: .init(width: length.points, height: 0))
             case let .min(length):
                 BlockSize(min: .init(width: length.points, height: 0),
-                          max: .init(width: proposal.width, height: 0))
+                          max: .init(width: proposal.width, height: 0), maxWidth: true, maxHeight: false)
             }
         case .undefined:
             BlockSize(width: 0, height: 0)

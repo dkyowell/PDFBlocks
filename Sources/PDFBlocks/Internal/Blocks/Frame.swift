@@ -52,7 +52,9 @@ extension Frame: Renderable {
             size.max.height
         }
         return BlockSize(min: CGSize(width: minWidth, height: minHeight),
-                         max: CGSize(width: maxWidth, height: maxHeight))
+                         max: CGSize(width: maxWidth, height: maxHeight),
+                         maxWidth: width?.max ?? false,
+                         maxHeight: height?.max ?? false)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
