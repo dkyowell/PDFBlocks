@@ -15,7 +15,7 @@
 * Added fixedLength option to Spacer
 * Added .opacity modifier to Color
 * Renamed HGrid to VGrid
-* Fixed if/then, switch functionality in BlockBuilder
+* Fixed if/then, switch functionality in @BlockBuilder
 
 ## v0.2.3
 * Added .scaleEffect modifier
