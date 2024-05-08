@@ -6,7 +6,7 @@
 
 import Foundation
 
-private struct Document: Block {
+struct ExampleTable2: Block {
     let data: [CustomerData]
 
     var body: some Block {
@@ -32,6 +32,15 @@ private struct Document: Block {
                     .padding(.leading, .max)
             }
         } pageHeader: { pageNo in
+            HStack(spacing: .flex) {
+                Text("Donor Report")
+                PageNumberReader { pageNo in
+                    Text("Page \(pageNo)")
+                }
+            }
+            .fontSize(12)
+            .bold()
+            .padding(.bottom, 12)
             if pageNo > 1 {
                 TableColumnTitles()
             }
@@ -60,7 +69,7 @@ private func stateName(abberviation: String) -> String {
         let view = PDFView()
         view.autoScales = true
         Task {
-            if let data = try? await Document(data: loadData(CustomerData.self, from: customerData))
+            if let data = try? await ExampleTable2(data: loadData(CustomerData.self, from: customerData))
                 .renderPDF(size: .letter, margins: .init(.in(1)))
             {
                 view.document = PDFDocument(data: data)
@@ -70,7 +79,7 @@ private func stateName(abberviation: String) -> String {
     }
 #endif
 
-private struct CustomerData: Decodable {
+struct CustomerData: Decodable {
     let firstName: String
     let lastName: String
     let address: String
@@ -80,7 +89,7 @@ private struct CustomerData: Decodable {
     let dob: Date
 }
 
-private let customerData = """
+let customerData = """
 [
   {
     "dob": "1980-12-23T07:59:10.728Z",

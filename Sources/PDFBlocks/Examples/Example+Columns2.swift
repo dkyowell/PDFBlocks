@@ -8,38 +8,44 @@ import Foundation
 import PDFKit
 
 //
-private struct Document: Block {
+public struct ExampleColumns2: Block {
     let poem = "That time of year thou mayest in me behold, when yellow leaves or none or few do hang upon these boughs which shake against the cold, bare ruined choirs where late the sweet birds sang."
-    var body: some Block {
-        Page(size: .init(width: .in(6), height: .in(6)), margins: .in(0.5)) {
+    public init() {}
+
+    public var body: some Block {
+        Page(size: .letter, margins: .in(1)) {
             VStack(spacing: .flex) {
-                Columns(count: 2, spacing: 12, pageWrap: false) {
+                Columns(count: 2, spacing: 36, pageWrap: false) {
                     Text(poem)
-                        .fontSize(20)
+                        .fontSize(30)
                 }
-                Line(start: .leading, end: .trailing)
-                    .stroke(.gray, style: StrokeStyle(lineWidth: .pt(3), lineCap: .round, dash: [0, 16]))
-                    .frame(height: 0)
-                    .padding(.horizontal, 43)
-                Columns(count: 3, spacing: 6, pageWrap: false) {
+                HStack(spacing: .flex) {
+                    Repeat(count: 18) {
+                        Image(.init(systemName: "rhombus.fill"))
+                            .frame(width: 6)
+                    }
+                }
+                Columns(count: 3, spacing: 18, pageWrap: false) {
                     Text(poem)
-                        .fontSize(16)
+                        .fontSize(24)
                         .opacity(0.80)
                 }
-                Line(start: .leading, end: .trailing)
-                    .stroke(.gray, style: StrokeStyle(lineWidth: .pt(3), lineCap: .round, dash: [0, 16]))
-                    .frame(height: 0)
-                    .padding(.horizontal, 43)
-                Columns(count: 4, spacing: 6, pageWrap: false) {
+                HStack(spacing: .flex) {
+                    Repeat(count: 18) {
+                        Image(.init(systemName: "rhombus.fill"))
+                            .frame(width: 6)
+                    }
+                }
+                Columns(count: 4, spacing: 12, pageWrap: false) {
                     Text(poem)
-                        .fontSize(12)
+                        .fontSize(18)
                         .opacity(0.60)
                 }
             }
         }
         .italic()
         .fontDesign(.serif)
-        .border(Color.black, width: 4)
+        .border(Color.black, width: 8)
     }
 }
 
@@ -48,7 +54,7 @@ private struct Document: Block {
     let view = PDFView()
     view.autoScales = true
     Task {
-        if let data = try? await Document().renderPDF() {
+        if let data = try? await ExampleColumns2().renderPDF() {
             view.document = PDFDocument(data: data)
         }
     }

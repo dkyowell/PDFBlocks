@@ -6,8 +6,10 @@
 
 import Foundation
 
-private struct Document: Block {
-    var body: some Block {
+public struct ExampleLogo: Block {
+    public init() {}
+
+    public var body: some Block {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 2) {
                 ForEach(["P", "D", "F"]) { item in
@@ -29,9 +31,9 @@ private struct LetterBlock: Block {
     var body: some Block {
         Text(letter)
             .foregroundColor(.white)
-            .frame(width: 48, height: 48, alignment: .center)
+            .frame(width: 84, height: 84, alignment: .center)
             .background(color)
-            .font(.init(.init(name: "American Typewriter", size: 36)))
+            .font(.init(.init(name: "American Typewriter", size: 68)))
             .bold()
     }
 }
@@ -43,7 +45,7 @@ private struct LetterBlock: Block {
         let view = PDFView()
         view.autoScales = true
         Task {
-            if let data = try? await Document()
+            if let data = try? await ExampleLogo()
                 .renderPDF(size: .letter, margins: .init(.in(1)))
             {
                 view.document = PDFDocument(data: data)

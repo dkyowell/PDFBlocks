@@ -9,9 +9,14 @@ import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        Repeat(count: 20) {
-            Text("ABC")
+        ZStack {
+            ForEach([0, 30, 60, 90]) { angle in
+                Text("Rotated Text")
+                    .rotationEffect(.degrees(angle), anchor: .leading)
+            }
+            .fontSize(84)
         }
+        .padding(.bottom, .max)
     }
 }
 
