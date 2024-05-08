@@ -480,7 +480,9 @@ class CGRenderer: Renderer {
         }
         if let gradient = environment.foregroundStyle as? LinearGradient {
             cgContext.clip()
-            drawLinearGradient(gradient: gradient, rect: rect.offsetBy(dx: 0, dy: rectOffset - rect.minY))
+            cgContext.translateBy(x: 0, y: pageSize.height)
+            cgContext.scaleBy(x: 1, y: -1)
+            drawLinearGradient(gradient: gradient, rect: rect)
             cgContext.resetClip()
         } else if let gradient = environment.foregroundStyle as? RadialGradient {
             cgContext.clip()

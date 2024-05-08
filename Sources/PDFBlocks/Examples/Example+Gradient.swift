@@ -10,8 +10,8 @@ import PDFKit
 let linearGradient = LinearGradient(stops: [.init(color: .yellow, location: 0),
                                             .init(color: .orange, location: 0.75),
                                             .init(color: .red, location: 0.95)],
-                                    startPoint: .bottom,
-                                    endPoint: .top)
+                                    startPoint: .top,
+                                    endPoint: .bottom)
 
 let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
                                     center: .center,

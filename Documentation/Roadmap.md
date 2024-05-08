@@ -1,7 +1,6 @@
 #  Roadmap
 
 ## Fixes
-* `Text` fill `LinearGradient` renders upside down.
 * The entire library needs to be poked and prodded to find layout problems, especially within nested layout structures.
 * Move Examples to a separate target within the package?
 
