@@ -105,6 +105,7 @@ extension VGrid {
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: cellSize) }
         let rows = zip(blocks, sizes).map { $0 }.chunks(ofCount: columnCount)
         var dy = 0.0
+        var rect = context.pageWrapRect
         for (offset, row) in rows.enumerated() {
             var dx = 0.0
             if offset > 0 {
@@ -115,6 +116,7 @@ extension VGrid {
                 context.endPage()
                 context.beginPage()
                 dy = 0
+                rect = context.pageWrapRect
             }
             if rect.height >= rowHeight + dy {
                 for (block, size) in row {

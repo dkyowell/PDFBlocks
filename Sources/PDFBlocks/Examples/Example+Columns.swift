@@ -5,37 +5,40 @@
  */
 
 import Foundation
+import PDFKit
 
-private struct Document: Block {
+struct ExampleColumns: Block {
     var body: some Block {
-        Columns(count: 3, spacing: 18, pageWrap: true) {
-            Text(speach)
-                .fontDesign(.serif)
-                .kerning(-0.2)
-                .font(size: 12)
+        VStack(pageWrap: true) {
+            Text("I Have a Dream")
+                .italic()
+                .fontSize(36)
+            Text("Martin Luther King, Jr.")
+                .fontSize(18)
+                .padding(.bottom, 24)
+            Columns(count: 3, spacing: 18, pageWrap: true) {
+                Text(speech)
+                    .kerning(-0.25)
+            }
         }
+        .fontDesign(.serif)
+        .fontSize(10)
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(0.5)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await ExampleColumns().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}
 
-private let speach =
+private let speech =
     """
     Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation. This momentous decree came as a great beacon light of hope to millions of Negro slaves  who had been seared in the flames of withering injustice. It came as a joyous daybreak to end the long night of their captivity.
 

@@ -22,6 +22,11 @@ extension ProporionalFrame: Renderable {
         }
     }
 
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        content.getRenderable(environment: environment)
+            .remainder(context: context, environment: environment, size: size)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         content.getRenderable(environment: environment)
             .sizeFor(context: context, environment: environment, proposal: proposal)

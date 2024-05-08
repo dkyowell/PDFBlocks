@@ -14,14 +14,16 @@ let package = Package(
         
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-algorithms.git", .upToNextMajor(from: "1.2.0")),
+            .package(url: "https://github.com/krzyzanowskim/CoreTextSwift.git", .upToNextMajor(from: "0.0.0")),
+            .package(url: "https://github.com/apple/swift-algorithms.git", .upToNextMajor(from: "1.2.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
-        .target(name: "PDFBlocks", dependencies: [.product(name: "Algorithms", package: "swift-algorithms")]),
-        .testTarget(
-            name: "PDFBlocksTests",
-            dependencies: ["PDFBlocks"]),
+        .target(name: "PDFBlocks", 
+                dependencies: [.product(name: "Algorithms", package: "swift-algorithms"),
+                               .product(name: "CoreTextSwift", package: "CoreTextSwift")]),
+        .testTarget(name: "PDFBlocksTests",
+                    dependencies: ["PDFBlocks"]),
     ]
 )

@@ -10,7 +10,7 @@ struct RenderableShape: Renderable {
     let shape: any Shape
 
     func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        BlockSize(min: .zero, max: shape.sizeThatFits(proposal))
+        BlockSize(min: .zero, max: shape.sizeThatFits(proposal), maxWidth: true, maxHeight: true)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {

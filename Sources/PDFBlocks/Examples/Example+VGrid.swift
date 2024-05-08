@@ -39,7 +39,7 @@ private struct Document: Block {
             }
             .padding(12)
             .border(.blue, width: 12)
-            .font(size: 32)
+            .fontSize(32)
             .padding(12)
             .rotationEffect(.degrees(10))
         }

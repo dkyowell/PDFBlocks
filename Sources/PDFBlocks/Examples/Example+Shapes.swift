@@ -5,19 +5,22 @@
  */
 
 import Foundation
+import PDFKit
 
-private struct Document: Block {
+struct ExampleShapes: Block {
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
             HStack(spacing: 32) {
                 Arc(startAngle: .degrees(35), endAngle: .degrees(325), clockwise: false)
                     .fill(.yellow)
                     .stroke(.black, lineWidth: 3)
-                    .frame(height: 100)
+                    .frame(height: 150)
                 Line(start: .leading, end: .trailing)
-                    .stroke(.black, style: StrokeStyle(lineWidth: .pt(10), lineCap: .round, dash: [0, 40]))
+                    .stroke(.white, style: StrokeStyle(lineWidth: .pt(15), lineCap: .round, dash: [0, 80]))
             }
         }
+        .background(.black)
+        .border(.blue, width: 10)
     }
 }
 
@@ -41,20 +44,14 @@ struct Arc: Shape {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await ExampleShapes().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

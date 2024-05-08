@@ -22,6 +22,18 @@ extension Padding: Renderable {
             .getTrait(context: context, environment: environment, keypath: keypath)
     }
 
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        let horizontalPadding = padding.leading.points + padding.trailing.points
+        let verticalPadding = padding.top.points + padding.bottom.points
+        let insetSize = CGSize(width: size.width - horizontalPadding, height: size.height - verticalPadding)
+        let block = content.getRenderable(environment: environment)
+        if let remainder = block.remainder(context: context, environment: environment, size: insetSize) {
+            return Padding<AnyBlock>(padding: padding, content: AnyBlock(remainder))
+        } else {
+            return nil
+        }
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let horizontalPadding = padding.leading.points + padding.trailing.points
         let verticalPadding = padding.top.points + padding.bottom.points
@@ -37,7 +49,10 @@ extension Padding: Renderable {
         let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width : (horizontalPadding + size.max.width)
         let maxHeight = (padding.top.max || padding.bottom.max) ? proposal.height : (verticalPadding + size.max.height)
         let maxSize = CGSize(width: maxWidth, height: maxHeight)
-        return .init(min: minSize, max: maxSize)
+        return .init(min: minSize,
+                     max: maxSize,
+                     maxWidth: padding.leading.max || padding.trailing.max || size.maxWidth,
+                     maxHeight: padding.top.max || padding.bottom.max || size.maxHeight)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {

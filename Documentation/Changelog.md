@@ -1,5 +1,12 @@
 #  Changelog
 
+## v0.2.5
+* Added gradient fill support for Text
+* Added Repeat block
+* Added AttributedString support for Text
+* Changed .font(size:) to .fontSize(:)
+* Changed Columns to adjust its height so that column lengths are even.
+
 ## v0.2.4
 * Added StrokeStyle
 * Added Line

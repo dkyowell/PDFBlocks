@@ -79,8 +79,8 @@ import Foundation
     extension UIImage: PlatformImage {}
 
     public extension Image {
-        init(_ image: UIImage) {
-            self.image = image
+        init(_ image: UIImage?) {
+            self.image = image ?? UIImage()
         }
 
         init(path: String) {

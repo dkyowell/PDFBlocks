@@ -7,17 +7,26 @@
 import Foundation
 
 extension Text: Renderable {
-    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let result = context.renderer.sizeForCTText(value, environment: environment, proposedSize: proposal)
-        return BlockSize(min: result.min, max: result.max)
-    }
-
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        let remainder = context.renderer.renderCTText(value, environment: environment, rect: rect)
-        if remainder.count > 0 {
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        let remainder = context.renderer.textRemainder(value, environment: environment, rect: .init(origin: .zero, size: size))
+        if remainder.characters.count > 0 {
             return Text(remainder)
         } else {
             return nil
         }
+    }
+
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        let remainder = context.renderer.renderText(value, environment: environment, rect: rect)
+        if remainder.characters.count > 0 {
+            return Text(remainder)
+        } else {
+            return nil
+        }
+    }
+
+    func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
+        let result = context.renderer.sizeForText(value, environment: environment, proposedSize: proposal)
+        return BlockSize(min: result.min, max: result.max)
     }
 }

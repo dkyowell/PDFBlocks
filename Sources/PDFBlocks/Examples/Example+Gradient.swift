@@ -5,41 +5,44 @@
  */
 
 import Foundation
+import PDFKit
 
-private struct Document: Block {
-    let linearGradient = LinearGradient(colors: [.cyan, .purple, .blue],
-                                        startPoint: .top,
-                                        endPoint: .bottom)
-    let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
-                                        center: .center,
-                                        startRadius: .in(0),
-                                        endRadius: .in(3))
+let linearGradient = LinearGradient(stops: [.init(color: .yellow, location: 0),
+                                            .init(color: .orange, location: 0.75),
+                                            .init(color: .red, location: 0.95)],
+                                    startPoint: .top,
+                                    endPoint: .bottom)
+
+let radialGradient = RadialGradient(colors: [.red, .orange, .yellow],
+                                    center: .center,
+                                    startRadius: .in(0),
+                                    endRadius: .in(3))
+
+private struct ExampleGradient: Block {
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
-            HStack(spacing: .pt(16)) {
-                Circle()
-                    .fill(linearGradient)
-                Circle()
-                    .fill(radialGradient)
-            }
+            Text("Hotter\nthan the\nMidday Sun")
+                .foregroundStyle(linearGradient)
+                .fontWeight(.black)
+                .fontWidth(.expanded)
+                .fontSize(64)
+                .multilineTextAlignment(.center)
+            Spacer(fixedLength: .in(1))
+            Circle()
+                .fill(radialGradient)
+                .frame(height: .in(4))
         }
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await ExampleGradient().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

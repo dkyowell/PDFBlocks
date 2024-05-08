@@ -5,50 +5,29 @@
  */
 
 import Foundation
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        Page(size: .init(width: .in(4), height: .in(6)), margins: .in(0.5)) {
-            Group {
-                Text("Ultralight")
-                    .fontWeight(.ultraLight)
-                Text("Thig")
-                    .fontWeight(.thin)
-                Text("Light")
-                    .fontWeight(.light)
-                Text("Regular")
-                    .fontWeight(.regular)
-                Text("Medium")
-                    .fontWeight(.medium)
-                Text("Semibold")
-                    .fontWeight(.semibold)
-                Text("Bold")
-                    .fontWeight(.bold)
-                Text("Heavy")
-                    .fontWeight(.heavy)
-                Text("Black")
-                    .fontWeight(.black)
+        ZStack {
+            ForEach([0, 30, 60, 90]) { angle in
+                Text("Rotated Text")
+                    .rotationEffect(.degrees(angle), anchor: .leading)
             }
-            .font(Font(.init(name: "Helvetica Neue", size: 24)))
+            .fontSize(84)
         }
-        .border(.black, width: 4)
+        .padding(.bottom, .max)
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

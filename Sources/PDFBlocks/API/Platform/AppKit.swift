@@ -79,8 +79,8 @@ import Foundation
     extension NSImage: PlatformImage {}
 
     public extension Image {
-        init(_ image: NSImage) {
-            self.image = image
+        init(_ image: NSImage?) {
+            self.image = image ?? KitImage()
         }
 
         init(path: String) {
@@ -88,4 +88,9 @@ import Foundation
         }
     }
 
+    public extension NSImage {
+        convenience init?(systemName: String) {
+            self.init(systemSymbolName: systemName, accessibilityDescription: nil)
+        }
+    }
 #endif

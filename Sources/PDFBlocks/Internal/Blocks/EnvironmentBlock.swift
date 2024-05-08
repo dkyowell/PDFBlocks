@@ -20,6 +20,17 @@ extension EnvironmentBlock: Renderable {
         return block.getTrait(context: context, environment: environment, keypath: keypath)
     }
 
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        var environment = environment
+        environment[keyPath: keyPath] = value
+        let block = content.getRenderable(environment: environment)
+        if let remainder = block.remainder(context: context, environment: environment, size: size) {
+            return EnvironmentBlock<AnyBlock, V>(keyPath: keyPath, value: value, content: AnyBlock(remainder))
+        } else {
+            return nil
+        }
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment[keyPath: keyPath] = value

@@ -24,13 +24,17 @@ import Foundation
 /// or a new page if necessary.
 ///
 public struct Text: Block {
-    let value: String
+    let value: AttributedString
 
     /// Creates a text block that displays a string value.
     ///
     /// - Parameters:
     ///   - value: A string value to print.
     public init(_ value: String) {
+        self.value = AttributedString(value)
+    }
+
+    public init(_ value: AttributedString) {
         self.value = value
     }
 
@@ -42,6 +46,6 @@ public struct Text: Block {
     ///   - format: A format style of type `F` to convert the underlying value
     ///     of type `F.FormatInput` to a string representation.
     public init<F>(_ input: F.FormatInput, format: F) where F: FormatStyle, F.FormatInput: Equatable, F.FormatOutput == String {
-        value = format.format(input)
+        value = AttributedString(format.format(input))
     }
 }

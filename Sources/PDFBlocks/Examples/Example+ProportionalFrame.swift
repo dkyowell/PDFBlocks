@@ -61,7 +61,7 @@ private struct Document: Block {
                     .background { Color.blue.opacity(0.5) }
             }
         }
-        .font(size: 18)
+        .fontSize(18)
     }
 }
 

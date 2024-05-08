@@ -6,7 +6,7 @@
 A `Block` in PDFBlocks is equivalent to a `View` in SwiftUI.
 
 ### Units
-The default unit in PDFBlocks is points, but you may also use inches or mm. The following are are equivalent:
+The default unit in PDFBlocks is a typographic point (1/72 inch), but you may also use inches or mm. The following are are equivalent:
 ```swift
 Text("Hello, world.")
   .padding(72)
@@ -17,7 +17,6 @@ Text("Hello, world.")
 Text("Hello, world.")
   .padding(.pt(72))
 ```
-
 ### Rendering
 Rendering is a simple as called `.render()` on a `Block` that you have defined. A `Data` is returned which 
 can be used to display, save to storage, send over the network, etc.
@@ -30,6 +29,71 @@ struct Document: Block {
 
 let data = Document().render()
 ```
+
+
+## Multipage Components 
+`VStack`, `VGrid`, and `Columns` are components that can allow their content to overflow from one page to a new page by setting the `pageWrap` parameter to true.
+
+```swift
+Columns(count: 2, spacing: 36, pageWrap: true) {
+  Text("Four score and seventy years ago...")
+}
+```
+Note: `.flex` spacing does not work within a page wrap block. 
+
+### Page Headers and Footers
+Page headers and footers can be expressed simply by surrounding a page wrap block with a `VStack`. The first page wrap block encountered will take all of the space on the page that it can. Content that surrounds the first page wrap block will be repeated on every page. 
+```swift
+VStack {
+  Text("This text will repeat at the top of each page.")
+  Columns(count: 2, spacing: 36, pageWrap: true) {
+    Text("Four score and seventy years ago...")
+  }
+  Text("This text will repeat at the bottom of each page.")
+}
+```
+You are not limited to page headers and footers, you could change the `VStack` to an `HStack` in the preceeding example and have a page "leader" and page "trailer". 
+### Page Numbers
+`PageNumberReader` is a component that provides the current page number for either printing, or adjusting rendered content according to the page number. Here, the page number is printed as a page header, but is supressed on the first page.
+
+```swift
+VStack {
+  PageNumberReader { pageNo in
+    if pageNo > 0 {
+      Text("Page \(pageNo)")
+        .padding(.horizontal, .max)
+        .padding(.bottom, 36)
+    }
+  }
+  Columns(count: 2, spacing: 36, pageWrap: true) {
+    Text(...)
+  }
+}
+```
+### Secondary Page Wrap Components
+Within the first page wrap component, further page wrap components can optionally be used.
+```swift
+VStack(pageWrap: true) {
+  VStack(pageWrap: false) {
+    Text("This")
+    Text("Stack")
+    Text("Will")
+    Text("Be")
+    Text("Rendered")
+    Text("Together")
+  }
+  VStack(pageWrap: true) {
+    Text("This")
+    Text("Stack")
+    Text("Can")
+    Text("Be")
+    Text("Split")
+    Text("Across")
+    Text("Pages")
+  }
+}
+```
+
 
 ### Pages
 You can optionally define one or more pages as part of your document. Pages can be different sizes within one document.
@@ -68,7 +132,7 @@ PDFBlocks constructs that are not in SwiftUI.
 * VStack
 * ZStack
 * Columns* - A container like a multi-column VStack. A Text can wrap from one column to another.
-* HGrid
+* VGrid
 * Page* 
 * Table - A very powerful data aware container for producing columnular reports with page headers/footers and automatic data grouping.
 

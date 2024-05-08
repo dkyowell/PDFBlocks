@@ -5,38 +5,61 @@
  */
 
 import Foundation
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            Square()
-                .fill(.red)
-                .rotationEffect(.degrees(45))
-                .overlay {
-                    VStack(pageWrap: false) {
-                        Text("STOP")
-                    }
-                    .foregroundColor(.white)
-                    .font(size: 90)
-                    .bold()
+        VStack(spacing: 72) {
+            HStack(spacing: 72) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("1. Fill")
+                    Square()
+                        .fill(.red)
                 }
-                .clipped()
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("2. Rotate")
+                        .offset(x: -24, y: 0)
+                    Square()
+                        .fill(.red)
+                        .rotationEffect(.degrees(45))
+                }
+            }
+            HStack(spacing: 72) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("3. Clip")
+                    Square()
+                        .fill(.red)
+                        .rotationEffect(.degrees(45))
+                        .clipped()
+                }
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("4. Overlay")
+                        .offset(x: -24, y: 0)
+                    Square()
+                        .fill(.red)
+                        .rotationEffect(.degrees(45))
+                        .clipped()
+                        .overlay {
+                            Text("STOP")
+                                .foregroundStyle(.white)
+                                .font(.system(size: 60))
+                                .fontWeight(.bold)
+                        }
+                }
+            }
         }
+        .fontSize(24)
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document().renderPDF() {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

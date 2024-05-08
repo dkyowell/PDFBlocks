@@ -24,6 +24,17 @@ extension Frame: Renderable {
         }
     }
 
+    // TODO: This does not work.
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        let block = content.getRenderable(environment: environment)
+        let frameSize = CGSize(width: width?.points ?? size.width, height: height?.points ?? size.height)
+        if let remainder = block.remainder(context: context, environment: environment, size: frameSize) {
+            return Frame<AnyBlock>(width: width, height: height, alignment: alignment, content: AnyBlock(remainder))
+        } else {
+            return nil
+        }
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let renderable = content.getRenderable(environment: environment)
         let frameSize = CGSize(width: width?.points ?? proposal.width, height: height?.points ?? proposal.height)
@@ -41,7 +52,9 @@ extension Frame: Renderable {
             size.max.height
         }
         return BlockSize(min: CGSize(width: minWidth, height: minHeight),
-                         max: CGSize(width: maxWidth, height: maxHeight))
+                         max: CGSize(width: maxWidth, height: maxHeight),
+                         maxWidth: width?.max ?? false,
+                         maxHeight: height?.max ?? false)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {

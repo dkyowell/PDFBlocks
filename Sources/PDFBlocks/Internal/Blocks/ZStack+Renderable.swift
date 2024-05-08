@@ -11,9 +11,11 @@ extension ZStack: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let blocks = content.getRenderables(environment: environment)
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
-        let maxWidth = sizes.map(\.max.width).reduce(0.0, max)
-        let maxHeight = sizes.map(\.max.height).reduce(0.0, max)
-        return .init(min: .init(width: maxWidth, height: maxHeight),
+        let minWidth = sizes.map(\.min.width).reduce(0, max)
+        let minHeight = sizes.map(\.min.height).reduce(0, max)
+        let maxWidth = sizes.map(\.max.width).reduce(0, max)
+        let maxHeight = sizes.map(\.max.height).reduce(0, max)
+        return .init(min: .init(width: minWidth, height: minHeight),
                      max: .init(width: maxWidth, height: maxHeight))
     }
 

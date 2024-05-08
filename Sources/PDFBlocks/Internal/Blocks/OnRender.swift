@@ -17,6 +17,11 @@ extension OnRender: Renderable {
             .getTrait(context: context, environment: environment, keypath: keypath)
     }
 
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        content.getRenderable(environment: environment)
+            .remainder(context: context, environment: environment, size: size)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let block = content.getRenderable(environment: environment)
         return block.sizeFor(context: context, environment: environment, proposal: proposal)
