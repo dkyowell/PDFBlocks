@@ -6,6 +6,7 @@
 
 import Foundation
 import PDFKit
+import PDFBlocks
 
 //
 public struct ExampleColumns2: Block {

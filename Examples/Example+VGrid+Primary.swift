@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 
 // what is a way to repeat an entire page except for the repeatable part?
 

@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 
 private struct Document: Block {
     let text = "The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. "

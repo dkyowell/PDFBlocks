@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 
 private struct Document: Block {
     let data: [CustomerData]

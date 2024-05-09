@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 
 extension FormatStyle where Self == IntegerFormatStyle<Int> {
     static var nogroup: IntegerFormatStyle<Int> {

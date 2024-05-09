@@ -6,6 +6,7 @@
 
 import Foundation
 import PDFKit
+import PDFBlocks
 
 public struct Columns3Example: Block {
     public var body: some Block {

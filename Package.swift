@@ -11,7 +11,10 @@ let package = Package(
         .library(
             name: "PDFBlocks",
             targets: ["PDFBlocks"]),
-        
+        .library(
+            name: "PDFBlocksExamples",
+            targets: ["PDFBlocksExamples"]),
+
     ],
     dependencies: [
             .package(url: "https://github.com/krzyzanowskim/CoreTextSwift.git", .upToNextMajor(from: "0.0.0")),
@@ -25,5 +28,6 @@ let package = Package(
                                .product(name: "CoreTextSwift", package: "CoreTextSwift")]),
         .testTarget(name: "PDFBlocksTests",
                     dependencies: ["PDFBlocks"]),
+        .target(name: "PDFBlocksExamples", dependencies: ["PDFBlocks"], path: "Examples"),
     ]
 )

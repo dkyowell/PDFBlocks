@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 
 // THERE ARE ONLY THREE WRAPPING BLOCKS: VSTACK, HGRID, & TABLE.
 

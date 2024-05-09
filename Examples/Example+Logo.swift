@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 
 public struct ExampleLogo: Block {
     public init() {}

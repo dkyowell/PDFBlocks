@@ -5,10 +5,9 @@
  */
 
 import Foundation
+import PDFBlocks
 
 private struct Document: Block {
-    @Environment(\.layoutAxis) var layoutAxis
-
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
             Line(start: .init(x: 0.25, y: 0.25), end: .init(x: 0.75, y: 0.75))
