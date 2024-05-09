@@ -43,7 +43,7 @@ private struct Document: Block {
                             Text("STOP")
                                 .foregroundStyle(.white)
                                 .font(.system(size: 60))
-                                .fontWeight(.bold)
+                                .fontWeight(.heavy)
                         }
                 }
             }

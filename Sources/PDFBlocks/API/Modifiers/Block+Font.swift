@@ -34,7 +34,18 @@ struct FontKey: EnvironmentKey {
 extension EnvironmentValues {
     var font: Font {
         get { self[FontKey.self] }
-        set { self[FontKey.self] = newValue }
+        set {
+            self[FontKey.self].kitFont = newValue.kitFont
+            if let weight = newValue.weight {
+                self[FontKey.self].weight = weight
+            }
+            if let width = newValue.width {
+                self[FontKey.self].width = width
+            }
+            if let design = newValue.design {
+                self[FontKey.self].design = design
+            }
+        }
     }
 }
 
@@ -84,17 +95,3 @@ extension EnvironmentValues {
     }
 }
 
-struct KerningKey: EnvironmentKey {
-    static let defaultValue: CGFloat = 0
-}
-
-extension EnvironmentValues {
-    var kerning: CGFloat {
-        get {
-            self[KerningKey.self]
-        }
-        set {
-            self[KerningKey.self] = newValue
-        }
-    }
-}
