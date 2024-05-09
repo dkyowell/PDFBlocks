@@ -7,6 +7,9 @@
 import Foundation
 
 public extension Block {
+    func font(_ font: Font) -> some Block {
+        environment(\.font, font)
+    }
     func fontSize(_ size: CGFloat) -> some Block {
         environment(\.fontSize, size)
     }
@@ -21,14 +24,6 @@ public extension Block {
 
     func fontWidth(_ width: Font.Width) -> some Block {
         environment(\.fontWidth, width)
-    }
-
-    func font(_ font: Font) -> some Block {
-        environment(\.font, font)
-    }
-
-    func kerning(_ kerning: CGFloat) -> some Block {
-        environment(\.kerning, kerning)
     }
 }
 
