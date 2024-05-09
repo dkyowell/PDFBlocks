@@ -6,6 +6,7 @@
 
 import Foundation
 import PDFBlocks
+import PDFKit
 
 public struct ExampleLogo: Block {
     public init() {}
@@ -39,19 +40,13 @@ private struct LetterBlock: Block {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await ExampleLogo()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await ExampleLogo().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

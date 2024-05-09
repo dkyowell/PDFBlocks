@@ -5,8 +5,8 @@
  */
 
 import Foundation
-import PDFKit
 import PDFBlocks
+import PDFKit
 
 struct ExampleShapes: Block {
     var body: some Block {

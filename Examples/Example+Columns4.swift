@@ -5,8 +5,8 @@
  */
 
 import Foundation
-import PDFKit
 import PDFBlocks
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
@@ -20,17 +20,16 @@ private struct Document: Block {
 }
 
 #Preview {
-    print("\n>>>")
     let view = PDFView()
     view.autoScales = true
     Task {
-        if let data = try? await Document().renderPDF(size: .letter, margins: .init(.in(0.5))) {
+        if let data = try? await Document().renderPDF() {
             view.document = PDFDocument(data: data)
-            print("done")
         }
     }
     return view
 }
+
 
 private let speach =
     """

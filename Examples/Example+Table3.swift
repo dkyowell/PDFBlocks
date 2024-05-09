@@ -6,6 +6,7 @@
 
 import Foundation
 import PDFBlocks
+import PDFKit
 
 private struct Document: Block {
     let data: [CustomerData]
@@ -82,23 +83,19 @@ private func stateName(abberviation: String) -> String {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document(data: loadData(CustomerData.self, from: customerData))
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    print("\n>>>>")
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document(data: loadData(CustomerData.self, from: customerData))
+            .renderPDF(size: .letter, margins: .init(.in(1)))
+        {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}
 
 /*
  private struct CustomerData: Decodable {

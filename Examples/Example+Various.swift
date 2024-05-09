@@ -6,6 +6,7 @@
 
 import Foundation
 import PDFBlocks
+import PDFKit
 
 // THERE ARE ONLY THREE WRAPPING BLOCKS: VSTACK, HGRID, & TABLE.
 
@@ -57,20 +58,13 @@ private struct Document: Block {
 
 private let text = "They're Pinky and the Brain, Pinky and the Brain. One is a genius. The other's insane. They're labratory mice. They're genes have been spliced. They're Pinky, they're Pink and the Brain Brain Brain Brain."
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

@@ -6,6 +6,7 @@
 
 import Foundation
 import PDFBlocks
+import PDFKit
 
 private struct Document: Block {
     let data: [CustomerData]
@@ -27,8 +28,6 @@ private struct Document: Block {
         .fontWidth(.condensed)
     }
 }
-
-import PDFKit
 
 #Preview {
     print("\n\n>>>>")

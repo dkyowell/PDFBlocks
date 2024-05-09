@@ -6,8 +6,7 @@
 
 import Foundation
 import PDFBlocks
-
-// import AppKit
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
@@ -104,20 +103,13 @@ private struct Document: Block {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}

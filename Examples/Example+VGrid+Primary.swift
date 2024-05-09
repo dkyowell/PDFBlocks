@@ -6,6 +6,7 @@
 
 import Foundation
 import PDFBlocks
+import PDFKit
 
 // what is a way to repeat an entire page except for the repeatable part?
 
@@ -80,20 +81,13 @@ private struct Document: Block {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
+#Preview {
+    let view = PDFView()
+    view.autoScales = true
+    Task {
+        if let data = try? await Document().renderPDF() {
+            view.document = PDFDocument(data: data)
         }
-        return view
     }
-#endif
+    return view
+}
