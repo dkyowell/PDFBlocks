@@ -10,6 +10,7 @@ public extension Block {
     func font(_ font: Font) -> some Block {
         environment(\.font, font)
     }
+
     func fontSize(_ size: CGFloat) -> some Block {
         environment(\.fontSize, size)
     }
@@ -94,4 +95,3 @@ extension EnvironmentValues {
         }
     }
 }
-
