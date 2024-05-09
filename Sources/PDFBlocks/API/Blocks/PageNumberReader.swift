@@ -16,7 +16,7 @@ public struct PageNumberReader<Content>: Block where Content: Block {
     ///
     /// - Parameters:
     ///   - content: A block builder that creates a block dynamically.
-    init(@BlockBuilder content: @escaping (Int) -> Content) {
+    public init(@BlockBuilder content: @escaping (Int) -> Content) {
         self.content = content
     }
 }

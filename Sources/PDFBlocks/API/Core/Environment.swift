@@ -8,7 +8,7 @@ import Foundation
 
 /// A property wrapper that reads a value from a block's environment.
 @propertyWrapper public struct Environment<Value> {
-    init(_ keyPath: KeyPath<EnvironmentValues, Value>) {
+    public init(_ keyPath: KeyPath<EnvironmentValues, Value>) {
         self.keyPath = keyPath
     }
 
