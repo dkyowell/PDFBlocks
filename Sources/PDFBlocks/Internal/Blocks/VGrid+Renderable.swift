@@ -11,6 +11,8 @@ extension VGrid: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait(allowWrap: pageWrap)[keyPath: keypath]
     }
+    
+    // TODO: NEEDS A REMAINDER FUNCTION FOR COLUMNS.
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
