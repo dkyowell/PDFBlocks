@@ -8,7 +8,6 @@ import Foundation
 import PDFBlocks
 import PDFKit
 
-//
 public struct ExampleColumns2: Block {
     let poem = "That time of year thou mayest in me behold, when yellow leaves or none or few do hang upon these boughs which shake against the cold, bare ruined choirs where late the sweet birds sang."
     public init() {}
@@ -51,13 +50,5 @@ public struct ExampleColumns2: Block {
 }
 
 #Preview {
-    print("\n>>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleColumns2().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleColumns2())
 }

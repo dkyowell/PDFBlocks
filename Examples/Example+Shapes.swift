@@ -46,13 +46,5 @@ struct Arc: Shape {
 }
 
 #Preview {
-    print("\n>>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleShapes().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleShapes())
 }

@@ -59,12 +59,5 @@ private struct Document: Block {
 private let text = "They're Pinky and the Brain, Pinky and the Brain. One is a genius. The other's insane. They're labratory mice. They're genes have been spliced. They're Pinky, they're Pink and the Brain Brain Brain Brain."
 
 #Preview {
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await Document().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(Document())
 }

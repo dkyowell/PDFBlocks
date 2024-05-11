@@ -41,12 +41,5 @@ private struct LetterBlock: Block {
 }
 
 #Preview {
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleLogo().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleLogo())
 }

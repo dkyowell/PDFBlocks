@@ -65,16 +65,7 @@ private func stateName(abberviation: String) -> String {
 }
 
 #Preview {
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleTable2(data: loadData(CustomerData.self, from: customerData))
-            .renderPDF(size: .letter, margins: .init(.in(1)))
-        {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleTable2(data: loadData(CustomerData.self, from: customerData)))
 }
 
 struct CustomerData: Decodable {

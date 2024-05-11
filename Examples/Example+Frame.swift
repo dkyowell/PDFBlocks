@@ -27,13 +27,5 @@ private struct Document: Block {
 }
 
 #Preview {
-    print("\n\n>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await Document().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(Document())
 }

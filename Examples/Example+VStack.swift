@@ -11,19 +11,22 @@ import PDFKit
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(4), height: .in(6)), margins: .in(1)) {
-            VStack(spacing: .flex) {
-                Text("One")
-                Text("Fish")
-                Text("Two")
-                Text("Fish")
-                Text("Red")
-                    .foregroundStyle(.red)
-                    .scaleEffect(1.25)
-                Text("Fish")
-                Text("Blue")
-                    .foregroundStyle(.blue)
-                    .scaleEffect(1.25)
-                Text("Fish")
+            VStack(pageWrap: true) {
+                VStack(spacing: 12, pageWrap: true) {
+                    Text("One")
+                    Text("Fish")
+                    Text("Two")
+                    Text("Fish")
+                    Text("Red")
+                        .foregroundStyle(.red)
+                        .scaleEffect(1.25)
+                    Text("Fish")
+                    Text("Blue")
+                        .foregroundStyle(.blue)
+                        .scaleEffect(1.25)
+                    Text("Fish")
+                    Color.orange
+                }
             }
             .font(.init(.init(name: "American Typewriter", size: 24)))
         }
@@ -32,12 +35,5 @@ private struct Document: Block {
 }
 
 #Preview {
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await Document().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(Document())
 }
