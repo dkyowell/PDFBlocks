@@ -23,6 +23,7 @@ protocol Renderable: Block {
     @discardableResult func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)?
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)?
+    func decomposed(environment: EnvironmentValues) -> [any Renderable]
 }
 
 extension Renderable {
@@ -40,6 +41,12 @@ extension Renderable {
 extension Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait()[keyPath: keypath]
+    }
+}
+
+extension Renderable {
+    func decomposed(environment: EnvironmentValues) -> [any Renderable] {
+        [self]
     }
 }
 

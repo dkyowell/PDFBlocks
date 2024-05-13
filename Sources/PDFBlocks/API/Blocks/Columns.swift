@@ -6,14 +6,10 @@
 
 import Foundation
 
-/// A block that arranges its contents into columns.
+/// A block that arranges its contents into equal length columns.
 ///
-/// ELEMENTS WITHIN `Columns` THAT ARE VERTICALLY UNCONSTRAINED
-/// WILL NOT BE RENDERED. THIS INCLUDES SHAPES AND IMAGES WITHOUT
-/// A FRAME(HEIGHT:) DESIGNATION AND MAX VERTICALY PADDED ELEMENTS.
-///
-/// Columns works like a multi-column VStack. When the content reaches
-/// the bottom of one column, it starts again at the start of the next.
+/// NOTE: Elements within `Columns` with unconstrained heights
+/// can give unexpected results with respect to balanced column heights.
 public struct Columns<Content>: Block where Content: Block {
     let count: Int
     let spacing: Dimension
