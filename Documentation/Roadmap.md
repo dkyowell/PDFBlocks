@@ -2,7 +2,6 @@
 
 ## Fixes
 * The entire library needs to be poked and prodded to find layout problems, especially within nested layout structures.
-* Move Examples to a separate target within the package?
 
 ## Roadmap
 The following is a list of items that could be added. 

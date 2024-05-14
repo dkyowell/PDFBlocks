@@ -5,6 +5,8 @@
  */
 
 import Foundation
+import PDFBlocks
+import PDFKit
 
 // what is a way to repeat an entire page except for the repeatable part?
 
@@ -38,7 +40,7 @@ import Foundation
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: false) {
+            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, wrapping: false) {
                 Text("A")
                 Text("B")
                 Text("C")
@@ -79,20 +81,6 @@ private struct Document: Block {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
-        }
-        return view
-    }
-#endif
+#Preview {
+    previewForDocument(Document())
+}

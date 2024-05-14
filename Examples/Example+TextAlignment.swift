@@ -5,6 +5,8 @@
  */
 
 import Foundation
+import PDFBlocks
+import PDFKit
 
 private struct Document: Block {
     let text = "The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. "
@@ -23,19 +25,6 @@ private struct Document: Block {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(0.5)))
-            {
-                view.document = PDFDocument(data: data)
-            }
-        }
-        return view
-    }
-#endif
+#Preview {
+    previewForDocument(Document())
+}

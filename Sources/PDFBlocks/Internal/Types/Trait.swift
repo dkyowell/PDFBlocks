@@ -7,6 +7,6 @@
 struct Trait {
     var proprtionalWidth: Double?
     var layoutPriority: Int = 0
-    var allowWrap: Bool = false
+    var wrapContents: Bool = false
     var pageInfo: PageInfo?
 }

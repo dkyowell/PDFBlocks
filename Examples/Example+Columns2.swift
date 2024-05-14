@@ -5,9 +5,9 @@
  */
 
 import Foundation
+import PDFBlocks
 import PDFKit
 
-//
 public struct ExampleColumns2: Block {
     let poem = "That time of year thou mayest in me behold, when yellow leaves or none or few do hang upon these boughs which shake against the cold, bare ruined choirs where late the sweet birds sang."
     public init() {}
@@ -15,7 +15,7 @@ public struct ExampleColumns2: Block {
     public var body: some Block {
         Page(size: .letter, margins: .in(1)) {
             VStack(spacing: .flex) {
-                Columns(count: 2, spacing: 36, pageWrap: false) {
+                Columns(count: 2, spacing: 36, wrapping: false) {
                     Text(poem)
                         .fontSize(30)
                 }
@@ -25,7 +25,7 @@ public struct ExampleColumns2: Block {
                             .frame(width: 6)
                     }
                 }
-                Columns(count: 3, spacing: 18, pageWrap: false) {
+                Columns(count: 3, spacing: 18, wrapping: false) {
                     Text(poem)
                         .fontSize(24)
                         .opacity(0.80)
@@ -36,7 +36,7 @@ public struct ExampleColumns2: Block {
                             .frame(width: 6)
                     }
                 }
-                Columns(count: 4, spacing: 12, pageWrap: false) {
+                Columns(count: 4, spacing: 12, wrapping: false) {
                     Text(poem)
                         .fontSize(18)
                         .opacity(0.60)
@@ -50,13 +50,5 @@ public struct ExampleColumns2: Block {
 }
 
 #Preview {
-    print("\n>>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleColumns2().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleColumns2())
 }

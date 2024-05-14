@@ -7,46 +7,6 @@
 import Foundation
 
 extension HStack: Renderable {
-    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposedSize: Proposal) -> ([CGSize]) {
-        let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-        let layoutSize = CGSize(width: proposedSize.width - fixedSpacing, height: proposedSize.height)
-        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: layoutSize) }
-        var unsizedDict = sizes.enumerated().reduce(into: [:]) { $0[$1.offset] = $1.element }
-        var sizedDict = [Int: BlockSize]()
-        // Iterate to find blocks narrower than the average width, changing the average as it goes.
-        var layoutComplete = false
-        while layoutComplete == false {
-            layoutComplete = true
-            let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
-            let averageWidth = (proposedSize.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
-            for (key, size) in unsizedDict.sorted(by: { $0.key < $1.key }) {
-                if size.max.width <= averageWidth {
-                    sizedDict[key] = size
-                    unsizedDict[key] = nil
-                    layoutComplete = false
-                }
-            }
-        }
-        // Size the remaining non-flexible blocks.
-        for (key, _) in unsizedDict.filter({ $0.value.vFlexible == false }).sorted(by: { $0.key < $1.key }) {
-            let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
-            let averageWidth = (proposedSize.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
-            let averageSize = CGSize(width: averageWidth, height: proposedSize.height)
-            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
-            unsizedDict[key] = nil
-        }
-        // Size the remaining flexible blocks.
-        for (key, _) in unsizedDict.sorted(by: { $0.key < $1.key }) {
-            let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
-            let averageWidth = (proposedSize.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
-            let averageSize = CGSize(width: averageWidth, height: proposedSize.height)
-            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
-            unsizedDict[key] = nil
-        }
-        //  Return results. I don't like to use !, but here if it crashes, it should crash.
-        return blocks.indices.map { sizedDict[$0]!.max }
-    }
-
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment.layoutAxis = .horizontal
@@ -81,7 +41,7 @@ extension HStack: Renderable {
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),
                                  max: CGSize(width: proposal.width, height: maxHeight))
             } else {
-                let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: proposal)
+                let sizes = layoutBlocks(blocks, context: context, environment: environment, proposal: proposal)
                 let maxHeight = sizes.map(\.height).reduce(0.0, max)
                 let maxWidth = sizes.map(\.width).reduce(0, +) + fixedSpacing
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),
@@ -93,7 +53,6 @@ extension HStack: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
         environment.layoutAxis = .horizontal
-        //  Get blocks and sizes
         let blocks = content.getRenderables(environment: environment)
         if blocks.filter({ $0.proportionalWidth(context: context, environment: environment) != nil }).isEmpty == false {
             let blocks = content.getRenderables(environment: environment)
@@ -119,7 +78,7 @@ extension HStack: Renderable {
                 dx += width + spacing.fixedPoints
             }
         } else {
-            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposedSize: rect.size)
+            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposal: rect.size)
             //  Compute spacing
             let space: CGFloat
             switch spacing {
@@ -147,5 +106,47 @@ extension HStack: Renderable {
             }
         }
         return nil
+    }
+}
+
+extension HStack {
+    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposal: Proposal) -> ([CGSize]) {
+        let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
+        let layoutSize = CGSize(width: proposal.width - fixedSpacing, height: proposal.height)
+        // Size all blocks with the full width of the proposal less the fixed spacing.
+        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: layoutSize) }
+        var unsizedDict = sizes.enumerated().reduce(into: [:]) { $0[$1.offset] = $1.element }
+        var sizedDict = [Int: BlockSize]()
+        // Find all blocks that are narrower than the average remaining width.
+        var layoutComplete = false
+        while layoutComplete == false {
+            layoutComplete = true
+            let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
+            let averageWidth = (proposal.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
+            for (key, size) in unsizedDict.sorted(by: { $0.key < $1.key }) {
+                if size.max.width <= averageWidth {
+                    sizedDict[key] = size
+                    unsizedDict[key] = nil
+                    layoutComplete = false
+                }
+            }
+        }
+        // Size the remaining non-flexible blocks, proposing the average remaining width.
+        for (key, _) in unsizedDict.filter({ $0.value.vFlexible == false }).sorted(by: { $0.key < $1.key }) {
+            let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
+            let averageWidth = (proposal.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
+            let averageSize = CGSize(width: averageWidth, height: proposal.height)
+            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
+            unsizedDict[key] = nil
+        }
+        // Size the remaining flexible blocks, proposing the average remaining width.
+        for (key, _) in unsizedDict.sorted(by: { $0.key < $1.key }) {
+            let sumSizedWidth = sizedDict.map(\.value.max.width).reduce(0, +)
+            let averageWidth = (proposal.width - fixedSpacing - sumSizedWidth) / CGFloat(unsizedDict.count)
+            let averageSize = CGSize(width: averageWidth, height: proposal.height)
+            sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
+            unsizedDict[key] = nil
+        }
+        return blocks.indices.map { sizedDict[$0]!.max }
     }
 }

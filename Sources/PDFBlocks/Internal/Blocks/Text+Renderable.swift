@@ -9,7 +9,7 @@ import Foundation
 extension Text: Renderable {
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
         let remainder = context.renderer.textRemainder(value, environment: environment, rect: .init(origin: .zero, size: size))
-        if remainder.characters.count > 0 {
+        if remainder.length > 0 {
             return Text(remainder)
         } else {
             return nil
@@ -18,7 +18,7 @@ extension Text: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let remainder = context.renderer.renderText(value, environment: environment, rect: rect)
-        if remainder.characters.count > 0 {
+        if remainder.length > 0 {
             return Text(remainder)
         } else {
             return nil

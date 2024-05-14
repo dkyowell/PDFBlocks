@@ -5,6 +5,8 @@
  */
 
 import Foundation
+import PDFBlocks
+import PDFKit
 
 struct ExampleTable2: Block {
     let data: [CustomerData]
@@ -17,7 +19,7 @@ struct ExampleTable2: Block {
             TableColumn("City", value: \.city, width: 25)
             TableColumn("State", value: \.state, width: 10)
             TableColumn("Zip", value: \.zip, width: 10)
-            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
+            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 12, alignment: .trailing)
         } groups: {
             TableGroup(on: \.state, order: <, spacing: .pt(12)) { _, value in
                 Text(stateName(abberviation: value))
@@ -62,22 +64,9 @@ private func stateName(abberviation: String) -> String {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await ExampleTable2(data: loadData(CustomerData.self, from: customerData))
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
-        }
-        return view
-    }
-#endif
+#Preview {
+    previewForDocument(ExampleTable2(data: loadData(CustomerData.self, from: customerData)))
+}
 
 struct CustomerData: Decodable {
     let firstName: String

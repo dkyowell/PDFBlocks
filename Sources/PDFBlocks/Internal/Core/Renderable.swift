@@ -91,7 +91,7 @@ extension Renderable {
 
     // Only used in isSecondaryPageWrapBlock
     func allowWrap(context: Context, environment: EnvironmentValues) -> Bool {
-        getTrait(context: context, environment: environment, keypath: \.allowWrap)
+        getTrait(context: context, environment: environment, keypath: \.wrapContents)
     }
 
     func layoutPriority(context: Context, environment: EnvironmentValues) -> Int {

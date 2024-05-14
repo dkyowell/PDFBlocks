@@ -8,13 +8,37 @@ import Foundation
 
 extension VStack: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowWrap: pageWrap)[keyPath: keypath]
+        Trait(wrapContents: wrapping)[keyPath: keypath]
+    }
+
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        var environment = environment
+        environment.layoutAxis = .vertical
+        var mutableBlocks = content.getRenderables(environment: environment)
+        var usedHeight: CGFloat = 0
+        for block in mutableBlocks {
+            let proposal = CGSize(width: size.width, height: max(0, size.height - usedHeight))
+            let blockSize = block.sizeFor(context: context, environment: environment, proposal: proposal)
+            if blockSize.max.height ~<= proposal.height {
+                let remainder = block.remainder(context: context, environment: environment, size: proposal)
+                usedHeight += blockSize.max.height + spacing.fixedPoints
+                if let remainder, blockSize.max.height > 0 {
+                    mutableBlocks[0] = remainder
+                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: mutableBlocks) })
+                } else {
+                    mutableBlocks = Array(mutableBlocks.dropFirst())
+                }
+            } else {
+                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: mutableBlocks) })
+            }
+        }
+        return nil
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment.layoutAxis = .vertical
-        switch wrapMode(context: context, environment: environment) {
+        switch wrapMode(environment: environment) {
         case .none:
             let blocks = content.getRenderables(environment: environment)
             let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
@@ -31,7 +55,7 @@ extension VStack: Renderable {
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),
                                  max: CGSize(width: maxWidth, height: proposal.height))
             } else {
-                let sizes = layoutBlocks(blocks, context: context, environment: environment, proposal: proposal)
+                let sizes = atomicLayoutBlocks(blocks, context: context, environment: environment, proposal: proposal)
                 let maxWidth = sizes.map(\.width).reduce(0.0, max)
                 let maxHeight = sizes.map(\.height).reduce(0, +) + fixedSpacing
                 return BlockSize(min: CGSize(width: minWidth, height: minHeight),
@@ -44,9 +68,10 @@ extension VStack: Renderable {
             var height = 0.0
             var maxWidth = 0.0
             for (offset, block) in blocks.enumerated() {
-                let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
                 let spacing = offset == 0 ? 0 : spacing.fixedPoints
-                if (height + size.min.height + spacing) ~> proposal.height {
+                let proposal = CGSize(width: proposal.width, height: proposal.height - height - spacing)
+                let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
+                if size.min.height ~> proposal.height {
                     break
                 } else {
                     height += size.max.height + spacing
@@ -58,7 +83,7 @@ extension VStack: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        switch wrapMode(context: context, environment: environment) {
+        switch wrapMode(environment: environment) {
         case .none:
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
@@ -78,12 +103,13 @@ extension VStack: Renderable {
 }
 
 extension VStack {
+    // Render all content into rect.
     func renderAtomic(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
         environment.layoutAxis = .vertical
         let size = sizeFor(context: context, environment: environment, proposal: rect.size).max
         let blocks = content.getRenderables(environment: environment)
-        let sizes = layoutBlocks(blocks, context: context, environment: environment, proposal: size)
+        let sizes = atomicLayoutBlocks(blocks, context: context, environment: environment, proposal: size)
         //  Compute spacing
         let space: CGFloat
         switch spacing {
@@ -109,6 +135,7 @@ extension VStack {
         }
     }
 
+    // Render all content, starting new pages as necessary, until complete.
     func renderPrimaryWrap(context: Context, environment: EnvironmentValues, rect _: CGRect) {
         var environment = environment
         environment.layoutAxis = .vertical
@@ -128,19 +155,18 @@ extension VStack {
             case .trailing:
                 rect.width - size.max.width
             }
-            if dy == 0 || (size.min.height + dy ~<= rect.height) {
+            // Render at least one element per pass.
+            if (dy == 0) || (size.max.height + dy ~<= rect.height) {
                 let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
                 let remainder = block.render(context: context, environment: environment, rect: renderRect)
                 dy += size.max.height + spacing.fixedPoints
                 if let remainder {
                     blocks[0] = remainder
-                    if size.min.height + dy > rect.height {
-                        dy = 0
-                        context.endPage()
-                        context.beginPage()
-                    }
+                    dy = 0
+                    context.endPage()
+                    context.beginPage()
                 } else {
-                    blocks = blocks.dropFirst().map { $0 }
+                    blocks = Array(blocks.dropFirst())
                 }
             } else {
                 dy = 0
@@ -150,19 +176,19 @@ extension VStack {
         }
     }
 
+    // Render as much content as fits into rect and return the remainder.
     func renderSecondaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
         environment.layoutAxis = .vertical
         var blocks = content.getRenderables(environment: environment)
         var dy: CGFloat = 0
-        for (offset, block) in blocks.enumerated() {
-            if offset > 0 {
-                dy += spacing.fixedPoints
-            }
+        var pass = 0
+        while blocks.count > 0, dy ~<= rect.height {
+            pass += 1
+            let block = blocks[0]
             let proposal = CGSize(width: rect.size.width, height: rect.size.height - dy)
             let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
-            // Can this block fit?
-            if size.min.height ~<= proposal.height {
+            if size.max.height ~<= proposal.height, proposal.height > 0 {
                 let dx: CGFloat = switch alignment {
                 case .leading:
                     0
@@ -171,29 +197,31 @@ extension VStack {
                 case .trailing:
                     rect.width - size.max.width
                 }
-
                 let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
                 let remainder = block.render(context: context, environment: environment, rect: renderRect)
+                dy += size.max.height + spacing.fixedPoints
                 if let remainder {
-                    // Put remainder back
                     blocks[0] = remainder
-                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
+                    break
                 } else {
-                    dy += size.max.height
+                    blocks = Array(blocks.dropFirst())
                 }
             } else {
-                // Don't render a spacer as the first block on a new page.
-                if let _ = blocks.first as? Spacer {
-                    blocks = blocks.dropFirst().map { $0 }
-                }
-                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
+                break
             }
-            blocks = blocks.dropFirst().map { $0 }
         }
-        return nil
+        if blocks.count == 0 {
+            return nil
+        } else {
+            // TODO: This would not work is Spacer is wrapped.
+            // while let _ = blocks.first as? Spacer {
+            //    blocks = Array(blocks.dropFirst())
+            // }
+            return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: blocks) })
+        }
     }
 
-    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposal: Proposal) -> ([CGSize]) {
+    func atomicLayoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposal: Proposal) -> ([CGSize]) {
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
         let layoutSize = CGSize(width: proposal.width, height: proposal.height - fixedSpacing)
 
@@ -234,9 +262,9 @@ extension VStack {
         return blocks.indices.map { sizedDict[$0]!.max }
     }
 
-    func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if pageWrap {
-            if environment.renderMode == .wrapping {
+    func wrapMode(environment: EnvironmentValues) -> WrapMode {
+        if wrapping {
+            if environment.renderMode == .wrapping || environment.columnsLayout {
                 .secondary
             } else {
                 .primary

@@ -5,11 +5,19 @@
  */
 
 import Foundation
+import PDFBlocks
+import PDFKit
 
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, pageWrap: true) {
+            PageNumberReader { pageNo in
+                Text("Page \(pageNo)")
+            }
+            .fontSize(36)
+            .padding(.horizontal, .max)
+            // .padding(.bottom, .pt(12))
+            VStack(alignment: .center, wrapping: true) {
                 Text("A")
                 Text("B")
                 Text("C")
@@ -37,34 +45,24 @@ private struct Document: Block {
                 Text("Y")
                 Text("Z")
             }
+            .tag("Outer")
             .padding(12)
-            .border(.blue, width: 12)
+            .overlay {
+                Color.clear
+                    .border(.blue, width: 12)
+            }
             .fontSize(32)
             .padding(12)
             .rotationEffect(.degrees(10))
+            .clipped()
         }
         .background {
             Color.orange
+                .border(Color.black, width: 12)
         }
-        .border(Color.black, width: 12)
-        .font(.init(.init(name: "American Typewriter", size: 12)))
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
-        }
-        return view
-    }
-#endif
+#Preview {
+    previewForDocument(Document())
+}

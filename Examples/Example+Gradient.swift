@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 import PDFKit
 
 let linearGradient = LinearGradient(stops: [.init(color: .yellow, location: 0),
@@ -36,13 +37,5 @@ private struct ExampleGradient: Block {
 }
 
 #Preview {
-    print("\n>>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleGradient().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleGradient())
 }

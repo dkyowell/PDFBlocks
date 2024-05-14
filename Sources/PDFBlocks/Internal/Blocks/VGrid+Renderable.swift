@@ -9,8 +9,10 @@ import Foundation
 
 extension VGrid: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowWrap: pageWrap)[keyPath: keypath]
+        Trait(wrapContents: wrapping)[keyPath: keypath]
     }
+
+    // TODO: NEEDS A REMAINDER FUNCTION FOR COLUMNS.
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
@@ -91,7 +93,7 @@ extension VGrid {
                 return VGrid<ArrayBlock>(columnCount: columnCount,
                                          columnSpacing: columnSpacing,
                                          rowSpacing: rowSpacing,
-                                         pageWrap: pageWrap,
+                                         wrapping: wrapping,
                                          content: { ArrayBlock(blocks: blocks) })
             }
         }
@@ -156,8 +158,8 @@ extension VGrid {
     }
 
     func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if pageWrap {
-            if environment.renderMode == .wrapping {
+        if wrapping {
+            if environment.renderMode == .wrapping || environment.columnsLayout {
                 .secondary
             } else {
                 .primary

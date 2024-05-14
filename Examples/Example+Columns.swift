@@ -5,18 +5,19 @@
  */
 
 import Foundation
+import PDFBlocks
 import PDFKit
 
 struct ExampleColumns: Block {
     var body: some Block {
-        VStack(pageWrap: true) {
+        VStack(wrapping: true) {
             Text("I Have a Dream")
                 .italic()
                 .fontSize(36)
             Text("Martin Luther King, Jr.")
                 .fontSize(18)
                 .padding(.bottom, 24)
-            Columns(count: 3, spacing: 18, pageWrap: true) {
+            Columns(count: 3, spacing: 18, wrapping: true) {
                 Text(speech)
                     .kerning(-0.25)
             }
@@ -27,15 +28,7 @@ struct ExampleColumns: Block {
 }
 
 #Preview {
-    print("\n>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleColumns().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleColumns())
 }
 
 private let speech =

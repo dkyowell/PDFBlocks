@@ -321,38 +321,73 @@ class CGRenderer: Renderer {
         }
     }
 
-    func prepareString(_ text: AttributedString, environment: EnvironmentValues) -> NSMutableAttributedString {
-        var text = text
-        let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
-        var container = AttributeContainer()
-        if let stroke = environment.textStroke {
-            container[KitAttributes.StrokeColorAttribute.self] = stroke.color.kitColor
-            if environment.textFill == nil {
-                container[KitAttributes.StrokeWidthAttribute.self] = stroke.lineWidth
-            } else {
-                container[KitAttributes.StrokeWidthAttribute.self] = -stroke.lineWidth
+    func prepareString(_ text: NSAttributedString, environment: EnvironmentValues) -> NSAttributedString {
+        // AttributedString to NSAttributedString is an expensive operation. AttributeString has
+        // AttributedContainer merge capabilities that are necessary for SwiftUI style setting of
+        // attibutes. Use the quicker NSAttributedString path when possible.
+        var hasAttributes = false
+        text.enumerateAttributes(in: NSRange(location: 0, length: text.length)) { dict, _, _ in
+            if dict.count > 0 {
+                hasAttributes = true
             }
         }
-        let style = NSMutableParagraphStyle()
+        let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
         let lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
-        style.maximumLineHeight = lineHeight
-        container[KitAttributes.ParagraphStyleAttribute.self] = style
-        if let fill = environment.textFill {
-            container[KitAttributes.ForegroundColorAttribute.self] = fill.kitColor
-        } else if let color = environment.foregroundStyle as? Color {
-            container[KitAttributes.ForegroundColorAttribute.self] = color.kitColor
+        if hasAttributes == false {
+            let text = NSMutableAttributedString(attributedString: text)
+            var attributes = [NSAttributedString.Key: Any]()
+            if let stroke = environment.textStroke {
+                attributes[.strokeColor] = stroke.color.kitColor
+                if environment.textFill == nil {
+                    attributes[.strokeWidth] = stroke.lineWidth
+                } else {
+                    attributes[.strokeWidth] = -stroke.lineWidth
+                }
+            }
+            let style = NSMutableParagraphStyle()
+            style.maximumLineHeight = lineHeight
+            attributes[.paragraphStyle] = style
+            if let fill = environment.textFill {
+                attributes[.foregroundColor] = fill.kitColor
+            } else if let color = environment.foregroundStyle as? Color {
+                attributes[.foregroundColor] = color.kitColor
+            }
+            attributes[.font] = resolvedFont
+            attributes[.kern] = environment.kerning
+            text.setAttributes(attributes, range: NSRange(location: 0, length: text.length))
+            return text
+        } else {
+            var container = AttributeContainer()
+            if let stroke = environment.textStroke {
+                container[KitAttributes.StrokeColorAttribute.self] = stroke.color.kitColor
+                if environment.textFill == nil {
+                    container[KitAttributes.StrokeWidthAttribute.self] = stroke.lineWidth
+                } else {
+                    container[KitAttributes.StrokeWidthAttribute.self] = -stroke.lineWidth
+                }
+            }
+            let style = NSMutableParagraphStyle()
+            style.maximumLineHeight = lineHeight
+            container[KitAttributes.ParagraphStyleAttribute.self] = style
+            if let fill = environment.textFill {
+                container[KitAttributes.ForegroundColorAttribute.self] = fill.kitColor
+            } else if let color = environment.foregroundStyle as? Color {
+                container[KitAttributes.ForegroundColorAttribute.self] = color.kitColor
+            }
+            container[KitAttributes.FontAttribute.self] = resolvedFont
+            container[KitAttributes.KernAttribute.self] = environment.kerning
+
+            var attributedString = AttributedString(text)
+            attributedString.mergeAttributes(container, mergePolicy: .keepCurrent)
+            return NSAttributedString(attributedString)
         }
-        container[KitAttributes.FontAttribute.self] = resolvedFont
-        container[KitAttributes.KernAttribute.self] = environment.kerning
-        text.mergeAttributes(container, mergePolicy: .keepCurrent)
-        return NSMutableAttributedString(text)
     }
 
     // TODO: sizeForCTText
-    func sizeForText(_ text: AttributedString, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
+    func sizeForText(_ text: NSAttributedString, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
         let string = prepareString(text, environment: environment)
         let range = CFRangeMake(0, string.length)
-        let ellipsis = prepareString("…", environment: environment)
+        let ellipsis = prepareString(NSMutableAttributedString(string: "…"), environment: environment)
         let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
         let lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
         let rect = CGRect(origin: .zero, size: CGSize(width: proposedSize.width, height: max(proposedSize.height, lineHeight)))
@@ -377,9 +412,9 @@ class CGRenderer: Renderer {
         }
     }
 
-    func renderText(_ text: AttributedString, environment: EnvironmentValues, rect: CGRect) -> AttributedString {
+    func renderText(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString {
         guard layer == layerFilter else {
-            return ""
+            return blank
         }
         guard let cgContext else {
             fatalError()
@@ -399,7 +434,7 @@ class CGRenderer: Renderer {
         for (offset, line) in lines.enumerated() {
             let lineBounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
             if truncate, offset == lines.count - 1 {
-                let ellipsis = prepareString("…", environment: environment)
+                let ellipsis = prepareString(NSMutableAttributedString(string: "…"), environment: environment)
                 let ellipsisLine = ellipsis.line()
                 let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
                 if lineBounds.width + ellipsisBounds.width ~<= rect.width {
@@ -492,21 +527,25 @@ class CGRenderer: Renderer {
         cgContext.restoreGState()
         if environment.textContinuationMode {
             let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
-            nsAttrString.deleteCharacters(in: nsRange)
-            return AttributedString(nsAttrString)
+            let result = NSMutableAttributedString(attributedString: nsAttrString)
+            result.deleteCharacters(in: nsRange)
+            return result
         } else {
-            return ""
+            return blank
         }
     }
 
-    func textRemainder(_ text: AttributedString, environment: EnvironmentValues, rect: CGRect) -> AttributedString {
+    let blank = NSMutableAttributedString(string: "")
+
+    func textRemainder(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString {
         let nsAttrString = prepareString(text, environment: environment)
         let framesetter = nsAttrString.framesetter()
         let frame = framesetter.createFrame(rect)
         let visibleRange = frame.visibleStringRange()
         let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
-        nsAttrString.deleteCharacters(in: nsRange)
-        return AttributedString(nsAttrString)
+        let result = NSMutableAttributedString(attributedString: nsAttrString)
+        result.deleteCharacters(in: nsRange)
+        return result
     }
 }
 

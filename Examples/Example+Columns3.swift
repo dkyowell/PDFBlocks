@@ -5,20 +5,44 @@
  */
 
 import Foundation
+import PDFBlocks
 import PDFKit
 
-public struct Columns3Example: Block {
+// In general, a
+public struct ExampleColumns3: Block {
     public var body: some Block {
-        Columns(count: 2, spacing: 24, pageWrap: true) {
-            Text(text)
-            VStack(spacing: 24, pageWrap: true) {
-                Repeat(count: 10) {
-                    Text("Hello")
+        Columns(count: 3, spacing: 24, wrapping: true) {
+            VStack(wrapping: true) {
+                Text(text)
+                Repeat(count: 20) {
+                    Text("Text")
                         .padding(.horizontal, .max)
-                        .padding(.vertical, 4)
-                    Image(.init(systemName: "globe"))
-                        .padding(.horizontal, .max)
+                        .opacity(0.25)
+                        .fontWeight(.black)
+                        .fontSize(48)
                 }
+            }
+            VStack(spacing: .flex) {
+                Repeat(count: 5) {
+                    Text("Text")
+                        .padding(.horizontal, .max)
+                        .opacity(0.25)
+                }
+            }
+            .border(.orange)
+            .fontWeight(.black)
+            .fontSize(48)
+            VStack {
+                Color.blue
+                Color.red
+                Color.purple
+                Color.green
+            }
+            VStack {
+                Color.blue
+                Color.red
+                Color.purple
+                Color.green
             }
         }
         .fontSize(20)
@@ -29,15 +53,7 @@ public struct Columns3Example: Block {
 }
 
 #Preview {
-    print("\n>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await Columns3Example().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(ExampleColumns3())
 }
 
 private let text =

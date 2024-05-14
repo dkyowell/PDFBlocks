@@ -49,10 +49,7 @@ extension Padding: Renderable {
         let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width : (horizontalPadding + size.max.width)
         let maxHeight = (padding.top.max || padding.bottom.max) ? proposal.height : (verticalPadding + size.max.height)
         let maxSize = CGSize(width: maxWidth, height: maxHeight)
-        return .init(min: minSize,
-                     max: maxSize,
-                     maxWidth: padding.leading.max || padding.trailing.max || size.maxWidth,
-                     maxHeight: padding.top.max || padding.bottom.max || size.maxHeight)
+        return .init(min: minSize, max: maxSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {

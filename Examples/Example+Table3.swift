@@ -5,6 +5,8 @@
  */
 
 import Foundation
+import PDFBlocks
+import PDFKit
 
 private struct Document: Block {
     let data: [CustomerData]
@@ -26,12 +28,12 @@ private struct Document: Block {
                     .padding(.trailing, .max)
                 TableColumnTitles()
             } footer: { _, _ in
-                VStack(pageWrap: true) {
+                VStack(wrapping: true) {
                     Spacer(fixedLength: 24)
                     Text("A")
                     Text("B")
                     Text("C")
-                    VGrid(columnCount: 3, columnSpacing: 36, rowSpacing: 0, pageWrap: true) {
+                    VGrid(columnCount: 3, columnSpacing: 36, rowSpacing: 0, wrapping: true) {
                         Text("D")
                         Text("E")
                         Text("F")
@@ -81,23 +83,9 @@ private func stateName(abberviation: String) -> String {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document(data: loadData(CustomerData.self, from: customerData))
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
-        }
-        return view
-    }
-#endif
+#Preview {
+    previewForDocument(Document(data: loadData(CustomerData.self, from: customerData)))
+}
 
 /*
  private struct CustomerData: Decodable {

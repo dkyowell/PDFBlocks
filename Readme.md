@@ -62,7 +62,8 @@ Xcode Previews ia also a great way to get a quick start with PDFBlocks before in
 
 1. Download the PDFBlocks project.
 2. Open Package.swift in Xcode.
-3. Navigate to Sources/PDFBlocks/Examples
+3. Navigate to Examples directory
+4. Select scheme PDFBlocks-Package or PDFBlocksExamples
 4. Puruse the sample documents. Modify them if you wish and see the results right away.
 
 
@@ -93,6 +94,8 @@ import PDFBlocks
 ## Roadmap
 [Roadmap.md](Documentation/Roadmap.md)
 
+## Beta Release
+This is a beta release. The API and layout heuristics could change up until the 1.0 release.
 
 ## Support
 Open an issue with questions or feature requests. I am actively developing this project and will try to accomodate requests that fit within the goals of the project. You can also send me an email at dkyowell.opensource@gmail.com.

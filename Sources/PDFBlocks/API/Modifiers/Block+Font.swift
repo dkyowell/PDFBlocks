@@ -7,6 +7,10 @@
 import Foundation
 
 public extension Block {
+    func font(_ font: Font) -> some Block {
+        environment(\.font, font)
+    }
+
     func fontSize(_ size: CGFloat) -> some Block {
         environment(\.fontSize, size)
     }
@@ -22,14 +26,6 @@ public extension Block {
     func fontWidth(_ width: Font.Width) -> some Block {
         environment(\.fontWidth, width)
     }
-
-    func font(_ font: Font) -> some Block {
-        environment(\.font, font)
-    }
-
-    func kerning(_ kerning: CGFloat) -> some Block {
-        environment(\.kerning, kerning)
-    }
 }
 
 struct FontKey: EnvironmentKey {
@@ -39,7 +35,18 @@ struct FontKey: EnvironmentKey {
 extension EnvironmentValues {
     var font: Font {
         get { self[FontKey.self] }
-        set { self[FontKey.self] = newValue }
+        set {
+            self[FontKey.self].kitFont = newValue.kitFont
+            if let weight = newValue.weight {
+                self[FontKey.self].weight = weight
+            }
+            if let width = newValue.width {
+                self[FontKey.self].width = width
+            }
+            if let design = newValue.design {
+                self[FontKey.self].design = design
+            }
+        }
     }
 }
 
@@ -85,21 +92,6 @@ extension EnvironmentValues {
         }
         set {
             self[FontKey.self].design = newValue
-        }
-    }
-}
-
-struct KerningKey: EnvironmentKey {
-    static let defaultValue: CGFloat = 0
-}
-
-extension EnvironmentValues {
-    var kerning: CGFloat {
-        get {
-            self[KerningKey.self]
-        }
-        set {
-            self[KerningKey.self] = newValue
         }
     }
 }

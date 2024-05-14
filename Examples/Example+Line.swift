@@ -5,10 +5,10 @@
  */
 
 import Foundation
+import PDFBlocks
+import PDFKit
 
 private struct Document: Block {
-    @Environment(\.layoutAxis) var layoutAxis
-
     var body: some Block {
         Page(size: .letter, margins: .in(1)) {
             Line(start: .init(x: 0.25, y: 0.25), end: .init(x: 0.75, y: 0.75))
@@ -38,19 +38,7 @@ private struct Document: Block {
     }
 }
 
-#if os(iOS) || os(macOS)
-    import PDFKit
 
-    #Preview {
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
-        }
-        return view
-    }
-#endif
+#Preview {
+    previewForDocument(Document())
+}

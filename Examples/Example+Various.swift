@@ -5,6 +5,8 @@
  */
 
 import Foundation
+import PDFBlocks
+import PDFKit
 
 // THERE ARE ONLY THREE WRAPPING BLOCKS: VSTACK, HGRID, & TABLE.
 
@@ -14,7 +16,7 @@ import Foundation
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(8), height: .in(8)), margins: .in(1)) {
-            VGrid(columnCount: 3, columnSpacing: 12, rowSpacing: 12, pageWrap: true) {
+            VGrid(columnCount: 3, columnSpacing: 12, rowSpacing: 12, wrapping: true) {
                 VGrid(columnCount: 3, columnSpacing: 4, rowSpacing: 4) {
                     Group {
                         Color.red
@@ -56,20 +58,6 @@ private struct Document: Block {
 
 private let text = "They're Pinky and the Brain, Pinky and the Brain. One is a genius. The other's insane. They're labratory mice. They're genes have been spliced. They're Pinky, they're Pink and the Brain Brain Brain Brain."
 
-#if os(iOS) || os(macOS)
-    import PDFKit
-
-    #Preview {
-        print("\n>>>")
-        let view = PDFView()
-        view.autoScales = true
-        Task {
-            if let data = try? await Document()
-                .renderPDF(size: .letter, margins: .init(.in(1)))
-            {
-                view.document = PDFDocument(data: data)
-            }
-        }
-        return view
-    }
-#endif
+#Preview {
+    previewForDocument(Document())
+}

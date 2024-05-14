@@ -5,6 +5,7 @@
  */
 
 import Foundation
+import PDFBlocks
 import PDFKit
 
 private struct Document: Block {
@@ -22,13 +23,5 @@ private struct Document: Block {
 }
 
 #Preview {
-    print("\n>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await Document().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(Document())
 }

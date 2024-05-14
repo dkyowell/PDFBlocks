@@ -12,28 +12,20 @@ import Foundation
 struct BlockSize {
     let min: CGSize
     let max: CGSize
-    let maxWidth: Bool
-    let maxHeight: Bool
 
-    init(min: CGSize, max: CGSize, maxWidth: Bool = false, maxHeight: Bool = false) {
+    init(min: CGSize, max: CGSize, maxWidth _: Bool = false, maxHeight _: Bool = false) {
         self.min = min
         self.max = max
-        self.maxWidth = maxWidth
-        self.maxHeight = maxHeight
     }
 
     init(_ size: CGSize) {
         self.min = size
         self.max = size
-        maxWidth = false
-        maxHeight = false
     }
 
     init(width: CGFloat, height: CGFloat) {
         self.min = .init(width: width, height: height)
         self.max = .init(width: width, height: height)
-        maxWidth = false
-        maxHeight = false
     }
 }
 

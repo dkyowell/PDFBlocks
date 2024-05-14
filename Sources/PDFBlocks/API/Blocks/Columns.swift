@@ -6,18 +6,14 @@
 
 import Foundation
 
-/// A block that arranges its contents into columns.
+/// A block that arranges its contents into equal length columns.
 ///
-/// ELEMENTS WITHIN `Columns` THAT ARE VERTICALLY UNCONSTRAINED
-/// WILL NOT BE RENDERED. THIS INCLUDES SHAPES AND IMAGES WITHOUT
-/// A FRAME(HEIGHT:) DESIGNATION AND MAX VERTICALY PADDED ELEMENTS.
-///
-/// Columns works like a multi-column VStack. When the content reaches
-/// the bottom of one column, it starts again at the start of the next.
+/// NOTE: Elements within `Columns` with unconstrained heights
+/// can give unexpected results with respect to balanced column heights.
 public struct Columns<Content>: Block where Content: Block {
     let count: Int
     let spacing: Dimension
-    let pageWrap: Bool
+    let wrapping: Bool
     let content: Content
 
     /// Creates an instance with the given parameters..
@@ -25,12 +21,12 @@ public struct Columns<Content>: Block where Content: Block {
     /// - Parameters:
     ///   - count: The number of columns.
     ///   - spacing: The horizontal spacing between columns.
-    ///   - pageWrap: Start a new page when the content overflows its space.
+    ///   - wrapContents: Start a new page or column when the content overflows its space.
     ///   - content: A block builder that creates the Columns content.
-    public init(count: Int, spacing: Dimension, pageWrap: Bool = false, @BlockBuilder content: () -> Content) {
+    public init(count: Int, spacing: Dimension, wrapping: Bool = false, @BlockBuilder content: () -> Content) {
         self.count = max(1, count)
         self.spacing = spacing
-        self.pageWrap = pageWrap
+        self.wrapping = wrapping
         self.content = content()
     }
 }
