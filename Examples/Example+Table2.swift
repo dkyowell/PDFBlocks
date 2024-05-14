@@ -19,7 +19,7 @@ struct ExampleTable2: Block {
             TableColumn("City", value: \.city, width: 25)
             TableColumn("State", value: \.state, width: 10)
             TableColumn("Zip", value: \.zip, width: 10)
-            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
+            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 12, alignment: .trailing)
         } groups: {
             TableGroup(on: \.state, order: <, spacing: .pt(12)) { _, value in
                 Text(stateName(abberviation: value))

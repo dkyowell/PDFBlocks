@@ -11,9 +11,19 @@ import PDFKit
 // In general, a
 public struct ExampleColumns3: Block {
     public var body: some Block {
-        Columns(count: 2, spacing: 24, wrapContents: true) {
-            VStack(spacing: .flex, wrapContents: false) {
+        Columns(count: 3, spacing: 24, wrapping: true) {
+            VStack(wrapping: true) {
+                Text(text)
                 Repeat(count: 20) {
+                    Text("Text")
+                        .padding(.horizontal, .max)
+                        .opacity(0.25)
+                        .fontWeight(.black)
+                        .fontSize(48)
+                }
+            }
+            VStack(spacing: .flex) {
+                Repeat(count: 5) {
                     Text("Text")
                         .padding(.horizontal, .max)
                         .opacity(0.25)
@@ -22,63 +32,18 @@ public struct ExampleColumns3: Block {
             .border(.orange)
             .fontWeight(.black)
             .fontSize(48)
-            VStack(spacing: .flex, wrapContents: false) {
-                Repeat(count: 20) {
-                    Text("Text")
-                        .padding(.horizontal, .max)
-                        .opacity(0.25)
-                }
+            VStack {
+                Color.blue
+                Color.red
+                Color.purple
+                Color.green
             }
-            .border(.orange)
-            .fontWeight(.black)
-            .fontSize(48)
-            VStack(wrapContents: false) {
-                Repeat(count: 1) {
-                    Color.blue
-                    Color.red
-                    Color.purple
-                    Color.green
-                }
+            VStack {
+                Color.blue
+                Color.red
+                Color.purple
+                Color.green
             }
-            VStack(wrapContents: false) {
-                Repeat(count: 1) {
-                    Color.blue
-                    Color.red
-                    Color.purple
-                    Color.green
-                }
-            }
-
-
-//            VStack(spacing: 20, wrapContents: true) {
-//                Repeat(count: 5) {
-//                    Text("Some text")
-//                }
-//                Color.purple
-//                VStack {
-//                    Text("One")
-//                    Color.blue
-//                    Text("Fish")
-//                    Color.red
-//                    Text("Two")
-//                    Color.blue
-//                    Text("Fish")
-//                }
-//                VStack {
-//                    Text("One")
-//                    Color.blue
-//                    Text("Fish")
-//                    Color.red
-//                    Text("Two")
-//                    Color.blue
-//                    Text("Fish")
-//                }
-//                Text("OK")
-//                    .padding(.horizontal, .max)
-//                Text("OK")
-//                Text("OK")
-//                Text("OK")
-//            }
         }
         .fontSize(20)
         .fontDesign(.serif)

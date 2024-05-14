@@ -16,7 +16,7 @@ import PDFKit
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(8), height: .in(8)), margins: .in(1)) {
-            VGrid(columnCount: 3, columnSpacing: 12, rowSpacing: 12, wrapContents: true) {
+            VGrid(columnCount: 3, columnSpacing: 12, rowSpacing: 12, wrapping: true) {
                 VGrid(columnCount: 3, columnSpacing: 4, rowSpacing: 4) {
                     Group {
                         Color.red

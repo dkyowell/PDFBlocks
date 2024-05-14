@@ -10,10 +10,10 @@ import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        VStack(spacing: 12, wrapContents: true) {
+        VStack(spacing: 12, wrapping: true) {
             Repeat(count: 20) {
                 Text("Section One")
-                VStack(spacing: 12, wrapContents: true) {
+                VStack(spacing: 12, wrapping: true) {
                     Repeat(count: 4) {
                         Text("Section Two")
                             .foregroundStyle(.red)

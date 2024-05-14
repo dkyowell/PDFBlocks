@@ -17,7 +17,7 @@ private struct Document: Block {
             .fontSize(36)
             .padding(.horizontal, .max)
             // .padding(.bottom, .pt(12))
-            VStack(alignment: .center, wrapContents: true) {
+            VStack(alignment: .center, wrapping: true) {
                 Text("A")
                 Text("B")
                 Text("C")

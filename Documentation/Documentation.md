@@ -17,6 +17,7 @@ Text("Hello, world.")
 Text("Hello, world.")
   .padding(.pt(72))
 ```
+
 ### Rendering
 Rendering is a simple as called `.render()` on a `Block` that you have defined. A `Data` is returned which 
 can be used to display, save to storage, send over the network, etc.
@@ -30,12 +31,11 @@ struct Document: Block {
 let data = Document().render()
 ```
 
-
 ## Multipage Components 
-`VStack`, `VGrid`, and `Columns` are components that can allow their content to overflow from one page to a new page by setting the `pageWrap` parameter to true.
+`VStack`, `VGrid`, and `Columns` are components that can allow their content to start a new column or page by setting the `wrapping` parameter to true.
 
 ```swift
-Columns(count: 2, spacing: 36, pageWrap: true) {
+Columns(count: 2, spacing: 36, wrapping: true) {
   Text("Four score and seventy years ago...")
 }
 ```
@@ -46,7 +46,7 @@ Page headers and footers can be expressed simply by surrounding a page wrap bloc
 ```swift
 VStack {
   Text("This text will repeat at the top of each page.")
-  Columns(count: 2, spacing: 36, pageWrap: true) {
+  Columns(count: 2, spacing: 36, wrapping: true) {
     Text("Four score and seventy years ago...")
   }
   Text("This text will repeat at the bottom of each page.")
@@ -65,35 +65,11 @@ VStack {
         .padding(.bottom, 36)
     }
   }
-  Columns(count: 2, spacing: 36, pageWrap: true) {
+  Columns(count: 2, spacing: 36, wrapping: true) {
     Text(...)
   }
 }
 ```
-### Secondary Page Wrap Components
-Within the first page wrap component, further page wrap components can optionally be used.
-```swift
-VStack(pageWrap: true) {
-  VStack(pageWrap: false) {
-    Text("This")
-    Text("Stack")
-    Text("Will")
-    Text("Be")
-    Text("Rendered")
-    Text("Together")
-  }
-  VStack(pageWrap: true) {
-    Text("This")
-    Text("Stack")
-    Text("Can")
-    Text("Be")
-    Text("Split")
-    Text("Across")
-    Text("Pages")
-  }
-}
-```
-
 
 ### Pages
 You can optionally define one or more pages as part of your document. Pages can be different sizes within one document.
@@ -147,6 +123,7 @@ PDFBlocks constructs that are not in SwiftUI.
 ### Group Blocks
 * ForEach
 * Group
+* Repeat* - Repeat a block n number of times.
 
 ### Reader Blocks
 * PageNumberReader* - This is similiar to a GeometryReader, except that it provides the current page number for printing purposes.

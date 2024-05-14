@@ -10,7 +10,7 @@ import PDFKit
 
 private struct ExampleColumns4: Block {
     var body: some Block {
-        Columns(count: 3, spacing: 16, wrapContents: true) {
+        Columns(count: 3, spacing: 16, wrapping: true) {
             Text(speech)
         }
         .fontDesign(.serif)

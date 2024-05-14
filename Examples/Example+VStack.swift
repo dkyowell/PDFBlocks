@@ -11,8 +11,8 @@ import PDFKit
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(4), height: .in(6)), margins: .in(1)) {
-            VStack(wrapContents: true) {
-                VStack(spacing: 12, wrapContents: true) {
+            VStack(wrapping: true) {
+                VStack(spacing: 12, wrapping: true) {
                     Text("One")
                     Text("Fish")
                     Text("Two")

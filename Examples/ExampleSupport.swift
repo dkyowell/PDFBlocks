@@ -43,11 +43,12 @@ func previewForDocument(_ document: some Block) -> PDFView {
     print("\n>>>")
     let view = PDFView()
     view.autoScales = true
+    let startTime = Date()
     DispatchQueue.main.async {
         Task {
             if let data = try? await document.renderPDF() {
                 view.document = PDFDocument(data: data)
-                print("<<<")
+                print("<<< \(-startTime.timeIntervalSinceNow)")
             }
         }
     }
