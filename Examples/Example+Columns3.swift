@@ -11,14 +11,74 @@ import PDFKit
 // In general, a
 public struct ExampleColumns3: Block {
     public var body: some Block {
-        Columns(count: 2, spacing: 24, pageWrap: true) {
-            VStack(spacing: 40, pageWrap: true) {
-                Text(text)
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
-                Text("Hello")
+        Columns(count: 2, spacing: 24, wrapContents: true) {
+            VStack(spacing: .flex, wrapContents: false) {
+                Repeat(count: 20) {
+                    Text("Text")
+                        .padding(.horizontal, .max)
+                        .opacity(0.25)
+                }
             }
+            .border(.orange)
+            .fontWeight(.black)
+            .fontSize(48)
+            VStack(spacing: .flex, wrapContents: false) {
+                Repeat(count: 20) {
+                    Text("Text")
+                        .padding(.horizontal, .max)
+                        .opacity(0.25)
+                }
+            }
+            .border(.orange)
+            .fontWeight(.black)
+            .fontSize(48)
+            VStack(wrapContents: false) {
+                Repeat(count: 1) {
+                    Color.blue
+                    Color.red
+                    Color.purple
+                    Color.green
+                }
+            }
+            VStack(wrapContents: false) {
+                Repeat(count: 1) {
+                    Color.blue
+                    Color.red
+                    Color.purple
+                    Color.green
+                }
+            }
+
+
+//            VStack(spacing: 20, wrapContents: true) {
+//                Repeat(count: 5) {
+//                    Text("Some text")
+//                }
+//                Color.purple
+//                VStack {
+//                    Text("One")
+//                    Color.blue
+//                    Text("Fish")
+//                    Color.red
+//                    Text("Two")
+//                    Color.blue
+//                    Text("Fish")
+//                }
+//                VStack {
+//                    Text("One")
+//                    Color.blue
+//                    Text("Fish")
+//                    Color.red
+//                    Text("Two")
+//                    Color.blue
+//                    Text("Fish")
+//                }
+//                Text("OK")
+//                    .padding(.horizontal, .max)
+//                Text("OK")
+//                Text("OK")
+//                Text("OK")
+//            }
         }
         .fontSize(20)
         .fontDesign(.serif)

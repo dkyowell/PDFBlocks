@@ -15,7 +15,7 @@ public struct ExampleColumns2: Block {
     public var body: some Block {
         Page(size: .letter, margins: .in(1)) {
             VStack(spacing: .flex) {
-                Columns(count: 2, spacing: 36, pageWrap: false) {
+                Columns(count: 2, spacing: 36, wrapContents: false) {
                     Text(poem)
                         .fontSize(30)
                 }
@@ -25,7 +25,7 @@ public struct ExampleColumns2: Block {
                             .frame(width: 6)
                     }
                 }
-                Columns(count: 3, spacing: 18, pageWrap: false) {
+                Columns(count: 3, spacing: 18, wrapContents: false) {
                     Text(poem)
                         .fontSize(24)
                         .opacity(0.80)
@@ -36,7 +36,7 @@ public struct ExampleColumns2: Block {
                             .frame(width: 6)
                     }
                 }
-                Columns(count: 4, spacing: 12, pageWrap: false) {
+                Columns(count: 4, spacing: 12, wrapContents: false) {
                     Text(poem)
                         .fontSize(18)
                         .opacity(0.60)

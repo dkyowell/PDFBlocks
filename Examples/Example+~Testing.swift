@@ -8,30 +8,24 @@ import Foundation
 import PDFBlocks
 import PDFKit
 
-private struct ExampleHStack: Block {
+private struct Document: Block {
     var body: some Block {
-        HStack(spacing: 10) {
-            Color.purple
-            Color.red
-            Color.yellow
-            Text("Pinky and the Brain")
-                .fontSize(44)
-            Color.orange
-            Color.blue
-            Color.green
-
+        VStack(spacing: 12, wrapContents: true) {
+            Repeat(count: 20) {
+                Text("Section One")
+                VStack(spacing: 12, wrapContents: true) {
+                    Repeat(count: 4) {
+                        Text("Section Two")
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
         }
+        .fontSize(24)
+        .fontSize(24)
     }
 }
 
 #Preview {
-    print("\n>>>")
-    let view = PDFView()
-    view.autoScales = true
-    Task {
-        if let data = try? await ExampleHStack().renderPDF() {
-            view.document = PDFDocument(data: data)
-        }
-    }
-    return view
+    previewForDocument(Document())
 }

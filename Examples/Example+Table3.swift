@@ -28,12 +28,12 @@ private struct Document: Block {
                     .padding(.trailing, .max)
                 TableColumnTitles()
             } footer: { _, _ in
-                VStack(pageWrap: true) {
+                VStack(wrapContents: true) {
                     Spacer(fixedLength: 24)
                     Text("A")
                     Text("B")
                     Text("C")
-                    VGrid(columnCount: 3, columnSpacing: 36, rowSpacing: 0, pageWrap: true) {
+                    VGrid(columnCount: 3, columnSpacing: 36, rowSpacing: 0, wrapContents: true) {
                         Text("D")
                         Text("E")
                         Text("F")

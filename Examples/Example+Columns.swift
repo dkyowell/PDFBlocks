@@ -10,14 +10,14 @@ import PDFKit
 
 struct ExampleColumns: Block {
     var body: some Block {
-        VStack(pageWrap: true) {
+        VStack(wrapContents: true) {
             Text("I Have a Dream")
                 .italic()
                 .fontSize(36)
             Text("Martin Luther King, Jr.")
                 .fontSize(18)
                 .padding(.bottom, 24)
-            Columns(count: 3, spacing: 18, pageWrap: true) {
+            Columns(count: 3, spacing: 18, wrapContents: true) {
                 Text(speech)
                     .kerning(-0.25)
             }
