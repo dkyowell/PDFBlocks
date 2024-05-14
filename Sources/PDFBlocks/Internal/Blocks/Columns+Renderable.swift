@@ -11,27 +11,24 @@ import Foundation
 // proposed size. See Example+Columns3
 extension Columns: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowWrap: pageWrap)[keyPath: keypath]
+        Trait(wrapContents: wrapContents)[keyPath: keypath]
     }
     
     // TODO: Needs Remainder
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
+        environment.columnsLayout = true
         environment.textContinuationMode = true
         environment.layoutAxis = .vertical
         switch wrapMode(context: context, environment: environment) {
         case .none:
             let blocks = content.getRenderables(environment: environment)
-                .map({$0.decomposed(environment: environment)})
-                .flatMap({$0})
             let height = heightForEvenColumns(context: context, environment: environment, blocks: blocks, proposal: proposal)
             return BlockSize(min: CGSize(width: proposal.width, height: height),
                              max: CGSize(width: proposal.width, height: height))
         case .secondary:
             let blocks = content.getRenderables(environment: environment)
-                .map({$0.decomposed(environment: environment)})
-                .flatMap({$0})
             let height = heightForEvenColumns(context: context, environment: environment, blocks: blocks, proposal: proposal)
             return BlockSize(min: CGSize(width: proposal.width, height: min(height, proposal.height)),
                              max: CGSize(width: proposal.width, height: min(height, proposal.height)))
@@ -42,6 +39,7 @@ extension Columns: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
+        environment.columnsLayout = true
         environment.textContinuationMode = true
         environment.layoutAxis = .vertical
         switch wrapMode(context: context, environment: environment) {
@@ -69,16 +67,16 @@ extension Columns {
     func renderAtomic(context: Context, environment: EnvironmentValues, rect: CGRect) {
         let columnWidth = (rect.width - CGFloat(count - 1) * spacing.points) / CGFloat(count)
         var blocks = content.getRenderables(environment: environment)
-            .map({$0.decomposed(environment: environment)})
-            .flatMap({$0})
         for column in 0 ..< count {
             let xPos = rect.minX + (columnWidth + spacing.points) * CGFloat(column)
             var dy: CGFloat = 0
+            var pass = 0
             while rect.minY + dy < rect.maxY, blocks.isEmpty == false {
+                pass += 1
                 let block = blocks[0]
                 let remainingSize = CGSize(width: columnWidth, height: rect.height - dy)
                 let size = block.sizeFor(context: context, environment: environment, proposal: remainingSize)
-                if dy + size.max.height ~<= rect.height {
+                if (pass == 1) || (dy + size.max.height ~<= rect.height) {
                     let renderRect = CGRect(x: xPos, y: rect.minY + dy, width: size.max.width, height: size.max.height)
                     let remainder = block.render(context: context, environment: environment, rect: renderRect)
                     dy += renderRect.height
@@ -96,17 +94,12 @@ extension Columns {
 
     func renderPrimary(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var blocks = content.getRenderables(environment: environment)
-            .map({$0.decomposed(environment: environment)})
-            .flatMap({$0})
         var rect = rect
+        print("Columns.renderPrimaryPage", blocks.count)
         while blocks.count > 0 {
             let height = heightForEvenColumns(context: context, environment: environment, blocks: blocks, proposal: rect.size)
-
-            let renderRect = if context.pageNo > 1 {
-                CGRect(origin: rect.origin, size: .init(width: rect.width, height: height))
-            } else {
-                CGRect(origin: rect.origin, size: .init(width: rect.width, height: height))
-            }
+            print("height", height)
+            let renderRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: height))
             blocks = renderPrimaryPage(context: context, environment: environment, blocks: blocks, rect: renderRect)
             if blocks.count > 0 {
                 context.endPage()
@@ -126,7 +119,7 @@ extension Columns {
                 let block = blocks[0]
                 let remainingSize = CGSize(width: columnWidth, height: rect.height - columnHeight)
                 let size = block.sizeFor(context: context, environment: environment, proposal: remainingSize)
-                if columnHeight + size.max.height ~<= rect.height {
+                if columnHeight == 0 || (columnHeight + size.max.height ~<= rect.height) {
                     let renderRect = CGRect(x: xPos, y: rect.minY + columnHeight, width: size.max.width, height: size.max.height)
                     let remainder = block.render(context: context, environment: environment, rect: renderRect)
                     columnHeight += renderRect.height
@@ -172,7 +165,7 @@ extension Columns {
             }
         }
         if blocks.count > 0 {
-            return Columns<ArrayBlock>(count: count, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
+            return Columns<ArrayBlock>(count: count, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: blocks) })
         } else {
             return nil
         }
@@ -229,7 +222,7 @@ extension Columns {
     }
 
     func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if pageWrap {
+        if wrapContents {
             if environment.renderMode == .wrapping {
                 .secondary
             } else {

@@ -13,7 +13,7 @@ import Foundation
 public struct Columns<Content>: Block where Content: Block {
     let count: Int
     let spacing: Dimension
-    let pageWrap: Bool
+    let wrapContents: Bool
     let content: Content
 
     /// Creates an instance with the given parameters..
@@ -21,12 +21,12 @@ public struct Columns<Content>: Block where Content: Block {
     /// - Parameters:
     ///   - count: The number of columns.
     ///   - spacing: The horizontal spacing between columns.
-    ///   - pageWrap: Start a new page when the content overflows its space.
+    ///   - wrapContents: Start a new page or column when the content overflows its space.
     ///   - content: A block builder that creates the Columns content.
-    public init(count: Int, spacing: Dimension, pageWrap: Bool = false, @BlockBuilder content: () -> Content) {
+    public init(count: Int, spacing: Dimension, wrapContents: Bool = false, @BlockBuilder content: () -> Content) {
         self.count = max(1, count)
         self.spacing = spacing
-        self.pageWrap = pageWrap
+        self.wrapContents = wrapContents
         self.content = content()
     }
 }

@@ -7,25 +7,8 @@
 import Foundation
 
 extension VStack: Renderable {
-    func decomposed(environment: EnvironmentValues) -> [any Renderable] {
-        switch wrapMode(environment: environment) {
-        case .none:
-            return [self]
-        case .primary:
-            return []
-        case .secondary:
-            var environment = environment
-            environment.layoutAxis = .vertical
-            let blocks = content.getRenderables(environment: environment)
-                .interspersed(with: Spacer(fixedLength: .pt(spacing.fixedPoints)))
-                .map({$0.decomposed(environment: environment)})
-                .flatMap({$0})
-            return blocks
-        }
-    }
-
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(allowWrap: pageWrap)[keyPath: keypath]
+        Trait(wrapContents: wrapContents)[keyPath: keypath]
     }
     
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
@@ -41,12 +24,12 @@ extension VStack: Renderable {
                 usedHeight += blockSize.max.height + spacing.fixedPoints
                 if let remainder, blockSize.max.height > 0 {
                     mutableBlocks[0] = remainder
-                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: mutableBlocks) })
+                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: mutableBlocks) })
                 } else {
                     mutableBlocks = Array(mutableBlocks.dropFirst())
                 }
             } else {
-                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: mutableBlocks) })
+                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: mutableBlocks) })
             }
         }
         return nil
@@ -200,11 +183,13 @@ extension VStack {
         environment.layoutAxis = .vertical
         var blocks = content.getRenderables(environment: environment)
         var dy: CGFloat = 0
+        var pass = 0
         while blocks.count > 0, dy ~<= rect.height {
+            pass += 1
             let block = blocks[0]
             let proposal = CGSize(width: rect.size.width, height: rect.size.height - dy)
             let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
-            if size.max.height ~<= proposal.height {
+            if size.max.height ~<= proposal.height, proposal.height > 0 {
                 let dx: CGFloat = switch alignment {
                 case .leading:
                     0
@@ -233,7 +218,7 @@ extension VStack {
             // while let _ = blocks.first as? Spacer {
             //    blocks = Array(blocks.dropFirst())
             //}
-            return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, pageWrap: pageWrap, content: { ArrayBlock(blocks: blocks) })
+            return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: blocks) })
         }
     }
 
@@ -279,8 +264,8 @@ extension VStack {
     }
 
     func wrapMode(environment: EnvironmentValues) -> WrapMode {
-        if pageWrap {
-            if environment.renderMode == .wrapping {
+        if wrapContents {
+            if environment.renderMode == .wrapping || environment.columnsLayout {
                 .secondary
             } else {
                 .primary
