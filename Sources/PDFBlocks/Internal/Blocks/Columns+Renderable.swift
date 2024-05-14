@@ -13,7 +13,7 @@ extension Columns: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait(wrapContents: wrapContents)[keyPath: keypath]
     }
-    
+
     // TODO: Needs Remainder
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
@@ -95,10 +95,8 @@ extension Columns {
     func renderPrimary(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var blocks = content.getRenderables(environment: environment)
         var rect = rect
-        print("Columns.renderPrimaryPage", blocks.count)
         while blocks.count > 0 {
             let height = heightForEvenColumns(context: context, environment: environment, blocks: blocks, proposal: rect.size)
-            print("height", height)
             let renderRect = CGRect(origin: rect.origin, size: .init(width: rect.width, height: height))
             blocks = renderPrimaryPage(context: context, environment: environment, blocks: blocks, rect: renderRect)
             if blocks.count > 0 {
@@ -170,7 +168,7 @@ extension Columns {
             return nil
         }
     }
-    
+
     func excessHeight(context: Context, environment: EnvironmentValues, proposal: Proposal, blocks: [any Renderable]) -> CGFloat {
         var mutableBlocks = blocks
         var column = 0
@@ -185,7 +183,7 @@ extension Columns {
             } else {
                 columnHeight += size.max.height
                 let remainder = block.remainder(context: context, environment: environment, size: blockProposal)
-                if let remainder {//}, size.max.height > 0 {
+                if let remainder { // }, size.max.height > 0 {
                     mutableBlocks[0] = remainder
                     column += 1
                     columnHeight = 0
@@ -195,8 +193,8 @@ extension Columns {
             }
         }
         let excessProposal = CGSize(width: proposal.width, height: .infinity)
-        let excessSizes = mutableBlocks.map({$0.sizeFor(context: context, environment: environment, proposal: excessProposal)})
-        return excessSizes.map({$0.max.height}).reduce(0, +)
+        let excessSizes = mutableBlocks.map { $0.sizeFor(context: context, environment: environment, proposal: excessProposal) }
+        return excessSizes.map(\.max.height).reduce(0, +)
     }
 
     func heightForEvenColumns(context: Context, environment: EnvironmentValues, blocks: [any Renderable], proposal: Proposal) -> CGFloat {

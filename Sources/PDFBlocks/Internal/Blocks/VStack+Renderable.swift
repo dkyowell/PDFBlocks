@@ -10,7 +10,7 @@ extension VStack: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
         Trait(wrapContents: wrapContents)[keyPath: keypath]
     }
-    
+
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
         var environment = environment
         environment.layoutAxis = .vertical
@@ -34,7 +34,6 @@ extension VStack: Renderable {
         }
         return nil
     }
-
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
@@ -217,7 +216,7 @@ extension VStack {
             // TODO: This would not work is Spacer is wrapped.
             // while let _ = blocks.first as? Spacer {
             //    blocks = Array(blocks.dropFirst())
-            //}
+            // }
             return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: blocks) })
         }
     }
