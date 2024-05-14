@@ -2,7 +2,7 @@
 
 ## v0.2.5.1
 * Peformance improvment for Text
-* Breaking Change: In VStack, VGrid, and Columns the pageWrap: parameter is renamed to wrapContents:.
+* Breaking Change: In VStack, VGrid, and Columns the pageWrap: parameter is renamed to wrapping:.
 * Various fixes
 * Moved Examples out of Sources directory
 
