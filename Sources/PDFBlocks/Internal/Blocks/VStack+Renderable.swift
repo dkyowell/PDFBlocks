@@ -8,7 +8,7 @@ import Foundation
 
 extension VStack: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(wrapContents: wrapContents)[keyPath: keypath]
+        Trait(wrapContents: wrapping)[keyPath: keypath]
     }
 
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
@@ -24,12 +24,12 @@ extension VStack: Renderable {
                 usedHeight += blockSize.max.height + spacing.fixedPoints
                 if let remainder, blockSize.max.height > 0 {
                     mutableBlocks[0] = remainder
-                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: mutableBlocks) })
+                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: mutableBlocks) })
                 } else {
                     mutableBlocks = Array(mutableBlocks.dropFirst())
                 }
             } else {
-                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: mutableBlocks) })
+                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: mutableBlocks) })
             }
         }
         return nil
@@ -217,7 +217,7 @@ extension VStack {
             // while let _ = blocks.first as? Spacer {
             //    blocks = Array(blocks.dropFirst())
             // }
-            return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: blocks) })
+            return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: blocks) })
         }
     }
 
@@ -263,7 +263,7 @@ extension VStack {
     }
 
     func wrapMode(environment: EnvironmentValues) -> WrapMode {
-        if wrapContents {
+        if wrapping {
             if environment.renderMode == .wrapping || environment.columnsLayout {
                 .secondary
             } else {

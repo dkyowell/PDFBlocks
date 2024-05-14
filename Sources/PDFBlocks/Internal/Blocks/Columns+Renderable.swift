@@ -11,7 +11,7 @@ import Foundation
 // proposed size. See Example+Columns3
 extension Columns: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(wrapContents: wrapContents)[keyPath: keypath]
+        Trait(wrapContents: wrapping)[keyPath: keypath]
     }
 
     // TODO: Needs Remainder
@@ -163,7 +163,7 @@ extension Columns {
             }
         }
         if blocks.count > 0 {
-            return Columns<ArrayBlock>(count: count, spacing: spacing, wrapContents: wrapContents, content: { ArrayBlock(blocks: blocks) })
+            return Columns<ArrayBlock>(count: count, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: blocks) })
         } else {
             return nil
         }
@@ -220,7 +220,7 @@ extension Columns {
     }
 
     func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if wrapContents {
+        if wrapping {
             if environment.renderMode == .wrapping {
                 .secondary
             } else {
