@@ -22,7 +22,7 @@ public struct Table<Row>: Block {
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
-        @BlockBuilder pageHeader: @escaping (Int) -> any Block = { _ in EmptyBlock() },
+        @BlockBuilder pageHeader: @escaping (Int) -> any Block = { _ in TableColumnTitles() },
         @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
     ) {
         self.data = data
