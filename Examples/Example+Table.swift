@@ -17,15 +17,8 @@ private struct Document: Block {
             TableColumn("First Name", value: \.firstName, width: 20)
             TableColumn("Address", value: \.address, width: 35)
             TableColumn("City", value: \.city, width: 25)
-            TableColumn("State", value: \.state, width: 10)
-            TableColumn("Zip", value: \.zip, width: 10)
-            TableColumn("DOB", value: \.dob, format: .mmddyy, width: 10, alignment: .trailing)
-        } pageHeader: { _ in
-            TableColumnTitles()
+            TableColumn("State", value: \.state, width: 10, alignment: .trailing)
         }
-        .font(.system(size: 9))
-        .padding(bottom: .max, trailing: .max)
-        .fontWidth(.condensed)
     }
 }
 

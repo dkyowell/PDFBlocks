@@ -10,19 +10,18 @@ import PDFKit
 
 private struct Document: Block {
     var body: some Block {
-        VStack(spacing: 10) {
-            Group {
-                Text("The quick brown fox jumped over the lazy dog.")
-                Text("The quick brown fox jumped over the lazy dog.")
-                Text("The quick brown fox jumped over the lazy dog.")
-                Text("The quick brown fox jumped over the lazy dog.")
-                Text("The quick brown fox jumped over the lazy dog.")
-            }
-            .bold()
-            .padding(2)
-            .border(.orange, width: 2)
-            .font(.init(.init(name: "Courier", size: 42)))
-        }
+        // Text is truncated when constrained
+        Text("The quick brown fox jumped over the lazy dog.")
+            .fontSize(42)
+            .fontDesign(.rounded)
+            .fontWeight(.bold)
+            // .frame is used to constrain element
+            .frame(width: .in(3), height: .in(3))
+            .border(.orange)
+            .padding(12)
+            // .frame is used to align element
+            .frame(width: .max, height: .max, alignment: .bottomTrailing)
+            .border(.cyan)
     }
 }
 

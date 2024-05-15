@@ -14,7 +14,7 @@ private struct Document: Block {
             Color.purple
             Color.red
             Color.yellow
-            Text("Pinky and the Brain.")
+            Text("Text can get squeezed in a stack.")
                 .fontSize(44)
             Color.orange
             Color.blue

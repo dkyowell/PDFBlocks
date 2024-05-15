@@ -39,17 +39,13 @@ private struct Document: Block {
                 Text("Y")
                 Text("Z")
             }
-            .padding(12)
+            .padding(24)
             .border(.blue, width: 12)
-            .fontSize(32)
-            .padding(12)
             .rotationEffect(.degrees(10))
         }
-        .background {
-            Color.orange
-        }
+        .background(.orange)
         .border(Color.black, width: 12)
-        .font(.init(.init(name: "American Typewriter", size: 12)))
+        .font(.init(.init(name: "American Typewriter", size: 32)))
     }
 }
 

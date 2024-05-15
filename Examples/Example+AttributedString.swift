@@ -21,16 +21,11 @@ private struct Document: Block {
     }()
 
     var body: some Block {
-        VStack(wrapping: true) {
-            VStack(wrapping: true) {
-                Repeat(count: 12) {
-                    Text(text)
-                }
-            }
-        }
-        .fontSize(48)
-        .fontDesign(.serif)
-        .fontWeight(.semibold)
+        Text(text)
+            .fontSize(64)
+            .fontDesign(.serif)
+            .fontWeight(.semibold)
+            .multilineTextAlignment(.center)
     }
 }
 

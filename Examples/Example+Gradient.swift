@@ -33,6 +33,7 @@ private struct ExampleGradient: Block {
                 .fill(radialGradient)
                 .frame(height: .in(4))
         }
+        .border(linearGradient, width: 12)
     }
 }
 
