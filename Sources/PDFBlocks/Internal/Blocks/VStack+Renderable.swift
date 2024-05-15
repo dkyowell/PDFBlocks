@@ -64,7 +64,8 @@ extension VStack: Renderable {
         case .primary:
             return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
         case .secondary:
-            let blocks = ArraySlice<any Renderable>(content.getRenderables(environment: environment))
+            environment.textContinuationMode = true
+            let blocks = content.getRenderables(environment: environment)
             var height = 0.0
             var maxWidth = 0.0
             for (offset, block) in blocks.enumerated() {
@@ -138,6 +139,7 @@ extension VStack {
     // Render all content, starting new pages as necessary, until complete.
     func renderPrimaryWrap(context: Context, environment: EnvironmentValues, rect _: CGRect) {
         var environment = environment
+        environment.textContinuationMode = true
         environment.layoutAxis = .vertical
         environment.renderMode = .wrapping
         var blocks = content.getRenderables(environment: environment)
@@ -179,6 +181,7 @@ extension VStack {
     // Render as much content as fits into rect and return the remainder.
     func renderSecondaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
+        environment.textContinuationMode = true
         environment.layoutAxis = .vertical
         var blocks = content.getRenderables(environment: environment)
         var dy: CGFloat = 0
