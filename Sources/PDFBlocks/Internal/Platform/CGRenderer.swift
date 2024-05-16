@@ -50,15 +50,19 @@ class CGRenderer: Renderer {
     var pageSize: CGSize = .zero
     var pageNo = 0
     func startNewPage(pageSize: CGSize) {
-        var mediaBox = CGRect(origin: .zero, size: pageSize)
-        cgContext?.beginPage(mediaBox: &mediaBox)
         self.pageSize = pageSize
-        cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
+        if layer > 0 {
+            var mediaBox = CGRect(origin: .zero, size: pageSize)
+            cgContext?.beginPage(mediaBox: &mediaBox)
+            cgContext?.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: pageSize.height))
+        }
     }
 
     func endPage() {
-        cgContext?.endPDFPage()
         pageNo += 1
+        if layer > 0 {
+            cgContext?.endPDFPage()
+        }
     }
 
     var cgContext: CGContext? = nil
@@ -413,118 +417,118 @@ class CGRenderer: Renderer {
     }
 
     func renderText(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString {
-        guard layer == layerFilter else {
+        guard layer == 0 || layer == layerFilter else {
             return blank
         }
-        guard let cgContext else {
-            fatalError()
-        }
-        cgContext.saveGState()
-        cgContext.scaleBy(x: 1, y: -1)
-        cgContext.translateBy(x: 0, y: -pageSize.height)
         let nsAttrString = prepareString(text, environment: environment)
         let framesetter = nsAttrString.framesetter()
         let frame = framesetter.createFrame(rect)
         let visibleRange = frame.visibleStringRange()
-        let truncate = (visibleRange.length < nsAttrString.length) && !environment.textContinuationMode
-        let lines = frame.lines()
-        let origins = frame.lineOrigins()
-        let rectOffset = pageSize.height - rect.maxY
-        let isGradient = (environment.foregroundStyle is LinearGradient || environment.foregroundStyle is RadialGradient)
-        for (offset, line) in lines.enumerated() {
-            let lineBounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
-            if truncate, offset == lines.count - 1 {
-                let ellipsis = prepareString(NSMutableAttributedString(string: "…"), environment: environment)
-                let ellipsisLine = ellipsis.line()
-                let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
-                if lineBounds.width + ellipsisBounds.width ~<= rect.width {
-                    // Case 1: there are more lines
-                    var dx: CGFloat = rect.minX
-                    switch environment.multilineTextAlignment {
-                    case .leading:
-                        dx += 0
-                    case .center:
-                        dx += (rect.width - lineBounds.width - ellipsisBounds.width) / 2
-                    case .trailing:
-                        dx += rect.width - lineBounds.width - ellipsisBounds.width
-                    }
-                    let dy = rectOffset + origins[offset].y
-                    if isGradient {
-                        var transform = CGAffineTransform(translationX: dx, y: dy)
-                        line.drawGlyphs(cgContext: cgContext, transform: &transform)
-                        transform = transform.translatedBy(x: lineBounds.width, y: 0)
-                        ellipsisLine.drawGlyphs(cgContext: cgContext, transform: &transform)
+        if let cgContext {
+            cgContext.saveGState()
+            cgContext.scaleBy(x: 1, y: -1)
+            cgContext.translateBy(x: 0, y: -pageSize.height)
+            
+            let truncate = (visibleRange.length < nsAttrString.length) && !environment.textContinuationMode
+            let lines = frame.lines()
+            let origins = frame.lineOrigins()
+            let rectOffset = pageSize.height - rect.maxY
+            let isGradient = (environment.foregroundStyle is LinearGradient || environment.foregroundStyle is RadialGradient)
+            for (offset, line) in lines.enumerated() {
+                let lineBounds = CTLineGetBoundsWithOptions(line, [.useOpticalBounds])
+                if truncate, offset == lines.count - 1 {
+                    let ellipsis = prepareString(NSMutableAttributedString(string: "…"), environment: environment)
+                    let ellipsisLine = ellipsis.line()
+                    let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
+                    if lineBounds.width + ellipsisBounds.width ~<= rect.width {
+                        // Case 1: there are more lines
+                        var dx: CGFloat = rect.minX
+                        switch environment.multilineTextAlignment {
+                        case .leading:
+                            dx += 0
+                        case .center:
+                            dx += (rect.width - lineBounds.width - ellipsisBounds.width) / 2
+                        case .trailing:
+                            dx += rect.width - lineBounds.width - ellipsisBounds.width
+                        }
+                        let dy = rectOffset + origins[offset].y
+                        if isGradient {
+                            var transform = CGAffineTransform(translationX: dx, y: dy)
+                            line.drawGlyphs(cgContext: cgContext, transform: &transform)
+                            transform = transform.translatedBy(x: lineBounds.width, y: 0)
+                            ellipsisLine.drawGlyphs(cgContext: cgContext, transform: &transform)
+                        } else {
+                            cgContext.textPosition = CGPoint(x: dx, y: dy)
+                            CTLineDraw(line, cgContext)
+                            CTLineDraw(ellipsisLine, cgContext)
+                        }
+                        
                     } else {
-                        cgContext.textPosition = CGPoint(x: dx, y: dy)
-                        CTLineDraw(line, cgContext)
-                        CTLineDraw(ellipsisLine, cgContext)
-                    }
-
-                } else {
-                    // Case 2: long line overflows
-                    let cfRange = CTLineGetStringRange(line)
-                    var nsRange = NSMakeRange(cfRange.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length)
-                    while nsRange.length > 0 {
-                        nsRange = NSRange(location: nsRange.location, length: nsRange.length - 1)
-                        let lastLineString = nsAttrString.attributedSubstring(from: nsRange)
-                        let lastLine = CTLineCreateWithAttributedString(lastLineString)
-                        let lastLineBounds = CTLineGetBoundsWithOptions(lastLine, [.useOpticalBounds])
-                        if lastLineBounds.width + ellipsisBounds.width ~<= rect.width {
-                            var dx: CGFloat = rect.minX
-                            switch environment.multilineTextAlignment {
-                            case .leading:
-                                dx += 0
-                            case .center:
-                                dx += (rect.width - lineBounds.width - ellipsisBounds.width) / 2
-                            case .trailing:
-                                dx += rect.width - lineBounds.width - ellipsisBounds.width
+                        // Case 2: long line overflows
+                        let cfRange = CTLineGetStringRange(line)
+                        var nsRange = NSMakeRange(cfRange.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length)
+                        while nsRange.length > 0 {
+                            nsRange = NSRange(location: nsRange.location, length: nsRange.length - 1)
+                            let lastLineString = nsAttrString.attributedSubstring(from: nsRange)
+                            let lastLine = CTLineCreateWithAttributedString(lastLineString)
+                            let lastLineBounds = CTLineGetBoundsWithOptions(lastLine, [.useOpticalBounds])
+                            if lastLineBounds.width + ellipsisBounds.width ~<= rect.width {
+                                var dx: CGFloat = rect.minX
+                                switch environment.multilineTextAlignment {
+                                case .leading:
+                                    dx += 0
+                                case .center:
+                                    dx += (rect.width - lineBounds.width - ellipsisBounds.width) / 2
+                                case .trailing:
+                                    dx += rect.width - lineBounds.width - ellipsisBounds.width
+                                }
+                                let dy = rectOffset + origins[offset].y
+                                if isGradient {
+                                    var transform = CGAffineTransform(translationX: dx, y: dy)
+                                    lastLine.drawGlyphs(cgContext: cgContext, transform: &transform)
+                                    transform = transform.translatedBy(x: lastLineBounds.width, y: 0)
+                                    ellipsisLine.drawGlyphs(cgContext: cgContext, transform: &transform)
+                                } else {
+                                    cgContext.textPosition = CGPoint(x: dx, y: dy)
+                                    CTLineDraw(lastLine, cgContext)
+                                    CTLineDraw(ellipsisLine, cgContext)
+                                }
+                                break
                             }
-                            let dy = rectOffset + origins[offset].y
-                            if isGradient {
-                                var transform = CGAffineTransform(translationX: dx, y: dy)
-                                lastLine.drawGlyphs(cgContext: cgContext, transform: &transform)
-                                transform = transform.translatedBy(x: lastLineBounds.width, y: 0)
-                                ellipsisLine.drawGlyphs(cgContext: cgContext, transform: &transform)
-                            } else {
-                                cgContext.textPosition = CGPoint(x: dx, y: dy)
-                                CTLineDraw(lastLine, cgContext)
-                                CTLineDraw(ellipsisLine, cgContext)
-                            }
-                            break
                         }
                     }
-                }
-            } else {
-                let dx: CGFloat = switch environment.multilineTextAlignment {
-                case .leading:
-                    0
-                case .center:
-                    (rect.width - lineBounds.width) / 2
-                case .trailing:
-                    rect.width - lineBounds.width
-                }
-                if isGradient {
-                    var transform = CGAffineTransform(translationX: rect.minX + dx, y: rectOffset + origins[offset].y)
-                    line.drawGlyphs(cgContext: cgContext, transform: &transform)
                 } else {
-                    let dy = origins[offset].y + pageSize.height - rect.maxY
-                    cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
-                    CTLineDraw(line, cgContext)
+                    let dx: CGFloat = switch environment.multilineTextAlignment {
+                    case .leading:
+                        0
+                    case .center:
+                        (rect.width - lineBounds.width) / 2
+                    case .trailing:
+                        rect.width - lineBounds.width
+                    }
+                    if isGradient {
+                        var transform = CGAffineTransform(translationX: rect.minX + dx, y: rectOffset + origins[offset].y)
+                        line.drawGlyphs(cgContext: cgContext, transform: &transform)
+                    } else {
+                        let dy = origins[offset].y + pageSize.height - rect.maxY
+                        cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
+                        CTLineDraw(line, cgContext)
+                    }
                 }
             }
+            if let gradient = environment.foregroundStyle as? LinearGradient {
+                cgContext.clip()
+                cgContext.translateBy(x: 0, y: pageSize.height)
+                cgContext.scaleBy(x: 1, y: -1)
+                drawLinearGradient(gradient: gradient, rect: rect)
+                cgContext.resetClip()
+            } else if let gradient = environment.foregroundStyle as? RadialGradient {
+                cgContext.clip()
+                drawRadialGradient(gradient: gradient, rect: rect.offsetBy(dx: 0, dy: rectOffset - rect.minY))
+                cgContext.resetClip()
+            }
+            cgContext.restoreGState()
         }
-        if let gradient = environment.foregroundStyle as? LinearGradient {
-            cgContext.clip()
-            cgContext.translateBy(x: 0, y: pageSize.height)
-            cgContext.scaleBy(x: 1, y: -1)
-            drawLinearGradient(gradient: gradient, rect: rect)
-            cgContext.resetClip()
-        } else if let gradient = environment.foregroundStyle as? RadialGradient {
-            cgContext.clip()
-            drawRadialGradient(gradient: gradient, rect: rect.offsetBy(dx: 0, dy: rectOffset - rect.minY))
-            cgContext.resetClip()
-        }
-        cgContext.restoreGState()
         if environment.textContinuationMode {
             let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
             let result = NSMutableAttributedString(attributedString: nsAttrString)

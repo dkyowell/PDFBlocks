@@ -6,6 +6,15 @@
 
 import Foundation
 
+// Layer 1 prints everything down to the primary wrapping block.
+// The primary wrapping block takes care of everything else.
+
+// When a wrapping component begins primary rendering, it
+//   1) calls context.renderer.setLayer(2)
+//   2) sets context.multiPagePass block
+
+// Context sets pageFramePass(renderLayer:)
+
 // Context is a reference type that initiates the rendering preocess and holds rendering state.
 class Context {
     #if os(iOS) || os(macOS)
@@ -27,6 +36,11 @@ class Context {
     var pageFramePass: ((Int) -> Void)?
     var multiPagePass: (() -> Void)?
     var pageWrapRect: CGRect = .zero
+    var pageCount: Int = 0
+    
+    var pageNumberProxy: PageNumberProxy {
+        .init(pageNo: pageNo, pageCount: pageCount)
+    }
 
     private var pageSize: CGSize = .init(width: 8.5, height: 11).scaled(by: 72)
     private var pageWrapCursorY: CGFloat = 0
@@ -55,6 +69,21 @@ class Context {
                         continue
                     }
                     let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
+                    if info.precomputePageCount {
+                        renderer.setLayer(0)
+                        pageFramePass = { renderLayer in
+                            self.renderer.setLayer(0)
+                            self.renderer.setLayerFilter(renderLayer)
+                            block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
+                            self.renderer.setLayer(0)
+                        }
+                        beginPage(newPageSize: pageSize)
+                        multiPagePass?()
+                        endPage()
+                        pageCount = pageNo
+                    }
+                    pageNo = 0
+                    renderer.setLayer(1)
                     pageFramePass = { renderLayer in
                         self.renderer.setLayer(1)
                         self.renderer.setLayerFilter(renderLayer)
@@ -75,6 +104,7 @@ class Context {
         }
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
         pageNo += 1
+        print("new page", pageNo)
         pageWrapCursorY = 0
         pageFramePass?(1)
     }

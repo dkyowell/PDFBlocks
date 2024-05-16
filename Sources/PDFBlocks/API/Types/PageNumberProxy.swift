@@ -6,8 +6,7 @@
 
 import Foundation
 
-struct PageInfo {
-    let size: PageSize
-    let margins: EdgeInsets
-    let precomputePageCount: Bool
+public struct PageNumberProxy {
+    public let pageNo: Int
+    public let pageCount: Int
 }
