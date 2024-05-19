@@ -16,12 +16,15 @@ import Foundation
 ///
 ///     Text(Date(), format: .dateTime)
 ///
-/// A `Text` will expand to fill all of its availible
-/// space, printing a trailing ellipsis if there is more
-/// of a string that cannot be rendered. When the
-/// pageWrap behavior of its container allows, a
-/// text block will continue printing on a new column
-/// or a new page if necessary.
+/// Use .truncationMode(:) to specify how to lay out
+/// `Text` when it is larger than its frame. The
+/// default truncation mode is .none, which means
+/// the entire text value will be printed, even if it
+/// overflows its container. Use .tail to truncate
+/// the text string with an ellipsis so that it fits
+/// its frame. Use .wrap to wrap the text into the
+/// next column or page when its container allows
+/// for it.
 ///
 public struct Text: Block {
     let value: NSAttributedString

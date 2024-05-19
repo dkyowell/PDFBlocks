@@ -18,7 +18,7 @@ extension VGrid: Renderable {
         var environment = environment
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
-        case .none:
+        case .atomic:
             let blocks = content.getRenderables(environment: environment)
             let cellWidth = (proposal.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
             let cellSize = CGSize(width: cellWidth, height: proposal.height)
@@ -46,7 +46,7 @@ extension VGrid: Renderable {
         var environment = environment
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
-        case .none:
+        case .atomic:
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
         case .primary:
@@ -165,7 +165,7 @@ extension VGrid {
                 .primary
             }
         } else {
-            .none
+            .atomic
         }
     }
 }

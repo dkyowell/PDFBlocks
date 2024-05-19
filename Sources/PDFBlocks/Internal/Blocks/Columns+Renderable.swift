@@ -19,10 +19,9 @@ extension Columns: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment.columnsLayout = true
-        environment.textContinuationMode = true
         environment.layoutAxis = .vertical
         switch wrapMode(context: context, environment: environment) {
-        case .none:
+        case .atomic:
             let blocks = content.getRenderables(environment: environment)
             let height = heightForEvenColumns(context: context, environment: environment, blocks: blocks, proposal: proposal)
             return BlockSize(min: CGSize(width: proposal.width, height: height),
@@ -40,10 +39,9 @@ extension Columns: Renderable {
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
         environment.columnsLayout = true
-        environment.textContinuationMode = true
         environment.layoutAxis = .vertical
         switch wrapMode(context: context, environment: environment) {
-        case .none:
+        case .atomic:
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
         case .secondary:
@@ -148,7 +146,7 @@ extension Columns {
                 blocks = blocks.dropFirst().map { $0 }
                 let remainingSize = CGSize(width: columnWidth, height: rect.height - dy)
                 let size = block.sizeFor(context: context, environment: environment, proposal: remainingSize)
-                if dy + size.max.height ~<= rect.height {
+                if (dy == 0) || (dy + size.max.height ~<= rect.height) {
                     let renderRect = CGRect(x: xPos, y: rect.minY + dy, width: columnWidth, height: size.max.height)
                     let remainder = block.render(context: context, environment: environment, rect: renderRect)
                     dy += renderRect.height
@@ -227,7 +225,7 @@ extension Columns {
                 .primary
             }
         } else {
-            .none
+            .atomic
         }
     }
 }

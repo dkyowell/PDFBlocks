@@ -7,7 +7,7 @@
 import Foundation
 
 enum WrapMode {
-    case none
+    case atomic
     case primary
     case secondary
 }

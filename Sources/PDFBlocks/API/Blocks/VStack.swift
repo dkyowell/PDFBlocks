@@ -22,6 +22,7 @@ public struct VStack<Content>: Block where Content: Block {
     let spacing: StackSpacing
     let wrapping: Bool
     let content: Content
+    let cacheId = UUID()
 
     /// Creates a vertical stack with the given spacing and vertical alignment.
     ///

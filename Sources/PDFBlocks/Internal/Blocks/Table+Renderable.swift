@@ -35,7 +35,6 @@ extension Table: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
-
         environment.layoutAxis = .vertical
         environment.tableColumns = columns
         if environment.renderMode == .wrapping {

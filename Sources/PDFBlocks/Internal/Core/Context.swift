@@ -37,7 +37,8 @@ class Context {
     var multiPagePass: (() -> Void)?
     var pageWrapRect: CGRect = .zero
     var pageCount: Int = 0
-    
+    var layoutCache = [UUID: Any]()
+
     var pageNumberProxy: PageNumberProxy {
         .init(pageNo: pageNo, pageCount: pageCount)
     }
@@ -104,7 +105,6 @@ class Context {
         }
         renderer.startNewPage(pageSize: newPageSize ?? pageSize)
         pageNo += 1
-        print("new page", pageNo)
         pageWrapCursorY = 0
         pageFramePass?(1)
     }

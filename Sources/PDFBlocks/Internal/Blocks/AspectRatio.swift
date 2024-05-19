@@ -25,15 +25,15 @@ extension AspectRatio: Renderable {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let block = content.getRenderable(environment: environment)
         let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
-        if size.min != size.max {
+        if size.min == size.max {
+            return size
+        } else {
             let constrainedSize = if proposal.width < proposal.height {
                 CGSize(width: proposal.width, height: proposal.width / value)
             } else {
                 CGSize(width: proposal.height * value, height: proposal.height)
             }
-            return BlockSize(constrainedSize)
-        } else {
-            return size
+            return BlockSize(min: size.min, max: constrainedSize)
         }
     }
 

@@ -388,32 +388,33 @@ class CGRenderer: Renderer {
     }
 
     // TODO: sizeForCTText
-    func sizeForText(_ text: NSAttributedString, environment: EnvironmentValues, proposedSize: Proposal) -> (min: CGSize, max: CGSize) {
+    func sizeForText(_ text: NSAttributedString, environment: EnvironmentValues, proposal: Proposal) -> CGSize {
         let string = prepareString(text, environment: environment)
         let range = CFRangeMake(0, string.length)
-        let ellipsis = prepareString(NSMutableAttributedString(string: "…"), environment: environment)
         let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
         let lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
-        let rect = CGRect(origin: .zero, size: CGSize(width: proposedSize.width, height: max(proposedSize.height, lineHeight)))
         let framesetter = CTFramesetterCreateWithAttributedString(string)
+        let rect: CGRect = if (environment.truncationMode == .none) {
+            CGRect(origin: .zero, size: CGSize(width: proposal.width, height: 0))
+        } else {
+            CGRect(origin: .zero, size: CGSize(width: proposal.width, height: max(proposal.height, lineHeight * 1.1)))
+        }
         var fitRange = CFRangeMake(0, 0)
-        let size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, &fitRange)
-        if fitRange.length < range.length {
-            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
-            guard let lines = CTFrameGetLines(frame) as? [CTLine], let lastLine = lines.last else {
-                return (min: size, max: size)
-            }
-            let maxWidth = lines.dropLast().map { CTLineGetBoundsWithOptions($0, [.useOpticalBounds]).width }.reduce(0, max)
+        var size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, &fitRange)
+        if fitRange.length < range.length, environment.truncationMode == .tail {
+            let ellipsis = prepareString(NSMutableAttributedString(string: " …"), environment: environment)
             let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
             let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
-            let lastLineBounds = CTLineGetBoundsWithOptions(lastLine, [.useOpticalBounds])
-            let newMaxWidth = max(maxWidth, ellipsisBounds.width + lastLineBounds.width)
-            let truncatedWidth = min(newMaxWidth, proposedSize.width)
-            let truncatedSize = CGSize(width: truncatedWidth, height: size.height)
-            return (min: truncatedSize, max: truncatedSize)
-        } else {
-            return (min: size, max: size)
+            let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
+            if let lines = CTFrameGetLines(frame) as? [CTLine], let lastLine = lines.last {
+                let maxWidth = lines.dropLast().map { CTLineGetBoundsWithOptions($0, [.useOpticalBounds]).width }.reduce(0, max)
+                let lastLineBounds = CTLineGetBoundsWithOptions(lastLine, [.useOpticalBounds])
+                let newMaxWidth = max(maxWidth, ellipsisBounds.width + lastLineBounds.width)
+                let truncatedWidth = min(newMaxWidth, proposal.width)
+                size = CGSize(width: truncatedWidth, height: size.height)
+            }
         }
+        return size
     }
 
     func renderText(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString {
@@ -428,8 +429,7 @@ class CGRenderer: Renderer {
             cgContext.saveGState()
             cgContext.scaleBy(x: 1, y: -1)
             cgContext.translateBy(x: 0, y: -pageSize.height)
-            
-            let truncate = (visibleRange.length < nsAttrString.length) && !environment.textContinuationMode
+            let truncate = (visibleRange.length < nsAttrString.length) && environment.truncationMode == .tail
             let lines = frame.lines()
             let origins = frame.lineOrigins()
             let rectOffset = pageSize.height - rect.maxY
@@ -462,7 +462,6 @@ class CGRenderer: Renderer {
                             CTLineDraw(line, cgContext)
                             CTLineDraw(ellipsisLine, cgContext)
                         }
-                        
                     } else {
                         // Case 2: long line overflows
                         let cfRange = CTLineGetStringRange(line)
@@ -529,7 +528,7 @@ class CGRenderer: Renderer {
             }
             cgContext.restoreGState()
         }
-        if environment.textContinuationMode {
+        if environment.truncationMode == .wrap {
             let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
             let result = NSMutableAttributedString(attributedString: nsAttrString)
             result.deleteCharacters(in: nsRange)
