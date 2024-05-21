@@ -101,6 +101,10 @@ extension Renderable {
     func pageInfo(context: Context, environment: EnvironmentValues) -> PageInfo? {
         getTrait(context: context, environment: environment, keypath: \.pageInfo)
     }
+
+    func computePageCount(context: Context, environment: EnvironmentValues) -> Bool {
+        getTrait(context: context, environment: environment, keypath: \.computePageCount)
+    }
 }
 
 extension Renderable {

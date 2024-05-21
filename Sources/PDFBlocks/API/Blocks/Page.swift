@@ -23,10 +23,9 @@ public struct Page<Content>: Block where Content: Block {
     ///   - content: A block builder that creates the content of this page.
     public init(size: PageSize,
                 margins: EdgeInsets,
-                precomputePageCount: Bool = false,
                 @BlockBuilder content: @escaping () -> Content)
     {
-        pageInfo = .init(size: size, margins: margins, precomputePageCount: precomputePageCount)
+        pageInfo = .init(size: size, margins: margins)
         self.content = content()
     }
 }

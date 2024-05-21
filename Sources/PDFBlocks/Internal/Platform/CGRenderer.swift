@@ -394,7 +394,7 @@ class CGRenderer: Renderer {
         let resolvedFont: KitFont = environment.font.resolvedFont(environment: environment)
         let lineHeight = resolvedFont.ascender + abs(resolvedFont.descender) + resolvedFont.leading
         let framesetter = CTFramesetterCreateWithAttributedString(string)
-        let rect: CGRect = if (environment.truncationMode == .none) {
+        let rect = if environment.truncationMode == .none {
             CGRect(origin: .zero, size: CGSize(width: proposal.width, height: 0))
         } else {
             CGRect(origin: .zero, size: CGSize(width: proposal.width, height: max(proposal.height, lineHeight * 1.1)))
@@ -510,8 +510,10 @@ class CGRenderer: Renderer {
                         line.drawGlyphs(cgContext: cgContext, transform: &transform)
                     } else {
                         let dy = origins[offset].y + pageSize.height - rect.maxY
-                        cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
-                        CTLineDraw(line, cgContext)
+                        if layer != 0 { // TODO:
+                            cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
+                            CTLineDraw(line, cgContext)
+                        }
                     }
                 }
             }

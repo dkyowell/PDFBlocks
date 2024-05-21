@@ -8,8 +8,12 @@ import Foundation
 
 extension PageNumberReader: Renderable {
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content(context.pageNumberProxy).getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
+        if keypath == \Trait.computePageCount {
+            Trait(computePageCount: computePageCount)[keyPath: keypath]
+        } else {
+            content(context.pageNumberProxy).getRenderable(environment: environment)
+                .getTrait(context: context, environment: environment, keypath: keypath)
+        }
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {

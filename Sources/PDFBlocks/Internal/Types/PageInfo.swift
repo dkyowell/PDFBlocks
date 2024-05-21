@@ -9,5 +9,4 @@ import Foundation
 struct PageInfo {
     let size: PageSize
     let margins: EdgeInsets
-    let precomputePageCount: Bool
 }

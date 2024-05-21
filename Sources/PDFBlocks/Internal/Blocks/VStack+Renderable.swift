@@ -7,8 +7,14 @@
 import Foundation
 
 extension VStack: Renderable {
-    func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(wrapContents: wrapping)[keyPath: keypath]
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if keypath == \.computePageCount {
+            let blocks = content.getRenderables(environment: environment)
+            let result = blocks.reduce(false) { $0 || $1.computePageCount(context: context, environment: environment) }
+            return Trait(computePageCount: result)[keyPath: keypath]
+        } else {
+            return Trait(wrapContents: wrapping)[keyPath: keypath]
+        }
     }
 
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
@@ -127,7 +133,7 @@ extension VStack {
     }
 
     // Render all content, starting new pages as necessary, until complete.
-    func renderPrimary(context: Context, environment: EnvironmentValues, rect: CGRect) {
+    func renderPrimary(context: Context, environment: EnvironmentValues, rect _: CGRect) {
         var environment = environment
         environment.layoutAxis = .vertical
         environment.renderMode = .wrapping

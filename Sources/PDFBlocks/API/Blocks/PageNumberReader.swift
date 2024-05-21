@@ -7,15 +7,11 @@
 import Foundation
 
 /// A container block that dynamically creates its content,
-/// providing the current page number as an input parameter
-/// to the block builder function.
+/// providing the current page number and total page count
+/// as an input parameter to the block builder function.
 ///
-/// Providing the total page count through the `PageNumberProxy`
-/// is an expensive operation. Essentially, the entire document must
-/// be rendered twice. Therefore, this option is not enabled by default;
-/// It must be enabled by setting the `precomputePageCount:`
-/// parameter for `Page` to true.
 public struct PageNumberReader<Content>: Block where Content: Block {
+    let computePageCount: Bool
     let content: (PageNumberProxy) -> Content
 
     /// Creates an instance with the given parameters..
@@ -23,6 +19,7 @@ public struct PageNumberReader<Content>: Block where Content: Block {
     /// - Parameters:
     ///   - content: A block builder that creates a block dynamically.
     public init(@BlockBuilder content: @escaping (PageNumberProxy) -> Content) {
+        computePageCount = true
         self.content = content
     }
 }

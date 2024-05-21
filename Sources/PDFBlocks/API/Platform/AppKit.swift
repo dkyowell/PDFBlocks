@@ -11,12 +11,7 @@ import Foundation
 
     extension NSColor: PlatformColor {
         public func opacity(value: CGFloat) -> PlatformColor {
-            var red: CGFloat = 0
-            var green: CGFloat = 0
-            var blue: CGFloat = 0
-            var alpha: CGFloat = 0
-            getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-            return withAlphaComponent(value * alpha)
+            withAlphaComponent(value * cgColor.alpha)
         }
     }
 

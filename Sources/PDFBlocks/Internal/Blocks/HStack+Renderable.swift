@@ -6,8 +6,17 @@
 
 import Foundation
 
-
 extension HStack: Renderable {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if keypath == \.computePageCount {
+            let blocks = content.getRenderables(environment: environment)
+            let result = blocks.reduce(false) { $0 || $1.computePageCount(context: context, environment: environment) }
+            return Trait(computePageCount: result)[keyPath: keypath]
+        } else {
+            return Trait()[keyPath: keypath]
+        }
+    }
+
     // NOTE: The layout cache is not only for performance improvements, but also for layout consitency. Without
     // the cache, the layout heuristic in layoutBlocks can return different results when it is called again
     // with its own output as its input. (i.e., given a proposal width of 648, the sizes it returns indicate
