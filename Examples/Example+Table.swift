@@ -8,10 +8,12 @@ import Foundation
 import PDFBlocks
 import PDFKit
 
-private struct Document: Block {
-    let data: [CustomerData]
+public struct ExampleTable: Block {
+    let data: [CustomerData] = loadData(CustomerData.self, from: customerData)
 
-    var body: some Block {
+    public init() {}
+    
+    public var body: some Block {
         Table(data) {
             TableColumn("Last Name", value: \.lastName, width: 20)
             TableColumn("First Name", value: \.firstName, width: 20)
@@ -23,5 +25,5 @@ private struct Document: Block {
 }
 
 #Preview {
-    previewForDocument(Document(data: loadData(CustomerData.self, from: customerData)))
+    previewForDocument(ExampleTable())
 }

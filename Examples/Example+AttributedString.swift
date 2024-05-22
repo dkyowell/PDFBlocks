@@ -10,7 +10,7 @@ import PDFKit
 
 private struct Document: Block {
     let text: AttributedString = {
-        var result: AttributedString = "One fish\nTwo fish\nRed fish\nBlue fish"
+        var result: AttributedString = "One fish.\nTwo fish.\nRed fish.\nBlue fish."
         if let range = result.range(of: "Blue") {
             result[range].foregroundColor = .systemBlue
         }
@@ -25,7 +25,6 @@ private struct Document: Block {
             .fontSize(64)
             .fontDesign(.serif)
             .fontWeight(.semibold)
-            .multilineTextAlignment(.center)
     }
 }
 

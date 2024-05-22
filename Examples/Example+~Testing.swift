@@ -21,11 +21,10 @@ private struct Document: Block {
     }()
 
     var body: some Block {
-        VStack(wrapping: true) {
-            VStack(wrapping: true) {
-                Repeat(count: 12) {
-                    Text(text)
-                }
+        VStack(wrap: true) {
+            Repeat(count: 100) {
+                Text(text)
+                    .truncationMode(.wrap)
             }
         }
         .fontSize(48)

@@ -9,17 +9,18 @@ import PDFBlocks
 import PDFKit
 
 private struct Document: Block {
+    
     var body: some Block {
-        HStack(spacing: 10) {
-            Color.purple
-            Color.red
-            Color.yellow
-            Text("Text can get squeezed in a stack.")
-                .fontSize(44)
-            Color.orange
-            Color.blue
-            Color.green
+        HStack(alignment: .center, spacing: 10) {
+            Rectangle().fill(.pink)
+            Text("They're Pinky and the Brain.\nThey're Pinky and the Brain.\nOne is a genius.\nThe other's insane.")
+            Rectangle().fill(.cyan)
+            Text("They're Pinky and the Brain.\nThey're Pinky and the Brain.\nOne is a genius.\nThe other's insane.")
+            Rectangle().fill(.pink)
         }
+        .truncationMode(.none)
+        .fontWidth(.compressed)
+        .fontSize(18)
     }
 }
 

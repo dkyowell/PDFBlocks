@@ -15,8 +15,9 @@ public struct ExampleColumns2: Block {
     public var body: some Block {
         Page(size: .letter, margins: .in(1)) {
             VStack(spacing: .flex) {
-                Columns(count: 2, spacing: 36, wrapping: false) {
+                Columns(count: 2, spacing: 36) {
                     Text(poem)
+                        .truncationMode(.wrap)
                         .fontSize(30)
                 }
                 HStack(spacing: .flex) {
@@ -25,8 +26,9 @@ public struct ExampleColumns2: Block {
                             .frame(width: 6)
                     }
                 }
-                Columns(count: 3, spacing: 18, wrapping: false) {
+                Columns(count: 3, spacing: 18) {
                     Text(poem)
+                        .truncationMode(.wrap)
                         .fontSize(24)
                         .opacity(0.80)
                 }
@@ -36,8 +38,9 @@ public struct ExampleColumns2: Block {
                             .frame(width: 6)
                     }
                 }
-                Columns(count: 4, spacing: 12, wrapping: false) {
+                Columns(count: 4, spacing: 12) {
                     Text(poem)
+                        .truncationMode(.wrap)
                         .fontSize(18)
                         .opacity(0.60)
                 }

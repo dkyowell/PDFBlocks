@@ -11,7 +11,7 @@ import PDFKit
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0) {
+            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, wrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
@@ -40,11 +40,12 @@ private struct Document: Block {
                 Text("Z")
             }
             .padding(24)
+            .border(.blue, width: 12)
             .rotationEffect(.degrees(10))
         }
         .background(.orange)
         .border(Color.black, width: 12)
-        .font(.system(size: 42, design: .serif))
+        .font(.init(.init(name: "American Typewriter", size: 32)))
     }
 }
 
