@@ -20,7 +20,7 @@ import Foundation
 public struct VStack<Content>: Block where Content: Block {
     let alignment: HorizontalAlignment
     let spacing: StackSpacing
-    let wrapping: Bool
+    let wrap: Bool
     let content: Content
     let cacheId = UUID()
 
@@ -33,12 +33,12 @@ public struct VStack<Content>: Block where Content: Block {
     ///   - content: A block builder that creates the content of this stack.
     public init(alignment: HorizontalAlignment = .center,
                 spacing: StackSpacing = .none,
-                wrapping: Bool = false,
+                wrap: Bool = false,
                 @BlockBuilder content: () -> Content)
     {
         self.alignment = alignment
         self.spacing = spacing
-        self.wrapping = wrapping
+        self.wrap = wrap
         self.content = content()
     }
 }
