@@ -32,11 +32,12 @@ let data = Document().render()
 ```
 
 ## Multipage Components 
-`VStack`, `VGrid`, and `Columns` are components that can allow their content to start a new column or page by setting the `wrapping` parameter to true.
+`VStack`, `VGrid`, and `Columns` are components that can allow their content to start a new column or page by setting the `wrap` parameter to true.
 
 ```swift
-Columns(count: 2, spacing: 36, wrapping: true) {
+Columns(count: 2, spacing: 36, wrap: true) {
   Text("Four score and seventy years ago...")
+        .truncationMode(.wrap)
 }
 ```
 Note: `.flex` spacing does not work within a page wrap block. 
@@ -46,8 +47,9 @@ Page headers and footers can be expressed simply by surrounding a page wrap bloc
 ```swift
 VStack {
   Text("This text will repeat at the top of each page.")
-  Columns(count: 2, spacing: 36, wrapping: true) {
+  Columns(count: 2, spacing: 36, wrap: true) {
     Text("Four score and seventy years ago...")
+        .truncationMode(.wrap)
   }
   Text("This text will repeat at the bottom of each page.")
 }
@@ -65,7 +67,7 @@ VStack {
         .padding(.bottom, 36)
     }
   }
-  Columns(count: 2, spacing: 36, wrapping: true) {
+  Columns(count: 2, spacing: 36, wrap: true) {
     Text(...)
   }
 }
@@ -167,7 +169,6 @@ You can write your own re-usable composite blocks using any of PDFBlocks' built 
 * opacity
 * overlay
 * padding - Padding can be specified as `.max`. So, instead of `.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)`, you can use         `.padding(bottom: .max, trailing: .max)`.
-
 * proportionalFrame*
 * rotationEffect
 * stroke
