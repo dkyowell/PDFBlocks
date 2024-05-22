@@ -29,7 +29,9 @@ public enum TextTruncationMode: Sendable {
     /// Use this kind of truncation to omit characters from the end of the
     /// string. For example, you could truncate the English alphabet as
     /// "abcd...".
+    case none
     case tail
+    case wrap
 
     /// Truncate in the middle of the line.
     ///

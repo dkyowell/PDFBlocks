@@ -19,8 +19,12 @@ public struct Page<Content>: Block where Content: Block {
     /// - Parameters:
     ///   - size: The size of the page.
     ///   - margins: The margins of the page.
+    ///   - precomputePageCount: Pre-flight run of document  to compute total pages for "Page x of n" style reporting.
     ///   - content: A block builder that creates the content of this page.
-    public init(size: PageSize, margins: EdgeInsets, @BlockBuilder content: @escaping () -> Content) {
+    public init(size: PageSize,
+                margins: EdgeInsets,
+                @BlockBuilder content: @escaping () -> Content)
+    {
         pageInfo = .init(size: size, margins: margins)
         self.content = content()
     }

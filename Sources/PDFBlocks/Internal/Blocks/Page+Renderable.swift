@@ -13,8 +13,14 @@ import Foundation
 //   .background or .overlay on page will be full bleed and not within the margins
 //   .padding on a page will increase the pages margins
 extension Page: Renderable {
-    func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(pageInfo: pageInfo)[keyPath: keypath]
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if keypath == \.computePageCount {
+            let blocks = content.getRenderables(environment: environment)
+            let result = blocks.reduce(false) { $0 || $1.computePageCount(context: context, environment: environment) }
+            return Trait(computePageCount: result)[keyPath: keypath]
+        } else {
+            return Trait(pageInfo: pageInfo)[keyPath: keypath]
+        }
     }
 
     func sizeFor(context _: Context, environment _: EnvironmentValues, proposal: Proposal) -> BlockSize {

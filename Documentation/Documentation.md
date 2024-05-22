@@ -32,11 +32,12 @@ let data = Document().render()
 ```
 
 ## Multipage Components 
-`VStack`, `VGrid`, and `Columns` are components that can allow their content to start a new column or page by setting the `wrapping` parameter to true.
+`VStack`, `VGrid`, and `Columns` are components that can allow their content to start a new column or page by setting the `wrap` parameter to true.
 
 ```swift
-Columns(count: 2, spacing: 36, wrapping: true) {
+Columns(count: 2, spacing: 36, wrap: true) {
   Text("Four score and seventy years ago...")
+        .truncationMode(.wrap)
 }
 ```
 Note: `.flex` spacing does not work within a page wrap block. 
@@ -46,26 +47,27 @@ Page headers and footers can be expressed simply by surrounding a page wrap bloc
 ```swift
 VStack {
   Text("This text will repeat at the top of each page.")
-  Columns(count: 2, spacing: 36, wrapping: true) {
+  Columns(count: 2, spacing: 36, wrap: true) {
     Text("Four score and seventy years ago...")
+        .truncationMode(.wrap)
   }
   Text("This text will repeat at the bottom of each page.")
 }
 ```
 You are not limited to page headers and footers, you could change the `VStack` to an `HStack` in the preceeding example and have a page "leader" and page "trailer". 
 ### Page Numbers
-`PageNumberReader` is a component that provides the current page number for either printing, or adjusting rendered content according to the page number. Here, the page number is printed as a page header, but is supressed on the first page.
+`PageNumberReader` is a component that provides the current page number and optionally the total page count. Computing the page count is optional because it will roughly double the amount of time required to generate a PDF. Here, the page number is printed as a page header, but is supressed on the first page.
 
 ```swift
 VStack {
-  PageNumberReader { pageNo in
+  PageNumberReader(computePageCount: true) { proxy in
     if pageNo > 0 {
-      Text("Page \(pageNo)")
+      Text("Page \(proxy.pageNo) of \(proxy.pageCount)")
         .padding(.horizontal, .max)
         .padding(.bottom, 36)
     }
   }
-  Columns(count: 2, spacing: 36, wrapping: true) {
+  Columns(count: 2, spacing: 36, wrap: true) {
     Text(...)
   }
 }
@@ -167,12 +169,12 @@ You can write your own re-usable composite blocks using any of PDFBlocks' built 
 * opacity
 * overlay
 * padding - Padding can be specified as `.max`. So, instead of `.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)`, you can use         `.padding(bottom: .max, trailing: .max)`.
-
 * proportionalFrame*
 * rotationEffect
 * stroke
 * textFill* 
 * textStroke*
+* truncationMode
 * scaleEffect
 
 ## Issues

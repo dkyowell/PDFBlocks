@@ -14,7 +14,7 @@ public struct VGrid<Content>: Block where Content: Block {
     let columnCount: Int
     let columnSpacing: Dimension
     let rowSpacing: Dimension
-    let wrapping: Bool
+    let wrap: Bool
     let content: Content
 
     /// Creates a grid that grows vertically.
@@ -25,11 +25,11 @@ public struct VGrid<Content>: Block where Content: Block {
     ///   - rowSpacing: The vertical distance between cells.
     ///   - pageWrap: Start a new page or column when the content overflows its space.
     ///   - content: A block builder that creates the content of this stack.
-    public init(columnCount: Int, columnSpacing: Dimension, rowSpacing: Dimension, wrapping: Bool = false, @BlockBuilder content: () -> Content) {
+    public init(columnCount: Int, columnSpacing: Dimension, rowSpacing: Dimension, wrap: Bool = false, @BlockBuilder content: () -> Content) {
         self.columnCount = max(1, columnCount)
         self.columnSpacing = columnSpacing
         self.rowSpacing = rowSpacing
-        self.wrapping = wrapping
+        self.wrap = wrap
         self.content = content()
     }
 }

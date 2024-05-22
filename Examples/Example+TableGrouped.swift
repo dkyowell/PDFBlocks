@@ -33,18 +33,18 @@ struct ExampleTable2: Block {
                     .bold()
                     .padding(.leading, .max)
             }
-        } pageHeader: { pageNo in
-            HStack(spacing: .flex) {
-                Text("Donor Report")
-                PageNumberReader { pageNo in
-                    Text("Page \(pageNo)")
+        } pageHeader: {
+            PageNumberReader(computePageCount: true) { proxy in
+                HStack(spacing: .flex) {
+                    Text("Donor Report")
+                        Text("Page \(proxy.pageNo) of \(proxy.pageCount)")
                 }
-            }
-            .fontSize(12)
-            .bold()
-            .padding(.bottom, 12)
-            if pageNo > 1 {
-                TableColumnTitles()
+                .fontSize(12)
+                .bold()
+                .padding(.bottom, 12)
+                if proxy.pageNo > 1 {
+                    TableColumnTitles()
+                }
             }
         }
         .font(.system(size: 8))

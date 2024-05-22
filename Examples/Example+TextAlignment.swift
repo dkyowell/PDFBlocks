@@ -11,17 +11,14 @@ import PDFKit
 private struct Document: Block {
     let text = "The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. The quick brown fox jumped over the lazy cow. "
     var body: some Block {
-        VStack {
+        VStack(spacing: .flex) {
             ForEach([TextAlignment.leading, .center, .trailing]) { alignment in
                 Text(text)
-                    .fontSize(18)
                     .multilineTextAlignment(alignment)
-                if alignment != .trailing {
-                    Divider(padding: .pt(12))
-                }
             }
         }
-        .padding(.vertical, .max)
+        .fontSize(20)
+        .padding(.vertical, 72)
     }
 }
 

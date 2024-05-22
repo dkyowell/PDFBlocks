@@ -11,13 +11,7 @@ import PDFKit
 private struct Document: Block {
     var body: some Block {
         Page(size: .init(width: .in(6), height: .in(6)), margins: .in(1)) {
-            PageNumberReader { pageNo in
-                Text("Page \(pageNo)")
-            }
-            .fontSize(36)
-            .padding(.horizontal, .max)
-            // .padding(.bottom, .pt(12))
-            VStack(alignment: .center, wrapping: true) {
+            VGrid(columnCount: 3, columnSpacing: 0, rowSpacing: 0, wrap: true) {
                 Text("A")
                 Text("B")
                 Text("C")
@@ -45,21 +39,13 @@ private struct Document: Block {
                 Text("Y")
                 Text("Z")
             }
-            .tag("Outer")
-            .padding(12)
-            .overlay {
-                Color.clear
-                    .border(.blue, width: 12)
-            }
-            .fontSize(32)
-            .padding(12)
+            .padding(24)
+            .border(.blue, width: 12)
             .rotationEffect(.degrees(10))
-            .clipped()
         }
-        .background {
-            Color.orange
-                .border(Color.black, width: 12)
-        }
+        .background(.orange)
+        .border(Color.black, width: 12)
+        .font(.init(.init(name: "American Typewriter", size: 32)))
     }
 }
 

@@ -9,4 +9,5 @@ struct Trait {
     var layoutPriority: Int = 0
     var wrapContents: Bool = false
     var pageInfo: PageInfo?
+    var computePageCount: Bool = false
 }

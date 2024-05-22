@@ -7,7 +7,7 @@
 import Foundation
 
 /// A type for expressing page size.
-public struct PageSize {
+public struct PageSize: Equatable {
     public let width: Dimension
     public let height: Dimension
 

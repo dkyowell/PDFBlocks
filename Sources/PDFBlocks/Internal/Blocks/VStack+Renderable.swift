@@ -7,8 +7,14 @@
 import Foundation
 
 extension VStack: Renderable {
-    func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(wrapContents: wrapping)[keyPath: keypath]
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if keypath == \.computePageCount {
+            let blocks = content.getRenderables(environment: environment)
+            let result = blocks.reduce(false) { $0 || $1.computePageCount(context: context, environment: environment) }
+            return Trait(computePageCount: result)[keyPath: keypath]
+        } else {
+            return Trait(wrapContents: wrap)[keyPath: keypath]
+        }
     }
 
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
@@ -24,12 +30,12 @@ extension VStack: Renderable {
                 usedHeight += blockSize.max.height + spacing.fixedPoints
                 if let remainder, blockSize.max.height > 0 {
                     mutableBlocks[0] = remainder
-                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: mutableBlocks) })
+                    return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrap: wrap, content: { ArrayBlock(blocks: mutableBlocks) })
                 } else {
                     mutableBlocks = Array(mutableBlocks.dropFirst())
                 }
             } else {
-                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: mutableBlocks) })
+                return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrap: wrap, content: { ArrayBlock(blocks: mutableBlocks) })
             }
         }
         return nil
@@ -39,39 +45,31 @@ extension VStack: Renderable {
         var environment = environment
         environment.layoutAxis = .vertical
         switch wrapMode(environment: environment) {
-        case .none:
+        case .atomic:
             let blocks = content.getRenderables(environment: environment)
-            let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
+            let sizes = layoutBlocks(blocks, context: context, environment: environment, proposal: proposal)
+            context.layoutCache[cacheId] = sizes
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-            let minWidth = sizes.map(\.min.width).reduce(0, max)
-            let minHeight = sizes.map(\.min.height).reduce(0, +) + fixedSpacing
-            if minHeight >= proposal.height {
-                // TODO: How to reason about minWidth?
-                let maxWidth = sizes.map(\.max.width).reduce(0, max)
-                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
-                                 max: CGSize(width: maxWidth, height: minHeight))
-            } else if spacing.isFlexible, blocks.count > 1 {
-                let maxWidth = sizes.map(\.max.width).reduce(0, max)
-                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
-                                 max: CGSize(width: maxWidth, height: proposal.height))
-            } else {
-                let sizes = atomicLayoutBlocks(blocks, context: context, environment: environment, proposal: proposal)
-                let maxWidth = sizes.map(\.width).reduce(0.0, max)
-                let maxHeight = sizes.map(\.height).reduce(0, +) + fixedSpacing
-                return BlockSize(min: CGSize(width: minWidth, height: minHeight),
-                                 max: CGSize(width: maxWidth, height: maxHeight))
+            let minHightSum = sizes.map(\.min.height).reduce(0, +) + fixedSpacing
+            var maxHeightSum = sizes.map(\.max.height).reduce(0, +) + fixedSpacing
+            if spacing.isFlexible, maxHeightSum < proposal.height {
+                maxHeightSum = proposal.height
             }
+            let minWidthMax = sizes.map(\.min.width).reduce(0, max)
+            let maxWidthMax = sizes.map(\.max.width).reduce(0, max)
+            return BlockSize(min: CGSize(width: minWidthMax, height: minHightSum),
+                             max: CGSize(width: maxWidthMax, height: maxHeightSum))
         case .primary:
             return BlockSize(min: CGSize(width: proposal.width, height: 0), max: proposal)
         case .secondary:
-            let blocks = ArraySlice<any Renderable>(content.getRenderables(environment: environment))
+            let blocks = content.getRenderables(environment: environment)
             var height = 0.0
             var maxWidth = 0.0
             for (offset, block) in blocks.enumerated() {
                 let spacing = offset == 0 ? 0 : spacing.fixedPoints
                 let proposal = CGSize(width: proposal.width, height: proposal.height - height - spacing)
                 let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
-                if size.min.height ~> proposal.height {
+                if offset > 0, size.min.height ~> proposal.height {
                     break
                 } else {
                     height += size.max.height + spacing
@@ -84,7 +82,7 @@ extension VStack: Renderable {
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         switch wrapMode(environment: environment) {
-        case .none:
+        case .atomic:
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
         case .primary:
@@ -92,51 +90,50 @@ extension VStack: Renderable {
             context.setPageWrapRect(rect)
             if context.multiPagePass == nil {
                 context.multiPagePass = {
-                    renderPrimaryWrap(context: context, environment: environment, rect: rect)
+                    renderPrimary(context: context, environment: environment, rect: rect)
                 }
             }
             return nil
         case .secondary:
-            return renderSecondaryWrap(context: context, environment: environment, rect: rect)
+            return renderSecondary(context: context, environment: environment, rect: rect)
         }
     }
 }
 
 extension VStack {
-    // Render all content into rect.
     func renderAtomic(context: Context, environment: EnvironmentValues, rect: CGRect) {
         var environment = environment
         environment.layoutAxis = .vertical
-        let size = sizeFor(context: context, environment: environment, proposal: rect.size).max
         let blocks = content.getRenderables(environment: environment)
-        let sizes = atomicLayoutBlocks(blocks, context: context, environment: environment, proposal: size)
-        //  Compute spacing
+        let sizes = (context.layoutCache[cacheId] as? [BlockSize]) ??
+            layoutBlocks(blocks, context: context, environment: environment, proposal: rect.size)
+        // let sizes = atomicLayoutBlocks(blocks, context: context, environment: environment, proposal: rect.size)
         let space: CGFloat
         switch spacing {
         case let .flex(size):
-            let sumHeight = sizes.map(\.height).reduce(0, +)
+            let sumHeight = sizes.map(\.max.height).reduce(0, +)
             space = max(size.points, (rect.height - sumHeight) / CGFloat(blocks.count - 1))
         case let .fixed(size):
             space = size.points
         }
-        var dy = (rect.height - size.height) / 2
+        var dy = 0.0
         for (block, size) in zip(blocks, sizes) {
             let dx: CGFloat = switch alignment {
             case .leading:
                 0
             case .center:
-                (rect.width - size.width) / 2
+                (rect.width - size.max.width) / 2
             case .trailing:
-                rect.width - size.width
+                rect.width - size.max.width
             }
-            let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size)
+            let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
             block.render(context: context, environment: environment, rect: renderRect)
-            dy += size.height + space
+            dy += size.max.height + space
         }
     }
 
     // Render all content, starting new pages as necessary, until complete.
-    func renderPrimaryWrap(context: Context, environment: EnvironmentValues, rect _: CGRect) {
+    func renderPrimary(context: Context, environment: EnvironmentValues, rect _: CGRect) {
         var environment = environment
         environment.layoutAxis = .vertical
         environment.renderMode = .wrapping
@@ -162,22 +159,22 @@ extension VStack {
                 dy += size.max.height + spacing.fixedPoints
                 if let remainder {
                     blocks[0] = remainder
-                    dy = 0
                     context.endPage()
                     context.beginPage()
+                    dy = 0
                 } else {
                     blocks = Array(blocks.dropFirst())
                 }
             } else {
-                dy = 0
                 context.endPage()
                 context.beginPage()
+                dy = 0
             }
         }
     }
 
     // Render as much content as fits into rect and return the remainder.
-    func renderSecondaryWrap(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+    func renderSecondary(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
         environment.layoutAxis = .vertical
         var blocks = content.getRenderables(environment: environment)
@@ -188,7 +185,7 @@ extension VStack {
             let block = blocks[0]
             let proposal = CGSize(width: rect.size.width, height: rect.size.height - dy)
             let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
-            if size.max.height ~<= proposal.height, proposal.height > 0 {
+            if (dy == 0 && rect.minY == context.pageWrapRect.minY) || size.max.height ~<= proposal.height, proposal.height > 0 {
                 let dx: CGFloat = switch alignment {
                 case .leading:
                     0
@@ -213,64 +210,50 @@ extension VStack {
         if blocks.count == 0 {
             return nil
         } else {
-            // TODO: This would not work is Spacer is wrapped.
+            // TODO: This would not work if Spacer is wrapped.
             // while let _ = blocks.first as? Spacer {
             //    blocks = Array(blocks.dropFirst())
             // }
-            return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrapping: wrapping, content: { ArrayBlock(blocks: blocks) })
+            return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrap: wrap, content: { ArrayBlock(blocks: blocks) })
         }
     }
 
-    func atomicLayoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposal: Proposal) -> ([CGSize]) {
+    func layoutBlocks(_ blocks: [any Renderable], context: Context, environment: EnvironmentValues, proposal: Proposal) -> [BlockSize] {
         let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
-        let layoutSize = CGSize(width: proposal.width, height: proposal.height - fixedSpacing)
-
-        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: layoutSize) }
+        let adjustedHeight = proposal.height - fixedSpacing
+        let adjustedProposal = CGSize(width: proposal.width, height: adjustedHeight)
+        // Size all blocks using the adjustedWidth of the proposal
+        let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: adjustedProposal) }
         var unsizedDict = sizes.enumerated().reduce(into: [:]) { $0[$1.offset] = $1.element }
         var sizedDict = [Int: BlockSize]()
-        // Iterate to find blocks less than the average height, changing the average as it goes.
-        var stepComplete = false
-        while stepComplete == false {
-            stepComplete = true
+        // Sorted by width, size the non-flexible blocks using the average remaining width
+        for (key, _) in unsizedDict.filter({ $0.value.vFlexible == false }).sorted(by: { $0.value.max.height < $1.value.max.height }) {
             let sumSizedHeight = sizedDict.map(\.value.max.height).reduce(0, +)
-            let averageHeight = (layoutSize.height - sumSizedHeight) / CGFloat(unsizedDict.count)
-            for (key, size) in unsizedDict.sorted(by: { $0.key < $1.key }) {
-                if size.max.height <= averageHeight {
-                    sizedDict[key] = size
-                    unsizedDict[key] = nil
-                    stepComplete = false
-                }
-            }
-        }
-        // Size the remaining non flexibile blocks.
-        for (key, _) in unsizedDict.filter({ $0.value.hFlexible == false }).sorted(by: { $0.key < $1.key }) {
-            let sumSizedHeight = sizedDict.map(\.value.max.height).reduce(0, +)
-            let averageHeight = (proposal.height - fixedSpacing - sumSizedHeight) / CGFloat(unsizedDict.count)
+            let averageHeight = max(0, (adjustedHeight - sumSizedHeight) / CGFloat(unsizedDict.count))
             let averageSize = CGSize(width: proposal.width, height: averageHeight)
             sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
             unsizedDict[key] = nil
         }
-        // Size the remaining blocks.
-        for (key, _) in unsizedDict.sorted(by: { $0.key < $1.key }) {
+        // Sorted by width, layout the remaining blocks using the average remaining width
+        for (key, _) in unsizedDict.sorted(by: { $0.value.max.height < $1.value.max.height }) {
             let sumSizedHeight = sizedDict.map(\.value.max.height).reduce(0, +)
-            let averageHeight = (proposal.height - fixedSpacing - sumSizedHeight) / CGFloat(unsizedDict.count)
+            let averageHeight = max(0, (adjustedHeight - sumSizedHeight) / CGFloat(unsizedDict.count))
             let averageSize = CGSize(width: proposal.width, height: averageHeight)
             sizedDict[key] = blocks[key].sizeFor(context: context, environment: environment, proposal: averageSize)
             unsizedDict[key] = nil
         }
-        //  Return results. I don't like to use !, but here if it crashes, it should crash.
-        return blocks.indices.map { sizedDict[$0]!.max }
+        return blocks.indices.map { BlockSize(sizedDict[$0]!.max) }
     }
 
     func wrapMode(environment: EnvironmentValues) -> WrapMode {
-        if wrapping {
+        if wrap {
             if environment.renderMode == .wrapping || environment.columnsLayout {
                 .secondary
             } else {
                 .primary
             }
         } else {
-            .none
+            .atomic
         }
     }
 }

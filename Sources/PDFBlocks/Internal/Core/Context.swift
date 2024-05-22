@@ -6,13 +6,20 @@
 
 import Foundation
 
+// Layer 1 prints everything down to the primary wrapping block.
+// The primary wrapping block takes care of everything else.
+
+// When a wrapping component begins primary rendering, it
+//   1) calls context.renderer.setLayer(2)
+//   2) sets context.multiPagePass block
+
+// Context sets pageFramePass(renderLayer:)
+
 // Context is a reference type that initiates the rendering preocess and holds rendering state.
 class Context {
-    #if os(iOS) || os(macOS)
-        init() {
-            renderer = CGRenderer()
-        }
-    #endif
+    init() {
+        renderer = CGRenderer()
+    }
 
     init(renderer: Renderer) {
         self.renderer = renderer
@@ -27,6 +34,12 @@ class Context {
     var pageFramePass: ((Int) -> Void)?
     var multiPagePass: (() -> Void)?
     var pageWrapRect: CGRect = .zero
+    var pageCount: Int = 0
+    var layoutCache = [UUID: Any]()
+
+    var pageNumberProxy: PageNumberProxy {
+        .init(pageNo: pageNo, pageCount: pageCount)
+    }
 
     private var pageSize: CGSize = .init(width: 8.5, height: 11).scaled(by: 72)
     private var pageWrapCursorY: CGFloat = 0
@@ -34,37 +47,42 @@ class Context {
     func render(size: PageSize, margins: EdgeInsets, content: some Block) async throws -> Data? {
         try renderer.render {
             let environment = EnvironmentValues()
-            let blocks = content.getRenderables(environment: environment)
+            var blocks = content.getRenderables(environment: environment)
+            let computePageCount = blocks.reduce(false) { $0 || $1.computePageCount(context: self, environment: environment) }
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
-                // no defined pages. collect all into a VStack
-                let pageSize = CGSize(width: size.width.points, height: size.height.points)
-                let page = Page(size: size, margins: margins, content: { content })
+                // If Page not defined, wrap contents with a Page.
+                blocks = [Page(size: size, margins: margins, content: { content })]
+            }
+            for block in blocks {
+                guard let info = block.pageInfo(context: self, environment: environment) else {
+                    // Skip stray contents that are not contained within a Page.
+                    continue
+                }
+                let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
+                if computePageCount {
+                    renderer.setLayer(0)
+                    pageFramePass = { renderLayer in
+                        self.renderer.setLayer(0)
+                        self.renderer.setLayerFilter(renderLayer)
+                        block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
+                        self.renderer.setLayer(0)
+                    }
+                    beginPage(newPageSize: pageSize)
+                    multiPagePass?()
+                    endPage()
+                    pageCount = pageNo
+                }
+                pageNo = 0
+                renderer.setLayer(1)
                 pageFramePass = { renderLayer in
                     self.renderer.setLayer(1)
                     self.renderer.setLayerFilter(renderLayer)
-                    page.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
+                    block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
                     self.renderer.setLayer(1)
                 }
                 beginPage(newPageSize: pageSize)
                 multiPagePass?()
                 endPage()
-            } else {
-                for block in blocks {
-                    guard let info = block.pageInfo(context: self, environment: environment) else {
-                        // drop stray blocks
-                        continue
-                    }
-                    let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
-                    pageFramePass = { renderLayer in
-                        self.renderer.setLayer(1)
-                        self.renderer.setLayerFilter(renderLayer)
-                        block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
-                        self.renderer.setLayer(1)
-                    }
-                    beginPage(newPageSize: pageSize)
-                    multiPagePass?()
-                    endPage()
-                }
             }
         }
     }
@@ -118,13 +136,6 @@ class Context {
                     pageWrapCursorY = 0
                 }
                 pageWrapCursorY += size.max.height
-//                if block != nil {
-//                    endPage()
-//                    beginPage()
-//                    pageWrapCursorY = 0
-//                } else {
-//                    pageWrapCursorY += size.max.height
-//                }
             }
         }
     }

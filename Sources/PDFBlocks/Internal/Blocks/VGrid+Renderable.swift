@@ -9,7 +9,7 @@ import Foundation
 
 extension VGrid: Renderable {
     func getTrait<Value>(context _: Context, environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(wrapContents: wrapping)[keyPath: keypath]
+        Trait(wrapContents: wrap)[keyPath: keypath]
     }
 
     // TODO: NEEDS A REMAINDER FUNCTION FOR COLUMNS.
@@ -18,7 +18,7 @@ extension VGrid: Renderable {
         var environment = environment
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
-        case .none:
+        case .atomic:
             let blocks = content.getRenderables(environment: environment)
             let cellWidth = (proposal.width - CGFloat(columnCount - 1) * columnSpacing.points) / CGFloat(columnCount)
             let cellSize = CGSize(width: cellWidth, height: proposal.height)
@@ -46,7 +46,7 @@ extension VGrid: Renderable {
         var environment = environment
         environment.layoutAxis = .horizontal
         switch wrapMode(context: context, environment: environment) {
-        case .none:
+        case .atomic:
             renderAtomic(context: context, environment: environment, rect: rect)
             return nil
         case .primary:
@@ -93,7 +93,7 @@ extension VGrid {
                 return VGrid<ArrayBlock>(columnCount: columnCount,
                                          columnSpacing: columnSpacing,
                                          rowSpacing: rowSpacing,
-                                         wrapping: wrapping,
+                                         wrap: wrap,
                                          content: { ArrayBlock(blocks: blocks) })
             }
         }
@@ -158,14 +158,14 @@ extension VGrid {
     }
 
     func wrapMode(context _: Context, environment: EnvironmentValues) -> WrapMode {
-        if wrapping {
+        if wrap {
             if environment.renderMode == .wrapping || environment.columnsLayout {
                 .secondary
             } else {
                 .primary
             }
         } else {
-            .none
+            .atomic
         }
     }
 }

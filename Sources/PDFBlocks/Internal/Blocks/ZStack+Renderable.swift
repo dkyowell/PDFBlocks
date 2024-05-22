@@ -7,6 +7,16 @@
 import Foundation
 
 extension ZStack: Renderable {
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        if keypath == \.computePageCount {
+            let blocks = content.getRenderables(environment: environment)
+            let result = blocks.reduce(false) { $0 || $1.computePageCount(context: context, environment: environment) }
+            return Trait(computePageCount: result)[keyPath: keypath]
+        } else {
+            return Trait()[keyPath: keypath]
+        }
+    }
+
     // TODO: Review minSize
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let blocks = content.getRenderables(environment: environment)

@@ -28,5 +28,5 @@ protocol Renderer {
     func renderImage(_ image: PlatformImage, environment: EnvironmentValues, rect: CGRect)
     func textRemainder(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString
     func renderText(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString
-    func sizeForText(_ text: NSAttributedString, environment: EnvironmentValues, proposedSize: CGSize) -> (min: CGSize, max: CGSize)
+    func sizeForText(_ text: NSAttributedString, environment: EnvironmentValues, proposal: CGSize) -> CGSize
 }

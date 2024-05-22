@@ -8,6 +8,8 @@
 import Foundation
 
 extension EitherBlock: Renderable {
+    // TODO: Trait, Remainder, etc.
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         switch value {
         case let .trueContent(content):

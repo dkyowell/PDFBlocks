@@ -21,6 +21,7 @@ public struct HStack<Content: Block>: Block {
     let alignment: VerticalAlignment
     let spacing: StackSpacing
     let content: Content
+    let cacheId = UUID()
 
     /// Creates a horizontal stack with the given spacing and vertical alignment.
     ///
