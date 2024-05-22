@@ -13,6 +13,7 @@ struct ExampleStacks: Block {
             VStack(spacing: .flex) {
                 Columns(count: 2, spacing: 36) {
                     Text(poem)
+                        .truncationMode(.wrap)
                         .fontSize(30)
                 }
                 HStack(spacing: .flex) {
@@ -23,6 +24,7 @@ struct ExampleStacks: Block {
                 }
                 Columns(count: 3, spacing: 18) {
                     Text(poem)
+                        .truncationMode(.wrap)
                         .fontSize(24)
                         .opacity(0.80)
                 }
@@ -34,6 +36,7 @@ struct ExampleStacks: Block {
                 }
                 Columns(count: 4, spacing: 12) {
                     Text(poem)
+                        .truncationMode(.wrap)
                         .fontSize(18)
                         .opacity(0.60)
                 }

@@ -54,13 +54,13 @@ VStack {
 ```
 You are not limited to page headers and footers, you could change the `VStack` to an `HStack` in the preceeding example and have a page "leader" and page "trailer". 
 ### Page Numbers
-`PageNumberReader` is a component that provides the current page number for either printing, or adjusting rendered content according to the page number. Here, the page number is printed as a page header, but is supressed on the first page.
+`PageNumberReader` is a component that provides the current page number and optionally the total page count. Computing the page count is optional because it will roughly double the amount of time required to generate a PDF. Here, the page number is printed as a page header, but is supressed on the first page.
 
 ```swift
 VStack {
-  PageNumberReader { pageNo in
+  PageNumberReader(computePageCount: true) { proxy in
     if pageNo > 0 {
-      Text("Page \(pageNo)")
+      Text("Page \(proxy.pageNo) of \(proxy.pageCount)")
         .padding(.horizontal, .max)
         .padding(.bottom, 36)
     }
@@ -173,6 +173,7 @@ You can write your own re-usable composite blocks using any of PDFBlocks' built 
 * stroke
 * textFill* 
 * textStroke*
+* truncationMode
 * scaleEffect
 
 ## Issues

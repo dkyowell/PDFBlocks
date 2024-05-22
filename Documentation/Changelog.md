@@ -1,7 +1,17 @@
 #  Changelog
 
+## v0.2.5.2
+* Breaking Change: In VStack, VGrid, and Columns the wrapping: parameter is renamed to wrap:.
+* Added .none and .wrap to truncationMode(:).
+* Changed Text: will not truncate unless truncationMode .tail is set.
+* Changed Text: will not wrap unless truncationMode .wrap is set.
+* Changed Table: removed page number from pageHeader and pageFooter blocks
+* Enhanced `PageNumberReader` with ability to report total pages
+* Fixed Text wrap in VStack
+* Fixes various layout issues
+
 ## v0.2.5.1
-* Peformance improvment for Text
+* Performance improvment for Text
 * Breaking Change: In VStack, VGrid, and Columns the pageWrap: parameter is renamed to wrapContents:.
 * Various fixes
 * Moved Examples out of Sources directory

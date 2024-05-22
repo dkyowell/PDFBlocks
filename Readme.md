@@ -64,7 +64,7 @@ Xcode Previews ia also a great way to get a quick start with PDFBlocks before in
 2. Open Package.swift in Xcode.
 3. Navigate to Examples directory
 4. Select scheme PDFBlocks-Package or PDFBlocksExamples
-4. Puruse the sample documents. Modify them if you wish and see the results right away.
+4. Puruse the example documents. Modify them if you wish and see the results within Xcode.
 
 
 ## Documentation
