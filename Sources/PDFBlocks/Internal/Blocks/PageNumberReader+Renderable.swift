@@ -30,7 +30,7 @@ extension PageNumberReader: Renderable {
             let function: (PageNumberProxy) -> Content = { _ in
                 content
             }
-            return PageNumberReader(content: function)
+            return PageNumberReader(computePageCount: computePageCount, content: function)
         } else {
             return nil
         }

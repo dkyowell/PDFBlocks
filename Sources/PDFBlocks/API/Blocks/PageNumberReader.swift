@@ -17,9 +17,11 @@ public struct PageNumberReader<Content>: Block where Content: Block {
     /// Creates an instance with the given parameters..
     ///
     /// - Parameters:
+    ///
+    ///   - computePageCount: PageNumberReader will return the total page count at the expense of pdf generation speed.
     ///   - content: A block builder that creates a block dynamically.
-    public init(@BlockBuilder content: @escaping (PageNumberProxy) -> Content) {
-        computePageCount = true
+    public init(computePageCount: Bool, @BlockBuilder content: @escaping (PageNumberProxy) -> Content) {
+        self.computePageCount = computePageCount
         self.content = content
     }
 }

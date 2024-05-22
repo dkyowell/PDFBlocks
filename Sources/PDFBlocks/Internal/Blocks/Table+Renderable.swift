@@ -7,8 +7,10 @@
 import Foundation
 
 extension Table: Renderable {
-    func getTrait<Value>(environment _: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        Trait(wrapContents: true)[keyPath: keypath]
+    func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
+        let block = pageFrame.getRenderable(environment: environment)
+        let computePageCount = block.computePageCount(context: context, environment: environment)
+        return Trait(wrapContents: true, computePageCount: computePageCount)[keyPath: keypath]
     }
 
     func sizeFor(context _: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
@@ -43,7 +45,7 @@ extension Table: Renderable {
             wrappingModeRender(context: context, environment: environment, rect: rect)
         } else {
             // This is a primary page wrapping block.
-            let frame = pageFrame(context.pageNo).getRenderable(environment: environment)
+            let frame = pageFrame.getRenderable(environment: environment)
             frame.render(context: context, environment: environment, rect: rect)
             context.renderer.setLayer(2)
             guard context.multiPagePass == nil else {

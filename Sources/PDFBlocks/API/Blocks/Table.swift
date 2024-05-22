@@ -14,7 +14,7 @@ public struct Table<Row>: Block {
     let header: any Block
     let footer: any Block
     let row: (Row) -> any Block
-    let pageFrame: (Int) -> any Block
+    let pageFrame: any Block
 
     public init(
         _ data: [Row],
@@ -22,8 +22,8 @@ public struct Table<Row>: Block {
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
-        @BlockBuilder pageHeader: @escaping (Int) -> any Block = { _ in TableColumnTitles() },
-        @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
+        @BlockBuilder pageHeader: @escaping () -> any Block = { TableColumnTitles() },
+        @BlockBuilder pageFooter: @escaping () -> any Block = { EmptyBlock() }
     ) {
         self.data = data
         self.columns = columns()
@@ -33,12 +33,10 @@ public struct Table<Row>: Block {
         self.groups = groups()
         self.header = header()
         self.footer = footer()
-        pageFrame = { pageNo in
-            VStack {
-                AnyBlock(pageHeader(pageNo))
-                TableContentSpacer()
-                AnyBlock(pageFooter(pageNo))
-            }
+        pageFrame = VStack {
+            AnyBlock(pageHeader())
+            TableContentSpacer()
+            AnyBlock(pageFooter())
         }
     }
 
@@ -49,8 +47,8 @@ public struct Table<Row>: Block {
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
-        @BlockBuilder pageHeader: @escaping (Int) -> any Block = { _ in EmptyBlock() },
-        @BlockBuilder pageFooter: @escaping (Int) -> any Block = { _ in EmptyBlock() }
+        @BlockBuilder pageHeader: @escaping () -> any Block = { EmptyBlock() },
+        @BlockBuilder pageFooter: @escaping () -> any Block = { EmptyBlock() }
     ) {
         self.data = data
         self.columns = columns()
@@ -58,12 +56,10 @@ public struct Table<Row>: Block {
         self.groups = groups()
         self.header = header()
         self.footer = footer()
-        pageFrame = { pageNo in
-            VStack {
-                AnyBlock(pageHeader(pageNo))
-                TableContentSpacer()
-                AnyBlock(pageFooter(pageNo))
-            }
+        pageFrame = VStack {
+            AnyBlock(pageHeader())
+            TableContentSpacer()
+            AnyBlock(pageFooter())
         }
     }
 
@@ -73,7 +69,7 @@ public struct Table<Row>: Block {
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
-        @BlockBuilder pageFrame: @escaping (Int) -> any Block
+        @BlockBuilder pageFrame: @escaping () -> any Block
     ) {
         self.data = data
         self.columns = columns()
@@ -83,7 +79,7 @@ public struct Table<Row>: Block {
         self.groups = groups()
         self.header = header()
         self.footer = footer()
-        self.pageFrame = pageFrame
+        self.pageFrame = pageFrame()
     }
 
     public init(
@@ -93,7 +89,7 @@ public struct Table<Row>: Block {
         @TableGroupBuilder<Row> groups: @escaping () -> [any TableGroupContent<Row>] = { [] },
         @BlockBuilder header: () -> any Block = { EmptyBlock() },
         @BlockBuilder footer: () -> any Block = { EmptyBlock() },
-        @BlockBuilder pageFrame: @escaping (Int) -> any Block
+        @BlockBuilder pageFrame: () -> any Block
     ) {
         self.data = data
         self.columns = columns()
@@ -101,7 +97,7 @@ public struct Table<Row>: Block {
         self.groups = groups()
         self.header = header()
         self.footer = footer()
-        self.pageFrame = pageFrame
+        self.pageFrame = pageFrame()
     }
 }
 
