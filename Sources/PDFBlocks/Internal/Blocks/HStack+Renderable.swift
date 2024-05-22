@@ -57,7 +57,12 @@ extension HStack: Renderable {
         let blocks = content.getRenderables(environment: environment)
         let proportionalWidths = blocks.map { $0.proportionalWidth(context: context, environment: environment) }
         if proportionalWidths.filter({ $0 != nil }).count > 0 {
-            let sizes = (context.layoutCache[cacheId] as! [BlockSize]).map(\.max)
+            let sizes: [CGSize] = if let cachedSizes = context.layoutCache[cacheId] as? [BlockSize] {
+                cachedSizes.map(\.max)
+            } else {
+                layoutProportionalBlocks(blocks, proportionalWidths: proportionalWidths, context: context, environment: environment, proposal: rect.size)
+                    .map(\.max)
+            }
             let fixedSpacing = spacing.fixedPoints * CGFloat(blocks.count - 1)
             let adjustedWidth = rect.width - fixedSpacing
             let sumProportionalWidth = proportionalWidths.map { $0 ?? 1 }.reduce(0, +)
@@ -79,7 +84,9 @@ extension HStack: Renderable {
                 dx += proposedWidth + spacing.fixedPoints
             }
         } else {
-            let sizes = (context.layoutCache[cacheId] as! [BlockSize]).map(\.max)
+            let cachedSizes = context.layoutCache[cacheId] as? [BlockSize]
+            let sizes: [CGSize] = (cachedSizes ?? layoutBlocks(blocks, context: context, environment: environment, proposal: rect.size))
+                .map(\.max)
             let space: CGFloat
             switch spacing {
             case let .flex(size):
