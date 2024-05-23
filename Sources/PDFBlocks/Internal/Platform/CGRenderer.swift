@@ -387,7 +387,6 @@ class CGRenderer: Renderer {
         }
     }
 
-    // TODO: sizeForCTText
     func sizeForText(_ text: NSAttributedString, environment: EnvironmentValues, proposal: Proposal) -> CGSize {
         let string = prepareString(text, environment: environment)
         let range = CFRangeMake(0, string.length)
@@ -401,24 +400,24 @@ class CGRenderer: Renderer {
         }
         var fitRange = CFRangeMake(0, 0)
         var size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, &fitRange)
-        if fitRange.length < range.length, environment.truncationMode == .tail {
+        if (fitRange.length < range.length), (environment.truncationMode == .tail) {
             let ellipsis = prepareString(NSMutableAttributedString(string: " …"), environment: environment)
             let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
-            let ellipsisBounds = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds])
+            let ellipsisWidth = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds]).width
             let frame = CTFramesetterCreateFrame(framesetter, range, CGPath(rect: rect, transform: .none), nil)
-            if let lines = CTFrameGetLines(frame) as? [CTLine], let lastLine = lines.last {
+            let lines = frame.lines()
+            if let lastLine = lines.last {
                 let maxWidth = lines.dropLast().map { CTLineGetBoundsWithOptions($0, [.useOpticalBounds]).width }.reduce(0, max)
-                let lastLineBounds = CTLineGetBoundsWithOptions(lastLine, [.useOpticalBounds])
-                let newMaxWidth = max(maxWidth, ellipsisBounds.width + lastLineBounds.width)
-                let truncatedWidth = min(newMaxWidth, proposal.width)
-                size = CGSize(width: truncatedWidth, height: size.height)
+                let lastLineWidth = CTLineGetBoundsWithOptions(lastLine, [.useOpticalBounds]).width
+                let newMaxWidth = max(maxWidth, lastLineWidth + ellipsisWidth)
+                size = CGSize(width: min(newMaxWidth, size.width), height: size.height)
             }
         }
         return size
     }
 
     func renderText(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString {
-        guard layer == 0 || layer == layerFilter else {
+        guard layer == layerFilter else {
             return blank
         }
         let nsAttrString = prepareString(text, environment: environment)
@@ -510,10 +509,8 @@ class CGRenderer: Renderer {
                         line.drawGlyphs(cgContext: cgContext, transform: &transform)
                     } else {
                         let dy = origins[offset].y + pageSize.height - rect.maxY
-                        if layer != 0 { // TODO:
-                            cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
-                            CTLineDraw(line, cgContext)
-                        }
+                        cgContext.textPosition = CGPoint(x: rect.minX + dx, y: dy)
+                        CTLineDraw(line, cgContext)
                     }
                 }
             }

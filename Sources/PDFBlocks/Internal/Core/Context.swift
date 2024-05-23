@@ -45,10 +45,11 @@ class Context {
     private var pageWrapCursorY: CGFloat = 0
 
     func render(size: PageSize, margins: EdgeInsets, content: some Block) async throws -> Data? {
-        try renderer.render {
-            let environment = EnvironmentValues()
-            var blocks = content.getRenderables(environment: environment)
-            let computePageCount = blocks.reduce(false) { $0 || $1.computePageCount(context: self, environment: environment) }
+        let environment = EnvironmentValues()
+        var blocks = content.getRenderables(environment: environment)
+        let computePageCount = blocks.reduce(false) { $0 || $1.computePageCount(context: self, environment: environment) }
+        
+        func renderBlocks() {
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
                 // If Page not defined, wrap contents with a Page.
                 blocks = [Page(size: size, margins: margins, content: { content })]
@@ -59,19 +60,6 @@ class Context {
                     continue
                 }
                 let pageSize = CGSize(width: info.size.width.points, height: info.size.height.points)
-                if computePageCount {
-                    renderer.setLayer(0)
-                    pageFramePass = { renderLayer in
-                        self.renderer.setLayer(0)
-                        self.renderer.setLayerFilter(renderLayer)
-                        block.render(context: self, environment: environment, rect: CGRect(origin: .zero, size: pageSize))
-                        self.renderer.setLayer(0)
-                    }
-                    beginPage(newPageSize: pageSize)
-                    multiPagePass?()
-                    endPage()
-                    pageCount = pageNo
-                }
                 pageNo = 0
                 renderer.setLayer(1)
                 pageFramePass = { renderLayer in
@@ -84,6 +72,16 @@ class Context {
                 multiPagePass?()
                 endPage()
             }
+        }
+        
+        if computePageCount {
+            _ = try renderer.render {
+                renderBlocks()
+            }
+        }
+        pageCount = pageNo
+        return try renderer.render {
+            renderBlocks()
         }
     }
 
