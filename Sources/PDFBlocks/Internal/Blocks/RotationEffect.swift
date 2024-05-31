@@ -33,11 +33,7 @@ extension RotationEffect: Renderable {
         context.renderer.startRotation(angle: angle.radians, anchor: anchor, rect: rect)
         let remainder = block.render(context: context, environment: environment, rect: rect)
         context.renderer.restoreState()
-        if let content = remainder as? AnyBlock {
-            return RotationEffect<AnyBlock>(angle: angle, anchor: anchor, content: content)
-        } else {
-            return nil
-        }
+        return remainder
     }
 }
 

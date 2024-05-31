@@ -22,6 +22,7 @@ protocol Renderable: Block {
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize
     @discardableResult func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)?
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value
+    /// Used only by Columns. Used in measuring content height for balancing column length.
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)?
 }
 
@@ -104,6 +105,10 @@ extension Renderable {
 
     func computePageCount(context: Context, environment: EnvironmentValues) -> Bool {
         getTrait(context: context, environment: environment, keypath: \.computePageCount)
+    }
+
+    func isSpacer(context: Context, environment: EnvironmentValues) -> Bool {
+        getTrait(context: context, environment: environment, keypath: \.isSpacer)
     }
 }
 

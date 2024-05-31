@@ -17,19 +17,35 @@ extension ZStack: Renderable {
         }
     }
 
-    // TODO: Review minSize
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        var result: [any Renderable] = []
+        for block in content.getRenderables(environment: environment) {
+            if let remainder = block.remainder(context: context, environment: environment, size: size) {
+                result.append(remainder)
+            }
+        }
+        if result.isEmpty {
+            return nil
+        } else {
+            return ZStack<ArrayBlock> {
+                ArrayBlock(blocks: result)
+            }
+        }
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         let blocks = content.getRenderables(environment: environment)
         let sizes = blocks.map { $0.sizeFor(context: context, environment: environment, proposal: proposal) }
-        let minWidth = sizes.map(\.min.width).reduce(0, max)
-        let minHeight = sizes.map(\.min.height).reduce(0, max)
-        let maxWidth = sizes.map(\.max.width).reduce(0, max)
-        let maxHeight = sizes.map(\.max.height).reduce(0, max)
-        return .init(min: .init(width: minWidth, height: minHeight),
-                     max: .init(width: maxWidth, height: maxHeight))
+        let minWidthMax = sizes.map(\.min.width).reduce(0, max)
+        let minHeightMax = sizes.map(\.min.height).reduce(0, max)
+        let maxWidthMax = sizes.map(\.max.width).reduce(0, max)
+        let maxHeightMax = sizes.map(\.max.height).reduce(0, max)
+        return .init(min: .init(width: minWidthMax, height: minHeightMax),
+                     max: .init(width: maxWidthMax, height: maxHeightMax))
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        var result: [any Renderable] = []
         for block in content.getRenderables(environment: environment) {
             let size = block.sizeFor(context: context, environment: environment, proposal: rect.size)
             let dx: CGFloat =
@@ -51,8 +67,16 @@ extension ZStack: Renderable {
                     rect.height - size.max.height
                 }
             let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
-            block.render(context: context, environment: environment, rect: renderRect)
+            if let remainder = block.render(context: context, environment: environment, rect: renderRect) {
+                result.append(remainder)
+            }
         }
-        return nil
+        if result.isEmpty {
+            return nil
+        } else {
+            return ZStack<ArrayBlock> {
+                ArrayBlock(blocks: result)
+            }
+        }
     }
 }

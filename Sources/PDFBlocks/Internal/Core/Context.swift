@@ -48,7 +48,7 @@ class Context {
         let environment = EnvironmentValues()
         var blocks = content.getRenderables(environment: environment)
         let computePageCount = blocks.reduce(false) { $0 || $1.computePageCount(context: self, environment: environment) }
-        
+
         func renderBlocks() {
             if blocks.filter({ $0.pageInfo(context: self, environment: environment) != nil }).isEmpty {
                 // If Page not defined, wrap contents with a Page.
@@ -73,7 +73,7 @@ class Context {
                 endPage()
             }
         }
-        
+
         if computePageCount {
             _ = try renderer.render {
                 renderBlocks()

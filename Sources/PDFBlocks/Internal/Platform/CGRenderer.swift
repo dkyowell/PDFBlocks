@@ -400,7 +400,7 @@ class CGRenderer: Renderer {
         }
         var fitRange = CFRangeMake(0, 0)
         var size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), nil, rect.size, &fitRange)
-        if (fitRange.length < range.length), (environment.truncationMode == .tail) {
+        if fitRange.length < range.length, environment.truncationMode == .tail {
             let ellipsis = prepareString(NSMutableAttributedString(string: " …"), environment: environment)
             let ellipsisLine = CTLineCreateWithAttributedString(ellipsis)
             let ellipsisWidth = CTLineGetBoundsWithOptions(ellipsisLine, [.useOpticalBounds]).width
@@ -531,6 +531,27 @@ class CGRenderer: Renderer {
             let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
             let result = NSMutableAttributedString(attributedString: nsAttrString)
             result.deleteCharacters(in: nsRange)
+            while let first = result.string.first, first == "\n" {
+                result.deleteCharacters(in: NSRange(location: 0, length: 1))
+            }
+            return result
+        } else {
+            return blank
+        }
+    }
+
+    func textRemainder(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString {
+        if environment.truncationMode == .wrap {
+            let nsAttrString = prepareString(text, environment: environment)
+            let framesetter = nsAttrString.framesetter()
+            let frame = framesetter.createFrame(rect)
+            let visibleRange = frame.visibleStringRange()
+            let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
+            let result = NSMutableAttributedString(attributedString: text)
+            result.deleteCharacters(in: nsRange)
+            while let first = result.string.first, first == "\n" {
+                result.deleteCharacters(in: NSRange(location: 0, length: 1))
+            }
             return result
         } else {
             return blank
@@ -538,17 +559,6 @@ class CGRenderer: Renderer {
     }
 
     let blank = NSMutableAttributedString(string: "")
-
-    func textRemainder(_ text: NSAttributedString, environment: EnvironmentValues, rect: CGRect) -> NSAttributedString {
-        let nsAttrString = prepareString(text, environment: environment)
-        let framesetter = nsAttrString.framesetter()
-        let frame = framesetter.createFrame(rect)
-        let visibleRange = frame.visibleStringRange()
-        let nsRange = NSMakeRange(visibleRange.location == kCFNotFound ? NSNotFound : visibleRange.location, visibleRange.length)
-        let result = NSMutableAttributedString(attributedString: nsAttrString)
-        result.deleteCharacters(in: nsRange)
-        return result
-    }
 }
 
 extension CTLine {

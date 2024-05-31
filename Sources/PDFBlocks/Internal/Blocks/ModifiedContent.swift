@@ -18,10 +18,11 @@ extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModif
         let nmc = _BlockModifier_Content(modifier: modifier, block: content)
         let modifiedContent = modifier.body(content: nmc)
         let block = modifiedContent.getRenderable(environment: environment)
-        if let remainder = block.remainder(context: context, environment: environment, size: size) {
-            return ModifiedContent<AnyBlock, Modifier>(content: AnyBlock(remainder), modifier: modifier)
+        let remainder = block.remainder(context: context, environment: environment, size: size)
+        if let remainder = remainder as? Content {
+            return ModifiedContent(content: remainder, modifier: modifier)
         } else {
-            return nil
+            return remainder
         }
     }
 
@@ -36,7 +37,12 @@ extension ModifiedContent: Renderable where Content: Block, Modifier: BlockModif
         let nmc = _BlockModifier_Content(modifier: modifier, block: content)
         let modifiedContent = modifier.body(content: nmc)
         let block = modifiedContent.getRenderable(environment: environment)
-        return block.render(context: context, environment: environment, rect: rect)
+        let remainder = block.render(context: context, environment: environment, rect: rect)
+        if let remainder = remainder as? Content {
+            return ModifiedContent(content: remainder, modifier: modifier)
+        } else {
+            return remainder
+        }
     }
 }
 

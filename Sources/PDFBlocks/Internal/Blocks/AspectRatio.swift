@@ -23,8 +23,8 @@ extension AspectRatio: Renderable {
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let block = content.getRenderable(environment: environment)
-        let size = block.sizeFor(context: context, environment: environment, proposal: proposal)
+        let size = content.getRenderable(environment: environment)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
         if size.min == size.max {
             return size
         } else {
@@ -38,13 +38,8 @@ extension AspectRatio: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        let remainder = content.getRenderable(environment: environment)
+        content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        if let content = remainder as? AnyBlock {
-            return AspectRatio<AnyBlock>(value: value, content: content)
-        } else {
-            return nil
-        }
     }
 }
 

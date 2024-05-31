@@ -18,69 +18,60 @@ struct Padding<Content>: Block where Content: Block {
 
 extension Padding: Renderable {
     func getTrait<Value>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, Value>) -> Value {
-        content.getRenderable(environment: environment)
-            .getTrait(context: context, environment: environment, keypath: keypath)
+        let block = content.getRenderable(environment: environment)
+        return block.getTrait(context: context, environment: environment, keypath: keypath)
     }
 
+    // This is called by ModifiedContent which takes care of re-wrapping it in Padding.
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
-        let horizontalPadding = padding.leading.points + padding.trailing.points
-        let verticalPadding = padding.top.points + padding.bottom.points
-        let insetSize = CGSize(width: size.width - horizontalPadding, height: size.height - verticalPadding)
-        let block = content.getRenderable(environment: environment)
-        if let remainder = block.remainder(context: context, environment: environment, size: insetSize) {
-            return Padding<AnyBlock>(padding: padding, content: AnyBlock(remainder))
-        } else {
-            return nil
-        }
+        let paddingWidth = padding.leading.points + padding.trailing.points
+        let paddingHeight = padding.top.points + padding.bottom.points
+        let insetWidth = max(0, size.width - paddingWidth)
+        let insetHeight = max(0, size.height - paddingHeight)
+        let insetSize = CGSize(width: insetWidth, height: insetHeight)
+        return content.getRenderable(environment: environment)
+            .remainder(context: context, environment: environment, size: insetSize)
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let horizontalPadding = padding.leading.points + padding.trailing.points
-        let verticalPadding = padding.top.points + padding.bottom.points
-        let insetProposal = CGSize(width: proposal.width - horizontalPadding, height: proposal.height - verticalPadding)
         let block = content.getRenderable(environment: environment)
+        let paddingWidth = padding.leading.points + padding.trailing.points
+        let paddingHeight = padding.top.points + padding.bottom.points
+        let insetWidth = max(0, proposal.width - paddingWidth)
+        let insetHeight = max(0, proposal.height - paddingHeight)
+        let insetProposal = CGSize(width: insetWidth, height: insetHeight)
         let size = block.sizeFor(context: context, environment: environment, proposal: insetProposal)
-
-        // 1. Determine min
-        let minWidth = min(proposal.width, size.min.width + horizontalPadding)
-        let minHeight = min(proposal.height, size.min.height + verticalPadding)
-        let minSize = CGSize(width: minWidth, height: minHeight)
-        // 2. Determine max
-        let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width : (horizontalPadding + size.max.width)
-        let maxHeight = (padding.top.max || padding.bottom.max) ? proposal.height : (verticalPadding + size.max.height)
+        let minSize = CGSize(width: size.min.width + paddingWidth, height: size.min.height + paddingHeight)
+        let maxWidth = (padding.leading.max || padding.trailing.max) ? proposal.width : (size.max.width + paddingWidth)
+        let maxHeight = (padding.top.max || padding.bottom.max) ? proposal.height : (size.max.height + paddingHeight)
         let maxSize = CGSize(width: maxWidth, height: maxHeight)
-        return .init(min: minSize, max: maxSize)
+        return BlockSize(min: minSize, max: maxSize)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         let block = content.getRenderable(environment: environment)
-        // atomic render
         let paddingWidth = padding.leading.points + padding.trailing.points
         let paddingHeight = padding.top.points + padding.bottom.points
-        let proposedSize = CGSize(width: max(0.0, rect.width - paddingWidth), height: max(0.0, rect.height - paddingHeight))
-        let contentSize = block.sizeFor(context: context, environment: environment, proposal: proposedSize)
-        //  Offset the origin of the rect to adjust to the padding
+        let insetWidth = max(0, rect.width - paddingWidth)
+        let insetHeight = max(0, rect.height - paddingHeight)
+        let insetProposal = CGSize(width: insetWidth, height: insetHeight)
+        let size = block.sizeFor(context: context, environment: environment, proposal: insetProposal)
         let dx: CGFloat = if padding.leading.max, padding.trailing.max {
-            (rect.width - contentSize.max.width) / 2
+            (rect.width - size.max.width) / 2
         } else if padding.leading.max {
-            (rect.width - contentSize.max.width) - padding.trailing.points
+            (rect.width - size.max.width) - padding.trailing.points
         } else {
             padding.leading.points
         }
         let dy: CGFloat = if padding.top.max, padding.bottom.max {
-            (rect.height - contentSize.max.height) / 2
+            (rect.height - size.max.height) / 2
         } else if padding.top.max {
-            (rect.height - contentSize.max.height) - padding.bottom.points
+            (rect.height - size.max.height) - padding.bottom.points
         } else {
             padding.top.points
         }
-        let rect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: contentSize.max)
-        let remainder = block.render(context: context, environment: environment, rect: rect)
-        if let content = remainder as? AnyBlock {
-            return Padding<AnyBlock>(padding: padding, content: content)
-        } else {
-            return nil
-        }
+        let rect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
+        return block.render(context: context, environment: environment, rect: rect)
     }
 }
 

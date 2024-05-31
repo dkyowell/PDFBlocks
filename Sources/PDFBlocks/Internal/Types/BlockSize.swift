@@ -13,7 +13,7 @@ struct BlockSize {
     let min: CGSize
     let max: CGSize
 
-    init(min: CGSize, max: CGSize, maxWidth _: Bool = false, maxHeight _: Bool = false) {
+    init(min: CGSize, max: CGSize) {
         self.min = min
         self.max = max
     }

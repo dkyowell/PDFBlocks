@@ -32,11 +32,7 @@ extension Opacity: Renderable {
         context.renderer.startOpacity(opacity: opacity)
         let remainder = block.render(context: context, environment: environment, rect: rect)
         context.renderer.restoreOpacity()
-        if let remainder = remainder as? AnyBlock {
-            return Opacity<AnyBlock>(opacity: opacity, content: remainder)
-        } else {
-            return nil
-        }
+        return remainder
     }
 }
 

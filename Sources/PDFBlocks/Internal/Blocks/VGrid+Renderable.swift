@@ -12,7 +12,7 @@ extension VGrid: Renderable {
         Trait(wrapContents: wrap)[keyPath: keypath]
     }
 
-    // TODO: NEEDS A REMAINDER FUNCTION FOR COLUMNS.
+    // TODO: Implement remainder.
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment

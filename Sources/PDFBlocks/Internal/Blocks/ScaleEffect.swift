@@ -33,11 +33,7 @@ extension ScaleEffect: Renderable {
         context.renderer.startScale(scale: scale, anchor: anchor, rect: rect)
         let remainder = block.render(context: context, environment: environment, rect: rect)
         context.renderer.restoreState()
-        if let content = remainder as? AnyBlock {
-            return ScaleEffect<AnyBlock>(scale: scale, anchor: anchor, content: content)
-        } else {
-            return nil
-        }
+        return remainder
     }
 }
 

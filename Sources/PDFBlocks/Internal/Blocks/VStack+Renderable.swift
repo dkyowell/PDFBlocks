@@ -35,6 +35,9 @@ extension VStack: Renderable {
                     mutableBlocks = Array(mutableBlocks.dropFirst())
                 }
             } else {
+                while let first = mutableBlocks.first, first.isSpacer(context: context, environment: environment) {
+                    mutableBlocks = Array(mutableBlocks.dropFirst())
+                }
                 return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrap: wrap, content: { ArrayBlock(blocks: mutableBlocks) })
             }
         }
@@ -153,7 +156,7 @@ extension VStack {
                 rect.width - size.max.width
             }
             // Render at least one element per pass.
-            if (dy == 0) || (size.max.height + dy ~<= rect.height) {
+            if (dy == 0) || (size.max.height + dy ~<= rect.height), remainingSize.height > 0 {
                 let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
                 let remainder = block.render(context: context, environment: environment, rect: renderRect)
                 dy += size.max.height + spacing.fixedPoints
@@ -162,6 +165,9 @@ extension VStack {
                     context.endPage()
                     context.beginPage()
                     dy = 0
+                    while let first = blocks.first, first.isSpacer(context: context, environment: environment) {
+                        blocks = Array(blocks.dropFirst())
+                    }
                 } else {
                     blocks = Array(blocks.dropFirst())
                 }
@@ -169,6 +175,9 @@ extension VStack {
                 context.endPage()
                 context.beginPage()
                 dy = 0
+                while let first = blocks.first, first.isSpacer(context: context, environment: environment) {
+                    blocks = Array(blocks.dropFirst())
+                }
             }
         }
     }
@@ -210,10 +219,9 @@ extension VStack {
         if blocks.count == 0 {
             return nil
         } else {
-            // TODO: This would not work if Spacer is wrapped.
-            // while let _ = blocks.first as? Spacer {
-            //    blocks = Array(blocks.dropFirst())
-            // }
+            while let first = blocks.first, first.isSpacer(context: context, environment: environment) {
+                blocks = Array(blocks.dropFirst())
+            }
             return VStack<ArrayBlock>(alignment: alignment, spacing: spacing, wrap: wrap, content: { ArrayBlock(blocks: blocks) })
         }
     }

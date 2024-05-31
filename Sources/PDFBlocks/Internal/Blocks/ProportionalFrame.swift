@@ -33,12 +33,11 @@ extension ProporionalFrame: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        // TODO: Review .isSeoncaryPageWrapBlock. Review remainder
-        let renderable = content.getRenderable(environment: environment)
-        if renderable.isSecondaryPageWrapBlock(context: context, environment: environment) {
-            renderable.render(context: context, environment: environment, rect: rect)
+        let block = content.getRenderable(environment: environment)
+        if block.isSecondaryPageWrapBlock(context: context, environment: environment) {
+            return block.render(context: context, environment: environment, rect: rect)
         } else {
-            let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size).max
+            let size = block.sizeFor(context: context, environment: environment, proposal: rect.size).max
             let dx: CGFloat = switch horizontalAlignment {
             case .leading:
                 0
@@ -48,8 +47,7 @@ extension ProporionalFrame: Renderable {
                 rect.width - size.width
             }
             let renderRect = CGRect(x: rect.minX + dx, y: rect.minY, width: size.width, height: rect.height)
-            renderable.render(context: context, environment: environment, rect: renderRect)
+            return block.render(context: context, environment: environment, rect: renderRect)
         }
-        return nil
     }
 }

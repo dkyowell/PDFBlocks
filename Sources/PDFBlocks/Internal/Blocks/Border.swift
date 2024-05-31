@@ -29,14 +29,10 @@ extension Border: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        let block = content.getRenderable(environment: environment)
-        let remainder = block.render(context: context, environment: environment, rect: rect)
+        let remainder = content.getRenderable(environment: environment)
+            .render(context: context, environment: environment, rect: rect)
         context.renderer.renderBorder(environment: environment, rect: rect, shapeStyle: shapeStyle, width: width.points)
-        if let content = remainder as? AnyBlock {
-            return Border<AnyBlock>(shapeStyle: shapeStyle, width: width, content: content)
-        } else {
-            return nil
-        }
+        return remainder
     }
 }
 

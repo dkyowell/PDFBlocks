@@ -16,38 +16,29 @@ extension EnvironmentBlock: Renderable {
     func getTrait<X>(context: Context, environment: EnvironmentValues, keypath: KeyPath<Trait, X>) -> X {
         var environment = environment
         environment[keyPath: keyPath] = value
-        let block = content.getRenderable(environment: environment)
-        return block.getTrait(context: context, environment: environment, keypath: keypath)
+        return content.getRenderable(environment: environment)
+            .getTrait(context: context, environment: environment, keypath: keypath)
     }
 
     func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
         var environment = environment
         environment[keyPath: keyPath] = value
-        let block = content.getRenderable(environment: environment)
-        if let remainder = block.remainder(context: context, environment: environment, size: size) {
-            return EnvironmentBlock<AnyBlock, V>(keyPath: keyPath, value: value, content: AnyBlock(remainder))
-        } else {
-            return nil
-        }
+        return content.getRenderable(environment: environment)
+            .remainder(context: context, environment: environment, size: size)
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         var environment = environment
         environment[keyPath: keyPath] = value
-        let block = content.getRenderable(environment: environment)
-        return block.sizeFor(context: context, environment: environment, proposal: proposal)
+        return content.getRenderable(environment: environment)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
         var environment = environment
         environment[keyPath: keyPath] = value
-        let block = content.getRenderable(environment: environment)
-        let remainder = block.render(context: context, environment: environment, rect: rect)
-        if let content = remainder as? AnyBlock {
-            return EnvironmentBlock<AnyBlock, V>(keyPath: keyPath, value: value, content: content)
-        } else {
-            return nil
-        }
+        return content.getRenderable(environment: environment)
+            .render(context: context, environment: environment, rect: rect)
     }
 }
 

@@ -16,21 +16,22 @@ extension Optional: Renderable where Wrapped: Block {
         }
     }
 
+    func remainder(context: Context, environment: EnvironmentValues, size: CGSize) -> (any Renderable)? {
+        self?.getRenderable(environment: environment)
+            .remainder(context: context, environment: environment, size: size)
+    }
+
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
         if let self {
-            let block = self.getRenderable(environment: environment)
-            return block.sizeFor(context: context, environment: environment, proposal: proposal)
+            self.getRenderable(environment: environment)
+                .sizeFor(context: context, environment: environment, proposal: proposal)
         } else {
-            return .init(min: .zero, max: .zero)
+            BlockSize(.zero)
         }
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        if let self {
-            let block = self.getRenderable(environment: environment)
-            return block.render(context: context, environment: environment, rect: rect)
-        } else {
-            return nil
-        }
+        self?.getRenderable(environment: environment)
+            .render(context: context, environment: environment, rect: rect)
     }
 }

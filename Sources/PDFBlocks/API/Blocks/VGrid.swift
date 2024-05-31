@@ -23,7 +23,7 @@ public struct VGrid<Content>: Block where Content: Block {
     ///   - columnCount: The number of columns within the grid.
     ///   - columnSpacing: The horizontal distance between cells.
     ///   - rowSpacing: The vertical distance between cells.
-    ///   - pageWrap: Start a new page or column when the content overflows its space.
+    ///   - wrap: Start a new page or column when the content overflows its space.
     ///   - content: A block builder that creates the content of this stack.
     public init(columnCount: Int, columnSpacing: Dimension, rowSpacing: Dimension, wrap: Bool = false, @BlockBuilder content: () -> Content) {
         self.columnCount = max(1, columnCount)

@@ -33,11 +33,7 @@ extension Offset: Renderable {
         context.renderer.startOffset(x: x.points, y: y.points)
         let remainder = block.render(context: context, environment: environment, rect: rect)
         context.renderer.restoreState()
-        if let content = remainder as? AnyBlock {
-            return Offset<AnyBlock>(x: x, y: y, content: content)
-        } else {
-            return nil
-        }
+        return remainder
     }
 }
 

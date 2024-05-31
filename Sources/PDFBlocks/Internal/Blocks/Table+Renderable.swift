@@ -21,7 +21,33 @@ extension Table: Renderable {
         }
     }
 
-    func wrappingModeRender(context: Context, environment: EnvironmentValues, rect _: CGRect) {
+    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
+        var environment = environment
+        environment.layoutAxis = .vertical
+        environment.tableColumns = columns
+        if environment.renderMode == .wrapping {
+            // This is a secondary page wrapping block.
+            // Any page header, etc will be ignored.
+            secondaryRender(context: context, environment: environment, rect: rect)
+        } else {
+            // This is a primary page wrapping block.
+            let frame = pageFrame.getRenderable(environment: environment)
+            frame.render(context: context, environment: environment, rect: rect)
+            context.renderer.setLayer(2)
+            guard context.multiPagePass == nil else {
+                return nil
+            }
+            context.multiPagePass = {
+                environment.renderMode = .wrapping
+                secondaryRender(context: context, environment: environment, rect: rect)
+            }
+        }
+        return nil
+    }
+}
+
+extension Table {
+    func secondaryRender(context: Context, environment: EnvironmentValues, rect _: CGRect) {
         context.renderMultipageContent(block: header, environment: environment)
         if let firstGroup = groups.first {
             firstGroup.render(context: context, environment: environment, data: data) { record in
@@ -33,30 +59,6 @@ extension Table: Renderable {
             }
         }
         context.renderMultipageContent(block: footer, environment: environment)
-    }
-
-    func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        var environment = environment
-        environment.layoutAxis = .vertical
-        environment.tableColumns = columns
-        if environment.renderMode == .wrapping {
-            // This is a secondary page wrapping block.
-            // Any page header, etc will be ignored.
-            wrappingModeRender(context: context, environment: environment, rect: rect)
-        } else {
-            // This is a primary page wrapping block.
-            let frame = pageFrame.getRenderable(environment: environment)
-            frame.render(context: context, environment: environment, rect: rect)
-            context.renderer.setLayer(2)
-            guard context.multiPagePass == nil else {
-                return nil
-            }
-            context.multiPagePass = {
-                environment.renderMode = .wrapping
-                wrappingModeRender(context: context, environment: environment, rect: rect)
-            }
-        }
-        return nil
     }
 }
 

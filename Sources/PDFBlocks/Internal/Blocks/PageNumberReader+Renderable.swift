@@ -26,13 +26,14 @@ extension PageNumberReader: Renderable {
         let remainder = content(context.pageNumberProxy)
             .getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
+        // TODO: Test this
         if let content = remainder as? Content {
             let function: (PageNumberProxy) -> Content = { _ in
                 content
             }
             return PageNumberReader(computePageCount: computePageCount, content: function)
         } else {
-            return nil
+            return remainder
         }
     }
 }

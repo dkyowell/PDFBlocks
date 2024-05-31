@@ -10,4 +10,5 @@ struct Trait {
     var wrapContents: Bool = false
     var pageInfo: PageInfo?
     var computePageCount: Bool = false
+    var isSpacer: Bool = false
 }

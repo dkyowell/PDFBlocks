@@ -6,10 +6,9 @@
 
 import Foundation
 
-// TODO: DOCS
 /// A block that prints the table column titles.
 ///
-/// This block is used to render the column titles of a table. It will usually
+/// This block is used to render the column titles within a table. It will usually
 /// be used within a table header, a group header, or a page header:
 ///
 ///     Table(data: [data]) {

@@ -29,8 +29,8 @@ extension Background: Renderable {
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        let renderable = background.getRenderable(environment: environment)
-        let size = renderable.sizeFor(context: context, environment: environment, proposal: rect.size)
+        let backgroundBlock = background.getRenderable(environment: environment)
+        let size = backgroundBlock.sizeFor(context: context, environment: environment, proposal: rect.size)
         let dx: CGFloat =
             switch alignment.horizontalAlignment {
             case .leading:
@@ -50,14 +50,9 @@ extension Background: Renderable {
                 rect.height - size.max.height
             }
         let renderRect = CGRect(origin: rect.origin.offset(dx: dx, dy: dy), size: size.max)
-        renderable.render(context: context, environment: environment, rect: renderRect)
-        let remainder = content.getRenderable(environment: environment)
+        backgroundBlock.render(context: context, environment: environment, rect: renderRect)
+        return content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
-        if let content = remainder as? AnyBlock {
-            return Background<AnyBlock, BackgroundContent>.init(content: content, background: background, alignment: alignment)
-        } else {
-            return nil
-        }
     }
 }
 

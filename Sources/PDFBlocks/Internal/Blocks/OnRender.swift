@@ -23,19 +23,14 @@ extension OnRender: Renderable {
     }
 
     func sizeFor(context: Context, environment: EnvironmentValues, proposal: Proposal) -> BlockSize {
-        let block = content.getRenderable(environment: environment)
-        return block.sizeFor(context: context, environment: environment, proposal: proposal)
+        content.getRenderable(environment: environment)
+            .sizeFor(context: context, environment: environment, proposal: proposal)
     }
 
     func render(context: Context, environment: EnvironmentValues, rect: CGRect) -> (any Renderable)? {
-        let block = content.getRenderable(environment: environment)
-        let remainder = block.render(context: context, environment: environment, rect: rect)
         onRender()
-        if let content = remainder as? AnyBlock {
-            return OnRender<AnyBlock>(onRender: onRender, content: content)
-        } else {
-            return nil
-        }
+        return content.getRenderable(environment: environment)
+            .render(context: context, environment: environment, rect: rect)
     }
 }
 

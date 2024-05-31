@@ -31,11 +31,7 @@ extension ClipRegion: Renderable {
         let remainder = content.getRenderable(environment: environment)
             .render(context: context, environment: environment, rect: rect)
         context.renderer.endClipRegion()
-        if let remainder = remainder as? AnyBlock {
-            return ClipRegion<AnyBlock>(content: remainder)
-        } else {
-            return nil
-        }
+        return remainder
     }
 }
 
