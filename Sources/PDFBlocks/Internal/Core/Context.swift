@@ -35,10 +35,11 @@ class Context {
     var multiPagePass: (() -> Void)?
     var pageWrapRect: CGRect = .zero
     var pageCount: Int = 0
+    var tablesRowComplete = false
     var layoutCache = [UUID: Any]()
 
     var pageNumberProxy: PageNumberProxy {
-        .init(pageNo: pageNo, pageCount: pageCount)
+        .init(pageNo: pageNo, pageCount: pageCount, tableRowsComplete: tablesRowComplete)
     }
 
     private var pageSize: CGSize = .init(width: 8.5, height: 11).scaled(by: 72)

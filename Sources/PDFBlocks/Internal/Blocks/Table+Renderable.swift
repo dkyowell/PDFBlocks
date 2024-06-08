@@ -58,6 +58,7 @@ extension Table {
                 context.renderMultipageContent(block: row(record), environment: environment)
             }
         }
+        context.tablesRowComplete = true
         context.renderMultipageContent(block: footer, environment: environment)
     }
 }

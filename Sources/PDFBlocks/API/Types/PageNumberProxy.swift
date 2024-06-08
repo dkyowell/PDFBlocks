@@ -9,4 +9,5 @@ import Foundation
 public struct PageNumberProxy {
     public let pageNo: Int
     public let pageCount: Int
+    public let tableRowsComplete: Bool
 }
