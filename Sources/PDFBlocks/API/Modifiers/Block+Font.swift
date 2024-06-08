@@ -5,6 +5,11 @@
  */
 
 import Foundation
+#if os(iOS)
+    import UIKit
+#else
+    import AppKit
+#endif
 
 public extension Block {
     func font(_ font: Font) -> some Block {
@@ -13,6 +18,10 @@ public extension Block {
 
     func fontSize(_ size: CGFloat) -> some Block {
         environment(\.fontSize, size)
+    }
+
+    func fontName(_ name: String) -> some Block {
+        environment(\.fontName, name)
     }
 
     func fontWeight(_ weight: Font.Weight) -> some Block {
@@ -26,17 +35,30 @@ public extension Block {
     func fontWidth(_ width: Font.Width) -> some Block {
         environment(\.fontWidth, width)
     }
+
+    func fontFeature(_ feature: [KitFontDescriptor.FeatureKey: Int]) -> some Block {
+        environment(\.fontFeature, feature)
+    }
 }
 
 struct FontKey: EnvironmentKey {
-    static let defaultValue: Font = .init(kitFont: .systemFont(ofSize: 12), weight: .regular)
+    static let defaultValue: Font = .system(size: 12)
 }
 
 extension EnvironmentValues {
     var font: Font {
         get { self[FontKey.self] }
         set {
-            self[FontKey.self].kitFont = newValue.kitFont
+            self[FontKey.self].system = newValue.system
+            if let name = newValue.name {
+                self[FontKey.self].name = name
+            }
+            if let size = newValue.size {
+                self[FontKey.self].size = size
+            }
+            if let weight = newValue.weight {
+                self[FontKey.self].weight = weight
+            }
             if let weight = newValue.weight {
                 self[FontKey.self].weight = weight
             }
@@ -51,14 +73,12 @@ extension EnvironmentValues {
 }
 
 extension EnvironmentValues {
-    var fontSize: CGFloat {
+    var fontSize: CGFloat? {
         get {
-            self[FontKey.self].kitFont.pointSize
+            self[FontKey.self].size
         }
         set {
-            let font = self[FontKey.self]
-            let newFont = font.kitFont.withSize(newValue)
-            self[FontKey.self] = .init(kitFont: newFont, weight: font.weight, design: font.design, width: font.width)
+            self[FontKey.self].size = newValue
         }
     }
 }
@@ -92,6 +112,32 @@ extension EnvironmentValues {
         }
         set {
             self[FontKey.self].design = newValue
+        }
+    }
+}
+
+extension EnvironmentValues {
+    var fontName: String? {
+        get {
+            self[FontKey.self].name
+        }
+        set {
+            self[FontKey.self].name = newValue
+        }
+    }
+}
+
+struct FontFeatureKey: EnvironmentKey {
+    static let defaultValue: [KitFontDescriptor.FeatureKey: Int] = [:]
+}
+
+extension EnvironmentValues {
+    var fontFeature: [KitFontDescriptor.FeatureKey: Int] {
+        get {
+            self[FontFeatureKey.self]
+        }
+        set {
+            self[FontFeatureKey.self] = newValue
         }
     }
 }

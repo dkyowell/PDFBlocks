@@ -17,35 +17,48 @@ public struct Font {
     public typealias Design = KitFontDescriptor.SystemDesign
     public typealias Width = KitFont.Width
 
-    var kitFont: KitFont
+    var system: Bool
+    var name: String?
+    var size: CGFloat?
     var weight: Weight?
     var design: Design?
     var width: Width?
 }
 
 public extension Font {
+    init(name: String, size: CGFloat, weight: Weight? = nil, design: Design? = nil) {
+        system = false
+        self.name = name
+        self.size = size
+        self.weight = weight
+        self.design = design
+        width = nil
+    }
+
     init(_ font: KitFont?) {
-        kitFont = font ?? KitFont.systemFont(ofSize: 12)
+        system = false
+        name = font?.familyName
+        size = font?.pointSize
     }
 
     static func system(size: CGFloat, weight: Weight? = nil, design: Design? = nil) -> Font {
-        Font(kitFont: .systemFont(ofSize: size), weight: weight, design: design)
+        Font(system: true, name: nil, size: size, weight: weight, design: design)
     }
 }
 
 extension Font {
     func resolvedFont(environment: EnvironmentValues) -> KitFont {
         // Apply Font.Width
-        var descriptor: KitFontDescriptor = if kitFont.isSystemFont {
-            KitFont.systemFont(ofSize: kitFont.pointSize, weight: weight ?? .regular, width: width ?? .standard)
+        var descriptor: KitFontDescriptor = if system {
+            KitFont.systemFont(ofSize: size ?? environment.font.size ?? 12, weight: weight ?? .regular, width: width ?? .standard)
                 .fontDescriptor
         } else {
             KitFontDescriptor()
-                .withSize(kitFont.pointSize)
+                .withSize(size ?? environment.font.size ?? 12)
             #if os(iOS)
-                .withFamily(kitFont.familyName)
+                .withFamily(name ?? "")
             #else
-                .withFamily(kitFont.familyName ?? kitFont.fontName)
+                .withFamily(name ?? "")
             #endif
         }
         // Apply Font.Design
@@ -55,6 +68,8 @@ extension Font {
         traits[KitFontDescriptor.TraitKey.weight] = weight
         let attributes: [KitFontDescriptor.AttributeName: Any] = [.traits: traits]
         descriptor = descriptor.addingAttributes(attributes)
+        // Apply Font Feature
+        descriptor = descriptor.addingAttributes([.featureSettings: [environment.fontFeature]])
         // Apply Bold and Italic
         #if os(iOS)
             if environment.italic, environment.bold {
@@ -75,7 +90,7 @@ extension Font {
             } else if environment.bold {
                 descriptor = descriptor.withSymbolicTraits([.bold])
             }
-            let interim = KitFont(descriptor: descriptor, size: 0) ?? kitFont
+            let interim = KitFont(descriptor: descriptor, size: 0) ?? .systemFont(ofSize: 12)
         #endif
         return interim
     }
